@@ -25,7 +25,7 @@ window.VIEWS = window.VIEWS || {};
       </div>
     );
     return (
-      <div onClick={() => go('#/moves')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, padding: '11px 14px', borderRadius: 12, background: m.sig ? `linear-gradient(135deg, ${c.bg}66, #0f0b22)` : 'linear-gradient(135deg, #15102e, #0f0b22)', border: `1px solid ${m.sig ? c.glow + '88' : '#231d40'}` }}>
+      <div onClick={() => go('#/moves/' + encodeURIComponent(m.name))} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, padding: '11px 14px', borderRadius: 12, background: m.sig ? `linear-gradient(135deg, ${c.bg}66, #0f0b22)` : 'linear-gradient(135deg, #15102e, #0f0b22)', border: `1px solid ${m.sig ? c.glow + '88' : '#231d40'}` }}>
         <div style={{ flex: '0 0 auto', width: 40, textAlign: 'center', borderRight: '1px solid #2a2350', paddingRight: 12 }}>
           <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: m.sig ? c.glow : '#5f5980' }}>{leftLabel}</div>
           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: leftSize, color: leftColor, fontWeight: 700, lineHeight: 1.1 }}>{leftValue}</div>
@@ -74,6 +74,16 @@ window.VIEWS = window.VIEWS || {};
     for (const cand of DEX) {
       if (cand.evo && Array.isArray(cand.evo.from) && cand.evo.from.includes(d.dex)) {
         return { result: cand, parents: cand.evo.from.map(byDex).filter(Boolean), method: cand.evo.method || '' };
+      }
+    }
+    // is this mon an ANCESTOR of the fusion parents? (e.g. Pymood branches into the two
+    // mons that fuse) — surface the fusion on the base's page too.
+    const myKids = Array.isArray(d.evo && d.evo.to) ? d.evo.to : (d.evo && d.evo.to ? [d.evo.to] : []);
+    if (myKids.length) {
+      for (const cand of DEX) {
+        if (cand.evo && Array.isArray(cand.evo.from) && cand.evo.from.every(p => myKids.includes(p))) {
+          return { result: cand, parents: cand.evo.from.map(byDex).filter(Boolean), method: cand.evo.method || '' };
+        }
       }
     }
     return null;
@@ -241,12 +251,15 @@ window.VIEWS = window.VIEWS || {};
     return Object.entries(evYield).map(([k, v]) => `${v} ${labels[k]}`).join(', ');
   }
 
+  const MALE = '#5aa9ff', FEMALE = '#ff7fc4';
+  const Male = ({ children }) => <span style={{ color: MALE, fontWeight: 700 }}>♂{children ? ' ' + children : ''}</span>;
+  const Female = ({ children }) => <span style={{ color: FEMALE, fontWeight: 700 }}>♀{children ? ' ' + children : ''}</span>;
   function formatGender(d) {
     if (d.genderless) return 'Genderless';
-    if (!d.gender) return '♂ 50%  ♀ 50%';
-    if (d.gender.m === 100) return '♂ only';
-    if (d.gender.f === 100) return '♀ only';
-    return `♂ ${d.gender.m}%  ♀ ${d.gender.f}%`;
+    if (!d.gender) return <span><Male>50%</Male>{'  '}<Female>50%</Female></span>;
+    if (d.gender.m === 100) return <Male>only</Male>;
+    if (d.gender.f === 100) return <Female>only</Female>;
+    return <span><Male>{d.gender.m}%</Male>{'  '}<Female>{d.gender.f}%</Female></span>;
   }
 
   function SpriteGallery({ d, accent, onPreview }) {

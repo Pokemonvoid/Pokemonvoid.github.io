@@ -153,7 +153,7 @@ window.VDEX = (function () {
     },
     {
       dex: '004', name: 'Flaret', category: 'Bounding Flame', types: ['FIRE'],
-      height: '0\'08" ft', weight: '4.4 lbs', catchRate: 140, found: [],
+      height: '0\'08" ft', weight: '4.4 lbs', catchRate: 140, found: ['Saudade Town (Starter)'],
       abilities: ['Blaze'],
       hidden: 'Competitive',
       stats: { HP: 45, ATK: 60, DEF: 45, SPA: 52, SPD: 45, SPE: 63 },
@@ -274,7 +274,7 @@ window.VDEX = (function () {
     },
     {
       dex: '007', name: 'Cubble', category: 'Pondering', types: ['WATER'],
-      height: '1\'03" ft', weight: '15.1 lbs', catchRate: 140, found: [],
+      height: '1\'03" ft', weight: '15.1 lbs', catchRate: 140, found: ['Saudade Town (Starter)'],
       abilities: ['Torrent'],
       hidden: 'Unaware',
       stats: { HP: 65, ATK: 36, DEF: 58, SPA: 50, SPD: 68, SPE: 33 },
@@ -2208,7 +2208,7 @@ window.VDEX = (function () {
       hidden: 'Fur Coat',
       stats: { HP: 60, ATK: 55, DEF: 65, SPA: 55, SPD: 55, SPE: 65 },
       flavor: 'Purssume, found in the middle of routes, trails, and roads. It seems to always throw itself in harms way from the lack of their parent.',
-      evo: { to: '057' },
+      evo: { to: ['057', '058'] },
       levelMoves: [
         M('1', 'Astonish'),  // REVIEW name
         M('5', 'Growl'),
@@ -2248,7 +2248,7 @@ window.VDEX = (function () {
       hidden: 'Perish body',
       stats: { HP: 80, ATK: 35, DEF: 85, SPA: 120, SPD: 100, SPE: 65 },
       flavor: 'Fellsum results from Purssume\'s desire to harm itself, finding solace in aiding fainted and wild Purssume, protecting them at whatever cost..',
-      evo: { from: '056', to: '058', method: 'Lv 30 + Fainted 10 times' },
+      evo: { from: '056', method: 'Lv 30 + Fainted 10 times' },
       levelMoves: [
         M('0', 'Shadowball'),  // REVIEW name
         M('1', 'Shadowball'),  // REVIEW name
@@ -2292,7 +2292,7 @@ window.VDEX = (function () {
       hidden: 'Pixilate',
       stats: { HP: 100, ATK: 40, DEF: 95, SPA: 90, SPD: 85, SPE: 75 },
       flavor: 'Foundsum is a result of a Purssume\'s wish to shield others from its own fate, embracing fellow Purssume with warmth and power.',
-      evo: { from: '057', method: 'Lv 30 + High Friendship' },
+      evo: { from: '056', method: 'Lv 30 + High Friendship' },
       levelMoves: [
         M('0', 'Drainingkiss'),  // REVIEW name
         M('1', 'Drainingkiss'),  // REVIEW name
