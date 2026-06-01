@@ -1471,11 +1471,11 @@ window.VDEX = (function () {
       eggGroups: ['Field'], gender: { m: 50, f: 50 }, eggCycles: 3840,
     },
 {
-      dex: '037', name: 'Hydrena', category: 'Water Pressure', types: ['WATER', 'COSMIC'],
+      dex: '037', name: 'Hydrena', category: 'Water Pressure', types: ['WATER', 'DARK'],
       height: '4\'11" ft', weight: '109.1 lbs', catchRate: 25, found: [],
       abilities: ['Strong Jaw', 'Battle Armor'],
       hidden: 'Intimidate',
-      stats: { HP: 82, ATK: 130, DEF: 104, SPA: 40, SPD: 80, SPE: 44 },
+      stats: { HP: 82, ATK: 110, DEF: 80, SPA: 50, SPD: 70, SPE: 88 },
       flavor: 'Hydrena possess the most lethal bite of any Pokémon, with teeth capable of firing pressurized water. Packs are led by the oldest female.',
       evo: { from: '036', method: 'Lv 30' },
       levelMoves: [
@@ -1910,11 +1910,11 @@ window.VDEX = (function () {
       eggGroups: ['Mineral'], gender: { m: 50, f: 50 }, eggCycles: 3840,
     },
 {
-      dex: '048', name: 'Rocweiler', category: 'Wild Rock', types: ['FIRE', 'ROCK'],
+      dex: '048', name: 'Rocweiler', category: 'Wild Rock', types: ['NORMAL', 'ROCK'],
       height: '5\'81" ft', weight: '253.5 lbs', catchRate: 120, found: [],
       abilities: ['Berserk'],
       hidden: 'Guard Dog',
-      stats: { HP: 70, ATK: 95, DEF: 75, SPA: 135, SPD: 77, SPE: 115 },
+      stats: { HP: 70, ATK: 72, DEF: 105, SPA: 45, SPD: 90, SPE: 85 },
       flavor: 'Rocweilers are protective of trainers who raised them till it\'s out of its rock. Newly caught Rockweilers will take time to gain its trust.',
       evo: { from: '047', method: 'Lv 20' },
       levelMoves: [
