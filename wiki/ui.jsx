@@ -169,12 +169,17 @@
     return (
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(8,6,18,0.86)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1d1838' }}>
         <style>{`
-          .vnav-link { position: relative; text-decoration: none; padding: 7px 13px; border-radius: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: #8a83a8; background: transparent; border: 1px solid transparent; transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .12s ease; }
-          .vnav-link:hover { color: #fff; background: linear-gradient(135deg, #221a45, #161029); border-color: #3a2f6e; box-shadow: 0 0 14px #8a5cff33; transform: translateY(-1px); }
-          .vnav-link::after { content: ''; position: absolute; left: 13px; right: 13px; bottom: 3px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, #8a5cff, #c45fff); transform: scaleX(0); transform-origin: left; transition: transform .2s ease; }
+          @keyframes vnavTwinkle { 0%,100% { opacity: 0; transform: scale(0.6) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(90deg); } }
+          @keyframes vnavPulse { 0%,100% { box-shadow: 0 0 16px #8a5cff44, inset 0 0 12px #8a5cff22; } 50% { box-shadow: 0 0 24px #a06bff66, inset 0 0 16px #8a5cff33; } }
+          .vnav-link { position: relative; overflow: hidden; text-decoration: none; padding: 7px 14px; border-radius: 9px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: #b6aee0; background: linear-gradient(135deg, #17122e, #100c20); border: 1px solid #261f47; box-shadow: inset 0 1px 0 #ffffff08; transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .12s ease; }
+          .vnav-link:hover { color: #fff; background: linear-gradient(135deg, #2a2055, #1a1238); border-color: #5a47a0; box-shadow: 0 0 16px #8a5cff55, inset 0 0 10px #8a5cff22; transform: translateY(-1px); }
+          .vnav-link::before { content: '✦'; position: absolute; top: 3px; right: 6px; font-size: 7px; color: #c9a8ff; opacity: 0; pointer-events: none; }
+          .vnav-link:hover::before { animation: vnavTwinkle 1.1s ease-in-out infinite; }
+          .vnav-link::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 3px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, #8a5cff, #c45fff); transform: scaleX(0); transform-origin: left; transition: transform .2s ease; }
           .vnav-link:hover::after { transform: scaleX(1); }
-          .vnav-active { color: #fff; font-weight: 600; background: linear-gradient(135deg, #2a2055, #1a1238); border-color: #4a3a8a; box-shadow: 0 0 16px #8a5cff44, inset 0 0 12px #8a5cff1a; }
+          .vnav-active { color: #fff; font-weight: 600; background: linear-gradient(135deg, #322663, #1d1542); border-color: #6a52c0; animation: vnavPulse 3.2s ease-in-out infinite; }
           .vnav-active::after { transform: scaleX(1); }
+          .vnav-active::before { content: '✦'; position: absolute; top: 3px; right: 6px; font-size: 7px; color: #d8c0ff; opacity: 0; animation: vnavTwinkle 2.4s ease-in-out infinite; }
           .vsocial { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid #2a2545; background: #15112a; color: #b9b2d6; text-decoration: none; transition: all .16s ease; }
           .vsocial:hover { transform: translateY(-1px); }
           .vsocial.discord:hover { color: #fff; background: #5865F2; border-color: #5865F2; box-shadow: 0 0 14px #5865F277; }
