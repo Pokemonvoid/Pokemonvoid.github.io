@@ -329,9 +329,12 @@ window.VIEWS = window.VIEWS || {};
                     </div>
                   )}
                   {isAnomaly && anomalyRevealed && (
-                    <div style={{ marginTop: 10, textAlign: 'center' }}>
-                      <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#8a83a8', letterSpacing: 1, marginBottom: 3 }}>DISCOVERED BY</div>
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#c45fff', fontWeight: 700 }}>{d.anomaly.discoverer}</div>
+                    <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 20, background: 'linear-gradient(135deg, #c45fff22, #0a0818)', border: '1px solid #c45fff55', boxShadow: '0 0 14px #c45fff22' }}>
+                        <span style={{ fontSize: 11, color: '#c45fff' }}>✦</span>
+                        <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#9a8fc8', letterSpacing: 0.5 }}>DISCOVERED BY</span>
+                        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#e3d4ff', fontWeight: 700 }}>{d.anomaly.discoverer}</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -353,8 +356,15 @@ window.VIEWS = window.VIEWS || {};
             const formAccent = TYPES[(form.types || d.types)[0]].glow || accent;
             const total = form.stats ? Object.values(form.stats).reduce((a, b) => a + b, 0) : null;
             return (
-              <div key={form.name} style={{ display: 'grid', gridTemplateColumns: '96px 1fr', gap: 14, padding: 14, borderRadius: 12, background: '#0d0b20', border: `1px solid ${formAccent}44` }}>
-                <SpriteSlot dex={d.dex} name={form.name} size={96} accent={formAccent} suffix={form.spriteSuffix} label="FORM" />
+              <div key={form.name} style={{ display: 'grid', gridTemplateColumns: '210px 1fr', gap: 14, padding: 14, borderRadius: 12, background: '#0d0b20', border: `1px solid ${formAccent}44` }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignContent: 'flex-start' }}>
+                  {[['F1', form.spriteSuffix], ['F2', form.spriteSuffix + '-f2'], ['BACK', form.spriteSuffix + '-back']].map(([lbl, suf]) => (
+                    <div key={lbl} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                      <SpriteSlot dex={d.dex} name={form.name} size={62} accent={formAccent} suffix={suf} />
+                      <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#6a6388', letterSpacing: 0.5 }}>{lbl}</span>
+                    </div>
+                  ))}
+                </div>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 19, color: '#fff', marginBottom: 6 }}>{form.name}</div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>

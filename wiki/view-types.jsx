@@ -116,6 +116,80 @@ window.VIEWS = window.VIEWS || {};
     );
   }
 
+  // ---- Attacking calculator: pick one attacking type, see what it hits ----
+  function AttackCalculator() {
+    const [atk, setAtk] = React.useState(null);
+    const groups = {};
+    TIER_ORDER.forEach(k => groups[k] = []);
+    if (atk) {
+      TYPE_ORDER.forEach(def => { groups[tierOf(eff(atk, def)).key].push(def); });
+    }
+    const TIER_META = { '4': tierOf(4), '2': tierOf(2), '1': tierOf(1), '0.5': tierOf(0.5), '0.25': tierOf(0.25), '0': tierOf(0) };
+
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: 24, alignItems: 'start' }}>
+        <div style={{ padding: 20, borderRadius: 16, background: 'radial-gradient(ellipse at 30% 0%, #15102e, #0c0a1c 75%)', border: '1px solid #2a2350' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <h3 style={{ margin: 0, fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 1, color: '#ff8f5c' }}>ATTACKING TYPE</h3>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: atk ? '#ff8f5c' : '#6a6388' }}>{atk ? '1/1' : '0/1'}</span>
+          </div>
+          <p style={{ margin: '0 0 14px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: '#8a83a8' }}>Pick a move type to see what it deals super-effective, neutral, resisted, or no damage to.</p>
+
+          <div style={{ minHeight: 40, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14, padding: '8px 10px', borderRadius: 10, background: '#0a0818', border: '1px dashed #2a2350' }}>
+            {!atk ? <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#5f5980', fontStyle: 'italic' }}>No type selected</span> :
+              <button onClick={() => setAtk(null)} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 12px', borderRadius: 20, background: TYPES[atk].bg, border: `1px solid ${TYPES[atk].glow}`, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700 }}>
+                {TYPES[atk].name} <span style={{ opacity: 0.7, fontSize: 14 }}>×</span>
+              </button>}
+            {atk && <button onClick={() => setAtk(null)} style={{ marginLeft: 'auto', cursor: 'pointer', background: 'transparent', border: 'none', color: '#ff8f5c', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12 }}>↺ clear</button>}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
+            {TYPE_ORDER.map(t => (
+              <TypeChip key={t} t={t} selected={atk === t} disabled={false} onClick={() => setAtk(atk === t ? null : t)} />
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding: 20, borderRadius: 16, background: '#0c0a1c', border: '1px solid #221d3a', minHeight: 320 }}>
+          <h3 style={{ margin: '0 0 16px', fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 1, color: '#ff8f5c' }}>DAMAGE DEALT</h3>
+          {!atk ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 260, gap: 14, textAlign: 'center' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'radial-gradient(circle at 40% 32%, #5a2a1a, #0a0818)', border: '1px solid #6e4f3a', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px #ff8f5c33' }}>
+                <span style={{ fontSize: 26 }}>⚔️</span>
+              </div>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: '#6a6388', maxWidth: 260, lineHeight: 1.5 }}>Select an attacking type to see what it's strong and weak against.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {TIER_ORDER.map(k => {
+                const types = groups[k];
+                if (!types.length) return null;
+                const meta = TIER_META[k];
+                return (
+                  <div key={k}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: meta.col, minWidth: 30 }}>{meta.label}</span>
+                      <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 0.5, color: meta.col, opacity: 0.85 }}>{meta.name.toUpperCase()}</span>
+                      <span style={{ flex: 1, height: 1, background: `${meta.col}22` }} />
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {types.map(t => (
+                        <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 11px', borderRadius: 7, background: meta.bg, border: `1px solid ${meta.col}44`, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, fontWeight: 600, color: '#fff' }}>
+                          <span style={{ width: 9, height: 9, borderRadius: '50%', background: TYPES[t].glow }} />
+                          {TYPES[t].name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   function Matrix() {
     const [sel, setSel] = React.useState(null);
     const SZ = 30;
@@ -160,8 +234,16 @@ window.VIEWS = window.VIEWS || {};
   window.VIEWS.Types = function Types() {
     return (
       <div>
-        <PageHead kicker="TYPE CALCULATOR" title="Type Matchups" sub="Pick a Pokémon's defending types to see exactly what hurts it — including the region's new Light and Cosmic types." />
+        <PageHead kicker="TYPE CALCULATOR" title="Type Matchups" sub="Two calculators in one: check what hurts a defending Pokémon, or what an attacking move type is strong against — including the region's new Light and Cosmic types." />
+
+        <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 1, color: '#8a5cff', margin: '0 0 14px' }}>🛡 DEFENSE — WHAT HITS THIS TYPE</div>
         <Calculator />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '36px 0 14px' }}>
+          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 1, color: '#ff8f5c' }}>⚔️ ATTACK — WHAT THIS TYPE HITS</span>
+          <span style={{ flex: 1, height: 1, background: '#ff8f5c22' }} />
+        </div>
+        <AttackCalculator />
       </div>
     );
   };

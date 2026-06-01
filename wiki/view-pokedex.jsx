@@ -86,7 +86,12 @@ window.VIEWS = window.VIEWS || {};
       return true;
     });
     const bst = d => Object.values(d.stats).reduce((a, b) => a + b, 0);
-    if (sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+    if (sort === 'name') list = [...list].sort((a, b) => {
+      const au = a.undiscovered || a.name === '???', bu = b.undiscovered || b.name === '???';
+      if (au !== bu) return au ? 1 : -1;        // unknown names go last
+      if (au && bu) return a.dex.localeCompare(b.dex); // both unknown: keep dex order
+      return a.name.localeCompare(b.name);
+    });
     else if (sort === 'bst') list = [...list].sort((a, b) => bst(b) - bst(a));
     else list = [...list].sort((a, b) => a.dex.localeCompare(b.dex));
 
