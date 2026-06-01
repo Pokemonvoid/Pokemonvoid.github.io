@@ -1,0 +1,200 @@
+/* Pokémon Void — shared UI kit. window.VUI */
+(function () {
+  const { TYPES, STAT_LABELS, STAT_MAX } = window.VDEX;
+  const go = (hash) => { window.location.hash = hash; };
+
+  // ---- Type pill ---------------------------------------------------------
+  function TypePill({ t, sm, glow, onClick }) {
+    const c = TYPES[t] || { name: t, bg: '#333', glow: '#888', fg: '#fff' };
+    const stop = (e) => { e.stopPropagation(); go('#/types'); };
+    return (
+      <span onClick={onClick === undefined ? stop : onClick}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+          padding: sm ? '3px 9px' : '5px 13px', borderRadius: 999, background: glow ? `${c.bg}cc` : c.bg, color: c.fg,
+          fontFamily: "'Silkscreen', monospace", fontSize: sm ? 9 : 11, letterSpacing: 0.5, textTransform: 'uppercase',
+          border: `1px solid ${c.glow}${glow ? '' : '55'}`,
+          boxShadow: glow ? `0 0 16px ${c.glow}55, inset 0 0 12px ${c.glow}33` : `inset 0 0 10px ${c.glow}22`,
+        }}>
+        {!sm && <span style={{ width: 6, height: 6, borderRadius: 1, background: c.glow }} />}
+        {c.name}
+      </span>
+    );
+  }
+
+  // ---- Sprite slot (auto-loads sprites/<dex>.png if present) -------------
+  function SpriteSlot({ dex, name, size = 120, label, accent = '#8a5cff', suffix }) {
+    const knownBase = dex && window.SPRITE_SET && window.SPRITE_SET.has(String(dex));
+    const hasSrc = dex && (suffix !== undefined || knownBase || !window.SPRITE_SET);
+    const cacheKey = window.SPRITE_VERSION ? `?v=${window.SPRITE_VERSION}` : '';
+    const src = hasSrc ? `sprites/${dex}${suffix ? '-' + suffix : ''}.png${cacheKey}` : null;
+    const [ok, setOk] = React.useState(false);
+    React.useEffect(() => { setOk(false); }, [src]);
+    return (
+      <div style={{
+        position: 'relative', width: size, height: size, borderRadius: 10, overflow: 'hidden',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'radial-gradient(circle at 50% 45%, #1a1640 0%, #0b0918 72%)', border: `1px solid ${accent}33`,
+      }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(1px 1px at 20% 30%, #fff7, transparent), radial-gradient(1px 1px at 70% 60%, #fff5, transparent), radial-gradient(1px 1px at 42% 80%, #fff6, transparent), radial-gradient(2px 2px at 62% 22%, #b89bff88, transparent)' }} />
+        {src && <img src={src} alt={name} onLoad={() => setOk(true)} onError={() => setOk(false)}
+          style={{ position: 'absolute', inset: '8%', width: '84%', height: '84%', objectFit: 'contain', imageRendering: 'pixelated', display: ok ? 'block' : 'none', zIndex: 3 }} />}
+        {!ok && (
+          <div style={{
+            position: 'relative', zIndex: 2, width: '72%', height: '72%', borderRadius: 8,
+            border: `1px dashed ${accent}66`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            textAlign: 'center', color: '#7b6fb8', fontFamily: "'Space Mono', monospace", fontSize: Math.max(8, size / 13), lineHeight: 1.5,
+            background: 'repeating-linear-gradient(45deg, #14112a, #14112a 6px, #181433 6px, #181433 12px)',
+          }}>{label || 'SPRITE'}</div>
+        )}
+      </div>
+    );
+  }
+
+  function ItemIcon({ item, color = '#8a5cff', size = 48 }) {
+    const src = item && item.icon;
+    const [ok, setOk] = React.useState(false);
+    React.useEffect(() => { setOk(false); }, [src]);
+    return (
+      <div style={{
+        flex: '0 0 auto', width: size, height: size, borderRadius: 10,
+        background: `radial-gradient(circle at 38% 32%, ${color}33, #0b0918)`,
+        border: `1px solid ${color}66`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
+      }}>
+        {src && <img src={src} alt={item.name} onLoad={() => setOk(true)} onError={() => setOk(false)}
+          style={{ width: '82%', height: '82%', objectFit: 'contain', imageRendering: 'pixelated', display: ok ? 'block' : 'none' }} />}
+        {!ok && <span style={{ width: Math.max(10, size / 3), height: Math.max(10, size / 3), borderRadius: 4, background: color, boxShadow: `0 0 10px ${color}` }} />}
+      </div>
+    );
+  }
+
+  // ---- Radar -------------------------------------------------------------
+  function Radar({ stats, size = 300 }) {
+    const keys = ['HP', 'ATK', 'DEF', 'SPE', 'SPD', 'SPA'];
+    const cx = 150, cy = 150, R = 116;
+    const pt = (i, r) => { const a = (Math.PI * 2 * i) / 6 - Math.PI / 2; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r]; };
+    const ring = (f) => keys.map((_, i) => pt(i, R * f).join(',')).join(' ');
+    const data = keys.map((k, i) => pt(i, R * (stats[k] / STAT_MAX)).join(',')).join(' ');
+    return (
+      <svg viewBox="0 0 300 300" style={{ width: '100%', maxWidth: size }}>
+        {[0.25, 0.5, 0.75, 1].map(f => <polygon key={f} points={ring(f)} fill="none" stroke="#3a3260" strokeWidth="1" opacity="0.5" />)}
+        {keys.map((k, i) => { const [x, y] = pt(i, R); return <line key={k} x1={cx} y1={cy} x2={x} y2={y} stroke="#2c2650" strokeWidth="1" />; })}
+        <polygon points={data} fill="#8a5cff33" stroke="#a07bff" strokeWidth="2" style={{ filter: 'drop-shadow(0 0 9px #8a5cff)' }} />
+        {keys.map((k, i) => { const [x, y] = pt(i, R * (stats[k] / STAT_MAX)); return <circle key={k} cx={x} cy={y} r="3.4" fill="#dccfff" />; })}
+        {keys.map((k, i) => { const [x, y] = pt(i, R + 22); return (
+          <g key={k}>
+            <text x={x} y={y - 3} fill="#8a83a8" fontSize="11" fontFamily="'Silkscreen', monospace" textAnchor="middle">{STAT_LABELS[k].toUpperCase()}</text>
+            <text x={x} y={y + 11} fill="#f0ecff" fontSize="13" fontWeight="700" fontFamily="'Space Mono', monospace" textAnchor="middle">{stats[k]}</text>
+          </g>); })}
+      </svg>
+    );
+  }
+
+  // ---- Stat bars ---------------------------------------------------------
+  const STAT_COLORS = { HP: '#f05050', ATK: '#f0a040', DEF: '#d4d040', SPA: '#6090f0', SPD: '#70d070', SPE: '#f06090' };
+  function StatBars({ stats }) {
+    return (
+      <div>
+        {Object.entries(stats).map(([k, v]) => {
+          const pct = Math.min(100, (v / STAT_MAX) * 100);
+          const col = STAT_COLORS[k] || '#a07bff';
+          return (
+            <div key={k} style={{ display: 'grid', gridTemplateColumns: '74px 34px 1fr', alignItems: 'center', gap: 10, marginBottom: 9 }}>
+              <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a83a8' }}>{STAT_LABELS[k].toUpperCase()}</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, color: '#f0ecff', fontWeight: 700, textAlign: 'right' }}>{v}</span>
+              <div style={{ height: 9, borderRadius: 3, background: '#181334', overflow: 'hidden', border: '1px solid #2a2350' }}>
+                <div style={{ width: pct + '%', height: '100%', background: col, boxShadow: `0 0 9px ${col}`, borderRadius: 2 }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ---- Matchups ----------------------------------------------------------
+  function Matchups({ weak = [], resist = [], immune = [] }) {
+    const Group = ({ label, mult, items, color }) => items.length === 0 ? null : (
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: '#9a93b5' }}>{label}</span>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color, fontWeight: 700 }}>{mult}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{items.map(t => <TypePill key={t} t={t} sm />)}</div>
+      </div>
+    );
+    return (
+      <div>
+        <Group label="Weak to" mult="2×" items={weak} color="#ff6f8f" />
+        <Group label="Resists" mult="½×" items={resist} color="#5fd1a0" />
+        <Group label="Immune" mult="0×" items={immune} color="#a07bff" />
+      </div>
+    );
+  }
+
+  // ---- Panel -------------------------------------------------------------
+  function Panel({ title, children, style }) {
+    return (
+      <section style={{ background: '#100d20cc', border: '1px solid #221d3a', borderRadius: 14, padding: 18, ...style }}>
+        {title && <h3 style={{ margin: '0 0 14px', fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 1, color: '#8a5cff', textTransform: 'uppercase' }}>{title}</h3>}
+        {children}
+      </section>
+    );
+  }
+
+  // ---- Page header -------------------------------------------------------
+  function PageHead({ kicker, title, sub }) {
+    return (
+      <div style={{ marginBottom: 26 }}>
+        {kicker && <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 2, color: '#8a5cff', marginBottom: 10 }}>{kicker}</div>}
+        <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 46, lineHeight: 1, color: '#fff', textShadow: '0 0 28px #8a5cff44' }}>{title}</h1>
+        {sub && <p style={{ margin: '12px 0 0', fontSize: 16, color: '#9a93b5', maxWidth: 640, textWrap: 'pretty' }}>{sub}</p>}
+      </div>
+    );
+  }
+
+  // ---- Nav bar -----------------------------------------------------------
+  const NAV = [
+    ['Pokédex', '#/pokedex'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
+    ['Items', '#/items'], ['Locations', '#/locations'],
+    ['Type Calculator', '#/types'], ['Team Builder', '#/team'],
+    ['Compare', '#/compare'],
+    ['Living Dex', '#/living'], ['Catch Calculator', '#/catch'],
+    ['Damage Calculator', '#/damage'], ['Nuzlocke Randomizer', '#/nuzlocke'],
+    // ['Trainers', '#/trainers'],
+  ];
+  function NavBar({ route, query, setQuery }) {
+    const active = (h) => route.startsWith(h.slice(1)) || (h === '#/pokedex' && route.startsWith('/pokemon')) || (h === '#/locations' && route.startsWith('/location'));
+    return (
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(8,6,18,0.86)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1d1838' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, padding: '13px 24px' }}>
+          <a href="#/pokedex" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
+            <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'radial-gradient(circle at 38% 32%, #1a1640, #05030c)', border: '1px solid #8a5cff', boxShadow: '0 0 12px #8a5cff77' }} />
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20, color: '#fff' }}>VOID<span style={{ color: '#8a5cff' }}>DEX</span></span>
+          </a>
+          <nav style={{ display: 'flex', gap: 2, marginLeft: 8, flexWrap: 'wrap' }}>
+            {NAV.map(([n, h]) => (
+              <a key={h} href={h} style={{
+                textDecoration: 'none', padding: '7px 13px', borderRadius: 7, fontFamily: "'Space Grotesk', sans-serif", fontSize: 14,
+                fontWeight: active(h) ? 600 : 400, color: active(h) ? '#fff' : '#8a83a8', background: active(h) ? '#221a45' : 'transparent',
+              }}>{n}</a>
+            ))}
+          </nav>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 13px', borderRadius: 8, background: '#15112a', border: '1px solid #2a2545', minWidth: 210 }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6a6388" strokeWidth="1.6"><circle cx="6" cy="6" r="4.2" /><path d="M9.5 9.5L13 13" strokeLinecap="round" /></svg>
+            <input value={query} onChange={(e) => { setQuery(e.target.value); if (!route.startsWith('/pokedex')) go('#/pokedex'); }}
+              placeholder="Search the void…" spellCheck={false}
+              style={{ border: 'none', outline: 'none', background: 'transparent', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, width: '100%' }} />
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  function Empty({ label }) {
+    return <div style={{ padding: 60, textAlign: 'center', color: '#6a6388', fontFamily: "'Space Mono', monospace", fontSize: 14 }}>{label}</div>;
+  }
+
+  window.VUI = { go, TypePill, SpriteSlot, ItemIcon, Radar, StatBars, Matchups, Panel, PageHead, NavBar, Empty, TYPES };
+})();

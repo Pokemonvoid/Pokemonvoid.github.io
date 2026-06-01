@@ -1,0 +1,265 @@
+/* Pokémon Void — Living Dex Tracker (PC Boxes). window.VIEWS.Living
+   Stores caught data locally per-device, like the Team Builder. Each box is a
+   5×6 grid of 30 slots. Click an empty slot to place a Pokémon there; click a
+   filled slot to toggle Normal / Shiny / Anomaly ownership. Shiny swaps the
+   sprite to the -shiny png; Anomaly shows a small moon icon badge (no anomaly
+   sprite). Add boxes to grow your storage downward. */
+window.VIEWS = window.VIEWS || {};
+(function () {
+  const { DEX, byDex, TYPES } = window.VDEX;
+  const { TYPE_ORDER } = window.VGAME;
+  const { go, SpriteSlot, TypePill, Empty } = window.VUI;
+
+  const COLS = 6, ROWS = 5, PER_BOX = COLS * ROWS; // 30 per box, classic PC size
+  const ANOMALY_ICON = 'sprites/_anomaly-icon.png';
+  const SHINY_ICON = 'sprites/_shiny-icon.png';
+
+  // ---- persistence (same guarded pattern as the Team Builder) ----
+  // Shape: { boxes: [ { name, slots: [ slotOrNull x30 ] } ], v: 2 }
+  // slot = { dex, normal:bool, shiny:bool, anomaly:bool }
+  const LS_KEY = 'voiddex_livingdex_v1';
+  function freshBox(n) { return { name: 'Box ' + n, slots: Array(PER_BOX).fill(null) }; }
+  function loadState() {
+    try {
+      const v = JSON.parse(localStorage.getItem(LS_KEY));
+      if (v && Array.isArray(v.boxes) && v.boxes.length) {
+        // normalize: ensure each box has exactly PER_BOX slots
+        v.boxes = v.boxes.map((b, i) => ({
+          name: (b && b.name) || ('Box ' + (i + 1)),
+          slots: Array.from({ length: PER_BOX }, (_, k) => {
+            const s = b && b.slots && b.slots[k];
+            return s && s.dex ? { dex: String(s.dex), normal: !!s.normal, shiny: !!s.shiny, anomaly: !!s.anomaly } : null;
+          }),
+        }));
+        return v.boxes;
+      }
+    } catch (e) {}
+    return [freshBox(1)];
+  }
+  function saveState(boxes) { try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, boxes })); } catch (e) {} }
+
+  // ---- picker modal: choose which mon goes into a clicked slot ----
+  function MonPickerModal({ onPick, onClose }) {
+    const [q, setQ] = React.useState('');
+    const term = q.trim().toLowerCase();
+    const list = DEX.filter(d => !d.undiscovered &&
+      (!term || d.name.toLowerCase().includes(term) || d.dex.includes(term) ||
+        (d.types || []).some(t => TYPES[t] && TYPES[t].name.toLowerCase().includes(term))));
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(5,3,12,0.82)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '60px 20px', overflowY: 'auto' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 760, background: 'radial-gradient(ellipse at 30% 0%, #15102e, #0a0818 70%)', border: '1px solid #2a2350', borderRadius: 18, padding: 22, boxShadow: '0 30px 80px #000a' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 24, color: '#fff' }}>Deposit a Pokémon</span>
+            <button onClick={onClose} style={{ marginLeft: 'auto', cursor: 'pointer', background: '#1a1238', border: '1px solid #3a2f6e', color: '#cdbfff', borderRadius: 8, padding: '6px 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Close</button>
+          </div>
+          <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search by name, № or type…" spellCheck={false}
+            style={{ width: '100%', padding: '11px 15px', borderRadius: 10, background: '#100c24', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, outline: 'none', marginBottom: 16 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(108px, 1fr))', gap: 10, maxHeight: 460, overflowY: 'auto' }}>
+            {list.map(d => {
+              const accent = TYPES[d.types[0]].glow;
+              return (
+                <button key={d.dex} onClick={() => onPick(d.dex)} style={{ cursor: 'pointer', padding: 10, borderRadius: 12, background: '#0e0b1f', border: '1px solid #221d3a', textAlign: 'center' }}>
+                  <SpriteSlot dex={d.dex} name={d.name} size={68} accent={accent} />
+                  <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#5f5980', marginTop: 5 }}>No.{d.dex}</div>
+                  <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 13, color: '#fff', lineHeight: 1.1 }}>{d.name}</div>
+                </button>
+              );
+            })}
+            {list.length === 0 && <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#6a6388', fontFamily: "'Space Mono', monospace", fontSize: 13, padding: 30 }}>No Pokémon match “{q}”.</div>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- per-slot ownership editor (Normal / Shiny / Anomaly) ----
+  function SlotEditor({ slot, onChange, onRemove, onClose }) {
+    const m = byDex(slot.dex);
+    const Row = ({ label, val, onToggle, color }) => (
+      <button onClick={onToggle} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 13px', borderRadius: 10, background: val ? color + '22' : '#100c24', border: `1px solid ${val ? color : '#2a2545'}`, textAlign: 'left' }}>
+        <span style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${val ? color : '#3a2f6e'}`, background: val ? color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0a0818', fontSize: 13, fontWeight: 700, flex: '0 0 auto' }}>{val ? '✓' : ''}</span>
+        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: val ? '#fff' : '#9a93bb' }}>{label}</span>
+      </button>
+    );
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(5,3,12,0.82)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, background: 'radial-gradient(ellipse at 30% 0%, #15102e, #0a0818 70%)', border: '1px solid #2a2350', borderRadius: 18, padding: 22, boxShadow: '0 30px 80px #000a' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <SpriteSlot dex={slot.dex} name={m ? m.name : slot.dex} size={56} accent={m ? TYPES[m.types[0]].glow : '#8a5cff'} suffix={slot.shiny ? 'shiny' : undefined} />
+            <div>
+              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#5f5980' }}>No.{slot.dex}</div>
+              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20, color: '#fff' }}>{m ? m.name : 'Unknown'}</div>
+            </div>
+            <button onClick={onClose} style={{ marginLeft: 'auto', cursor: 'pointer', background: '#1a1238', border: '1px solid #3a2f6e', color: '#cdbfff', borderRadius: 8, padding: '6px 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Done</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+            <Row label="Caught (Normal)" val={slot.normal} onToggle={() => onChange({ ...slot, normal: !slot.normal })} color="#8a5cff" />
+            <Row label="Shiny ✦" val={slot.shiny} onToggle={() => onChange({ ...slot, shiny: !slot.shiny, anomaly: slot.shiny ? slot.anomaly : false })} color="#ffd54a" />
+            <Row label="Anomaly ☾" val={slot.anomaly} onToggle={() => onChange({ ...slot, anomaly: !slot.anomaly, shiny: slot.anomaly ? slot.shiny : false })} color="#ff7fe0" />
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => go('#/pokemon/' + slot.dex)} style={{ flex: 1, cursor: 'pointer', background: '#1a1238', border: '1px solid #3a2f6e', color: '#cdbfff', borderRadius: 10, padding: '10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>View page ›</button>
+            <button onClick={onRemove} style={{ flex: 1, cursor: 'pointer', background: '#2a1020', border: '1px solid #ff5f7e66', color: '#ff8fa6', borderRadius: 10, padding: '10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>Release (empty slot)</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- a single slot tile inside a box ----
+  function Slot({ slot, dim, onClick }) {
+    if (!slot) {
+      return (
+        <button onClick={onClick} title="Add Pokémon" style={{ aspectRatio: '1 / 1', borderRadius: 10, cursor: 'pointer', background: 'repeating-linear-gradient(135deg, #0c0a1c, #0c0a1c 7px, #0e0b22 7px, #0e0b22 14px)', border: '1.5px dashed #241d44', color: '#3a2f6e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>＋</button>
+      );
+    }
+    const m = byDex(slot.dex);
+    const accent = m ? TYPES[m.types[0]].glow : '#8a5cff';
+    return (
+      <button onClick={onClick} title={m ? m.name : slot.dex} style={{ position: 'relative', aspectRatio: '1 / 1', borderRadius: 10, cursor: 'pointer', padding: 4, background: `radial-gradient(ellipse at 50% 15%, ${accent}33, #0b0918 80%)`, border: `1px solid ${accent}66`, opacity: dim ? 0.22 : 1, transition: 'opacity .12s' }}>
+        <SpriteSlot dex={slot.dex} name={m ? m.name : slot.dex} size={'100%'} accent={accent} suffix={slot.shiny ? 'shiny' : undefined} />
+        {/* shiny star badge */}
+        {slot.shiny && <img src={SHINY_ICON} alt="Shiny" style={{ position: 'absolute', top: 2, left: 2, width: '17%', height: '17%', imageRendering: 'pixelated', zIndex: 5, filter: 'drop-shadow(0 0 4px #ffd54a)' }} />}
+        {/* anomaly icon badge (no anomaly sprite, just the moon icon) */}
+        {slot.anomaly && <img src={ANOMALY_ICON} alt="Anomaly" style={{ position: 'absolute', top: 2, right: 2, width: '17%', height: '17%', imageRendering: 'pixelated', zIndex: 5, filter: 'drop-shadow(0 0 4px #ff7fe0)' }} />}
+      </button>
+    );
+  }
+
+  window.VIEWS.Living = function Living() {
+    const [boxes, setBoxes] = React.useState(loadState);
+    const [picking, setPicking] = React.useState(null);   // {box, slot} target for new mon
+    const [editing, setEditing] = React.useState(null);   // {box, slot} of filled slot being edited
+    const [q, setQ] = React.useState('');
+    const [filter, setFilter] = React.useState('all');     // all | caught | shiny | anomaly | empty
+    React.useEffect(() => { saveState(boxes); }, [boxes]);
+
+    // mutate helper
+    const setSlot = (bi, si, val) => setBoxes(bs => bs.map((b, i) => i !== bi ? b : { ...b, slots: b.slots.map((s, k) => k === si ? val : s) }));
+    const addBox = () => setBoxes(bs => [...bs, freshBox(bs.length + 1)]);
+    const removeBox = (bi) => setBoxes(bs => bs.length <= 1 ? [freshBox(1)] : bs.filter((_, i) => i !== bi));
+    const renameBox = (bi, name) => setBoxes(bs => bs.map((b, i) => i === bi ? { ...b, name } : b));
+    const resetAll = () => { if (window.confirm('Reset your entire Living Dex? This clears every box on this device.')) setBoxes([freshBox(1)]); };
+
+    // place a freshly-picked mon — defaults to Normal caught = true
+    const place = (dex) => {
+      if (!picking) return;
+      setSlot(picking.box, picking.slot, { dex, normal: true, shiny: false, anomaly: false });
+      const target = picking; setPicking(null);
+      setEditing(target); // open the editor so they can flag shiny/anomaly right away
+    };
+
+    // ---- search/filter predicate for slots already in boxes ----
+    const term = q.trim().toLowerCase();
+    const matchSlot = (slot) => {
+      if (!slot) return filter === 'all' || filter === 'empty';
+      if (filter === 'empty') return false;
+      if (filter === 'shiny' && !slot.shiny) return false;
+      if (filter === 'anomaly' && !slot.anomaly) return false;
+      if (filter === 'caught' && !slot.normal) return false;
+      if (!term) return true;
+      const m = byDex(slot.dex);
+      return (m && m.name.toLowerCase().includes(term)) || slot.dex.includes(term) ||
+        (m && (m.types || []).some(t => TYPES[t] && TYPES[t].name.toLowerCase().includes(term)));
+    };
+    const filtering = term !== '' || filter !== 'all';
+
+    // ---- progress stats ----
+    const allSlots = boxes.flatMap(b => b.slots).filter(Boolean);
+    const uniqueCaught = new Set(allSlots.filter(s => s.normal || s.shiny || s.anomaly).map(s => s.dex)).size;
+    const totalSpecies = DEX.filter(d => !d.undiscovered).length;
+    const shinyCount = allSlots.filter(s => s.shiny).length;
+    const anomalyCount = allSlots.filter(s => s.anomaly).length;
+
+    const FilterBtn = ({ id, label, color }) => (
+      <button onClick={() => setFilter(id)} style={{ cursor: 'pointer', padding: '7px 13px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: filter === id ? (color || '#8a5cff') + '33' : '#100c24', border: `1px solid ${filter === id ? (color || '#8a5cff') : '#2a2545'}`, color: filter === id ? '#fff' : '#9a93bb' }}>{label}</button>
+    );
+
+    const Stat = ({ label, val, sub, color }) => (
+      <div style={{ flex: '1 1 120px', padding: '12px 16px', borderRadius: 12, background: '#0c0a1c', border: '1px solid #221d3a' }}>
+        <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#5f5980', letterSpacing: 0.5, marginBottom: 6 }}>{label}</div>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 22, fontWeight: 700, color: color || '#fff' }}>{val}<span style={{ fontSize: 13, color: '#6a6388' }}>{sub}</span></div>
+      </div>
+    );
+
+    return (
+      <div>
+        {picking && <MonPickerModal onPick={place} onClose={() => setPicking(null)} />}
+        {editing && boxes[editing.box] && boxes[editing.box].slots[editing.slot] && (
+          <SlotEditor
+            slot={boxes[editing.box].slots[editing.slot]}
+            onChange={(val) => setSlot(editing.box, editing.slot, val)}
+            onRemove={() => { setSlot(editing.box, editing.slot, null); setEditing(null); }}
+            onClose={() => setEditing(null)}
+          />
+        )}
+
+        {/* header */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 22, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 2, color: '#8a5cff', marginBottom: 8 }}>STORAGE SYSTEM</div>
+            <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 52, lineHeight: 1, color: '#fff', textShadow: '0 0 30px #8a5cff66' }}>Living Dex</h1>
+            <p style={{ margin: '12px 0 0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, color: '#bdb6dd', maxWidth: 640, lineHeight: 1.6 }}>Track every Pokémon you've caught across your PC Boxes. Click a slot to deposit a Pokémon, then mark it as caught, shiny, or anomaly. Everything saves automatically on this device.</p>
+          </div>
+          <button onClick={resetAll} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, background: '#2a1020', border: '1px solid #ff5f7e66', color: '#ff8fa6', borderRadius: 10, padding: '10px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>↺ Reset All</button>
+        </div>
+
+        {/* progress stats */}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+          <Stat label="SPECIES CAUGHT" val={uniqueCaught} sub={'/' + totalSpecies} color="#8a5cff" />
+          <Stat label="SHINIES" val={shinyCount} color="#ffd54a" />
+          <Stat label="ANOMALIES" val={anomalyCount} color="#ff7fe0" />
+          <Stat label="BOXES" val={boxes.length} color="#33d6ff" />
+        </div>
+
+        {/* search + filter bar */}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 8 }}>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Find a Pokémon in your boxes…" spellCheck={false}
+            style={{ flex: '1 1 240px', padding: '10px 15px', borderRadius: 10, background: '#100c24', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, outline: 'none' }} />
+          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+            <FilterBtn id="all" label="All" />
+            <FilterBtn id="caught" label="Caught" color="#8a5cff" />
+            <FilterBtn id="shiny" label="Shiny ✦" color="#ffd54a" />
+            <FilterBtn id="anomaly" label="Anomaly ☾" color="#ff7fe0" />
+            <FilterBtn id="empty" label="Empty" color="#6a6388" />
+          </div>
+        </div>
+        {filtering && <p style={{ margin: '0 0 16px', fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#6a6388' }}>Non-matching slots are dimmed. Matches stay lit.</p>}
+        {!filtering && <div style={{ height: 10 }} />}
+
+        {/* boxes — each grows the page downward */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {boxes.map((box, bi) => {
+            const boxCaught = box.slots.filter(s => s && (s.normal || s.shiny || s.anomaly)).length;
+            const boxFilled = box.slots.filter(Boolean).length;
+            return (
+              <section key={bi} style={{ borderRadius: 18, background: 'radial-gradient(ellipse at 50% 0%, #15102e, #0b0918 75%)', border: '1px solid #221d3a', padding: 18 }}>
+                {/* box header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a5cff', letterSpacing: 0.5 }}>BOX {bi + 1}</span>
+                  <input value={box.name} onChange={e => renameBox(bi, e.target.value)} spellCheck={false}
+                    style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, color: '#fff', background: 'transparent', border: 'none', borderBottom: '1px dashed #2a235099', outline: 'none', padding: '2px 4px', minWidth: 60, maxWidth: 260 }} />
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#6a6388' }}>{boxFilled}/{PER_BOX} filled · {boxCaught} caught</span>
+                  <button onClick={() => removeBox(bi)} title="Delete this box" style={{ marginLeft: 'auto', cursor: 'pointer', background: '#1a1020', border: '1px solid #ff5f7e44', color: '#ff8fa6', borderRadius: 8, padding: '6px 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>Delete Box</button>
+                </div>
+                {/* the 6×5 grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${COLS}, 1fr)`, gap: 8 }}>
+                  {box.slots.map((slot, si) => (
+                    <Slot key={si} slot={slot}
+                      dim={filtering && !matchSlot(slot)}
+                      onClick={() => slot ? setEditing({ box: bi, slot: si }) : setPicking({ box: bi, slot: si })} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+
+        {/* add box — appends below, page gets longer */}
+        <button onClick={addBox} style={{ cursor: 'pointer', width: '100%', marginTop: 18, padding: '16px', borderRadius: 14, background: 'repeating-linear-gradient(135deg, #0c0a1c, #0c0a1c 10px, #0e0b22 10px, #0e0b22 20px)', border: '1.5px dashed #3a2f6e', color: '#b08fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <span style={{ fontSize: 20 }}>＋</span> Add New Box
+        </button>
+      </div>
+    );
+  };
+})();
