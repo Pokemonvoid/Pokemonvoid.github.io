@@ -97,7 +97,7 @@
     let content;
     switch (view) {
       case 'pokemon': content = <V.Detail param={param} />; break;
-      case 'moves': content = <V.Moves />; break;
+      case 'moves': content = <V.Moves param={param} />; break;
       case 'abilities': content = <V.Abilities />; break;
       case 'items': content = <V.Items />; break;
       case 'locations': content = <V.Locations />; break;
@@ -118,9 +118,15 @@
       <React.Fragment>
         <NavBar route={'/' + view + (param ? '/' + param : '')} query={query} setQuery={setQuery} />
         <main style={{ maxWidth: 1240, margin: '0 auto', padding: '32px 24px 80px' }}>{content}</main>
-        <footer style={{ maxWidth: 1240, margin: '0 auto', padding: '24px', borderTop: '1px solid #1d1838', color: '#5f5980', fontFamily: "'Space Mono', monospace", fontSize: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
+        <footer style={{ maxWidth: 1240, margin: '0 auto', padding: '24px', borderTop: '1px solid #1d1838', color: '#5f5980', fontFamily: "'Space Mono', monospace", fontSize: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
           <span style={{ maxWidth: 720, lineHeight: 1.6 }}>
             <strong style={{ color: '#8a5cff', letterSpacing: 0.5 }}>VOIDDEX</strong> — an official wiki for <em>Pokémon Void</em>.
+            <span style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
+              <a href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#c7d0ff', background: '#5865F21a', border: '1px solid #5865F255', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>💬 Official Discord</a>
+              <a href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#ffc7c7', background: '#ff00001a', border: '1px solid #ff000055', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>▶ Pokédex Fillers</a>
+              <a href="https://www.mediafire.com/file/qiirj25m8s2fu78/Pokemon+Void+0.1.5+(encryptionfix).zip/file" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#d8c7ff', background: '#8a5cff1a', border: '1px solid #8a5cff55', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>⬇ Download Latest (v0.1.5)</a>
+            </span>
+            <span style={{ display: 'block', marginTop: 8, fontSize: 11, color: '#5f5980' }}>Download uses tight encryption — your browser may show a false virus warning, which is safe to ignore.</span>
           </span>
           <span style={{ color: '#8a83a8', whiteSpace: 'nowrap' }}>Brought to you by <strong style={{ color: '#b08fff' }}>Vaereth</strong> &amp; <strong style={{ color: '#b08fff' }}>Jazz</strong></span>
         </footer>

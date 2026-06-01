@@ -2860,7 +2860,7 @@ window.VDEX = (function () {
       abilities: ['Steely Spirit'],
       hidden: 'Stalwart',
       stats: { HP: 90, ATK: 110, DEF: 130, SPA: 70, SPD: 80, SPE: 50 },
-      flavor: 'Sedilock’s armor gleams with starlight, crowned by purple flames. It channels the vast silence of space itself.',
+      flavor: 'Sedivout’s armor gleams with starlight, crowned by purple flames. It channels the vast silence of space itself.',
       evo: { from: '067', method: 'Sun Stone' },
       levelMoves: [
         M('0', 'Bulletpunch'),  // REVIEW name
