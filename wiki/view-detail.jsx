@@ -496,7 +496,7 @@ window.VIEWS = window.VIEWS || {};
               <div style={{ display: 'flex', justifyContent: 'center' }}><Radar stats={d.stats} /></div>
               <div style={{ textAlign: 'center', fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#8a83a8', marginTop: 2, marginBottom: 24 }}>TOTAL <span style={{ color: accent, fontWeight: 700, fontSize: 16 }}>{total}</span></div>
               <H3>TYPE MATCHUPS</H3>
-              <Matchups {...window.VGAME.computeMatchups(d.types)} />
+              <Matchups {...window.VGAME.computeMatchupsDetailed(d.types)} />
             </div>
 
             <div>

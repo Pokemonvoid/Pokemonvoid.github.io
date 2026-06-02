@@ -9203,6 +9203,19 @@ const TRAINERS = [
     }
     return { weak, resist, immune };
   };
+  // detailed: split into exact multiplier tiers (x4, x2, x0.5, x0.25, x0)
+  const computeMatchupsDetailed = (types) => {
+    const x4 = [], x2 = [], half = [], quarter = [], immune = [];
+    for (const atk of TYPE_ORDER) {
+      const mult = types.reduce((m, def) => m * eff(atk, def), 1);
+      if (mult === 0) immune.push(atk);
+      else if (mult >= 4) x4.push(atk);
+      else if (mult >= 2) x2.push(atk);
+      else if (mult <= 0.25) quarter.push(atk);
+      else if (mult <= 0.5) half.push(atk);
+    }
+    return { x4, x2, half, quarter, immune };
+  };
 
-  return { MOVES, ABILITIES, ITEMS, PICKUP, ROUTES, TRAINERS, CHART, eff, TYPE_ORDER, byMove, computeMatchups };
+  return { MOVES, ABILITIES, ITEMS, PICKUP, ROUTES, TRAINERS, CHART, eff, TYPE_ORDER, byMove, computeMatchups, computeMatchupsDetailed };
 })();

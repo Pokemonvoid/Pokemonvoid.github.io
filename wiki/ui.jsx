@@ -114,21 +114,27 @@
   }
 
   // ---- Matchups ----------------------------------------------------------
-  function Matchups({ weak = [], resist = [], immune = [] }) {
+  function Matchups({ x4 = [], x2 = [], half = [], quarter = [], immune = [], weak, resist }) {
+    // backward-compat: if old {weak,resist,immune} shape is passed, show those
+    if (weak || resist) {
+      x2 = weak || []; half = resist || []; x4 = []; quarter = [];
+    }
     const Group = ({ label, mult, items, color }) => items.length === 0 ? null : (
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
-          <span style={{ fontSize: 12, color: '#9a93b5' }}>{label}</span>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color, fontWeight: 700 }}>{mult}</span>
+      <div style={{ marginBottom: 13 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 7 }}>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color, fontWeight: 700 }}>{mult}</span>
+          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#6a6388', letterSpacing: 0.5 }}>{label}</span>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{items.map(t => <TypePill key={t} t={t} sm />)}</div>
       </div>
     );
     return (
       <div>
-        <Group label="Weak to" mult="2×" items={weak} color="#ff6f8f" />
-        <Group label="Resists" mult="½×" items={resist} color="#5fd1a0" />
-        <Group label="Immune" mult="0×" items={immune} color="#a07bff" />
+        <Group label="DOUBLE WEAK" mult="×4" items={x4} color="#ff4d6f" />
+        <Group label="WEAK" mult="×2" items={x2} color="#ff8f6f" />
+        <Group label="RESIST" mult="×½" items={half} color="#5fd1a0" />
+        <Group label="DOUBLE RESIST" mult="×¼" items={quarter} color="#3fc0c0" />
+        <Group label="IMMUNE" mult="×0" items={immune} color="#a07bff" />
       </div>
     );
   }
