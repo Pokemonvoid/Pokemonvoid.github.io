@@ -172,7 +172,7 @@ window.VIEWS = window.VIEWS || {};
             const accent = mon ? TYPES[mon.types[0]].glow : '#8a5cff';
             const Inner = (
               <React.Fragment>
-                <div style={{ flex: '0 0 auto' }}>{mon ? <SpriteSlot dex={m.dex} name={mon.name} size={48} accent={accent} /> : <div style={{ width: 40, height: 40, borderRadius: 8, background: '#15112a', border: '1px solid #2a2350', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#7b6fb8' }}>?</div>}</div>
+                <div style={{ flex: '0 0 auto' }}>{m.dex ? <SpriteSlot dex={m.dex} name={m.name} size={48} accent={accent} /> : <div style={{ width: 40, height: 40, borderRadius: 8, background: '#15112a', border: '1px solid #2a2350', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#7b6fb8' }}>?</div>}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 17, color: '#fff' }}>{m.name}</span>
