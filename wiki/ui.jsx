@@ -160,7 +160,7 @@
     ['Items', '#/items'], ['Locations', '#/locations'],
     ['Type Calculator', '#/types'], ['Team Builder', '#/team'],
     ['Compare', '#/compare'],
-    ['Living Dex', '#/living'], ['Caught Tracker', '#/tracker'], ['Catch Calculator', '#/catch'],
+    ['Living Dex', '#/living'], ['Catch Calculator', '#/catch'],
     ['Damage Calculator', '#/damage'], ['Nuzlocke Randomizer', '#/nuzlocke'],
     // ['Trainers', '#/trainers'],
   ];

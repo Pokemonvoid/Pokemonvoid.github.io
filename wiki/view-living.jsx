@@ -132,6 +132,7 @@ window.VIEWS = window.VIEWS || {};
     const [editing, setEditing] = React.useState(null);   // {box, slot} of filled slot being edited
     const [q, setQ] = React.useState('');
     const [filter, setFilter] = React.useState('all');     // all | caught | shiny | anomaly | empty
+    const [mode, setMode] = React.useState('boxes');       // boxes | grid
     React.useEffect(() => { saveState(boxes); }, [boxes]);
 
     // mutate helper
@@ -140,6 +141,34 @@ window.VIEWS = window.VIEWS || {};
     const removeBox = (bi) => setBoxes(bs => bs.length <= 1 ? [freshBox(1)] : bs.filter((_, i) => i !== bi));
     const renameBox = (bi, name) => setBoxes(bs => bs.map((b, i) => i === bi ? { ...b, name } : b));
     const resetAll = () => { if (window.confirm('Reset your entire Living Dex? This clears every box on this device.')) setBoxes([freshBox(1)]); };
+
+    // ---- Grid mode: treat the boxes as one flat pool, one slot per species ----
+    // status for a dex from current boxes
+    const gridStatus = (dex) => {
+      for (const b of boxes) for (const s of b.slots) if (s && s.dex === dex) return s;
+      return null;
+    };
+    // write a status for a species: update its slot if present, else drop into first empty slot (adding a box if needed)
+    const gridSet = (dex, val) => {
+      setBoxes(bs => {
+        // find existing slot
+        let found = false;
+        let next = bs.map(b => ({ ...b, slots: b.slots.map(s => {
+          if (s && s.dex === dex) { found = true; return val ? { dex, ...val } : null; }
+          return s;
+        }) }));
+        if (found || !val) return next.length ? next : [freshBox(1)];
+        // not found and we're setting a status — place in first empty slot
+        for (const b of next) {
+          const idx = b.slots.findIndex(s => !s);
+          if (idx !== -1) { b.slots = b.slots.map((s, k) => k === idx ? { dex, ...val } : s); return next; }
+        }
+        // no empty slot anywhere — add a new box
+        const nb = freshBox(next.length + 1);
+        nb.slots[0] = { dex, ...val };
+        return [...next, nb];
+      });
+    };
 
     // place a freshly-picked mon — defaults to Normal caught = true
     const place = (dex) => {
@@ -201,7 +230,13 @@ window.VIEWS = window.VIEWS || {};
             <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 52, lineHeight: 1, color: '#fff', textShadow: '0 0 30px #8a5cff66' }}>Living Dex</h1>
             <p style={{ margin: '12px 0 0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, color: '#bdb6dd', maxWidth: 640, lineHeight: 1.6 }}>Track every Pokémon you've caught across your PC Boxes. Click a slot to deposit a Pokémon, then mark it as caught, shiny, or anomaly. Everything saves automatically on this device.</p>
           </div>
-          <button onClick={resetAll} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, background: '#2a1020', border: '1px solid #ff5f7e66', color: '#ff8fa6', borderRadius: 10, padding: '10px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>↺ Reset All</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'inline-flex', borderRadius: 10, overflow: 'hidden', border: '1px solid #2a2545' }}>
+              <button onClick={() => setMode('boxes')} style={{ cursor: 'pointer', padding: '10px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: mode === 'boxes' ? 'linear-gradient(135deg, #322663, #1d1542)' : '#100c24', border: 'none', borderRight: '1px solid #2a2545', color: mode === 'boxes' ? '#fff' : '#9a93bb' }}>⬚ PC Boxes</button>
+              <button onClick={() => setMode('grid')} style={{ cursor: 'pointer', padding: '10px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: mode === 'grid' ? 'linear-gradient(135deg, #322663, #1d1542)' : '#100c24', border: 'none', color: mode === 'grid' ? '#fff' : '#9a93bb' }}>▦ Grid</button>
+            </div>
+            <button onClick={resetAll} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, background: '#2a1020', border: '1px solid #ff5f7e66', color: '#ff8fa6', borderRadius: 10, padding: '10px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>↺ Reset All</button>
+          </div>
         </div>
 
         {/* progress stats */}
@@ -212,6 +247,8 @@ window.VIEWS = window.VIEWS || {};
           <Stat label="BOXES" val={boxes.length} color="#33d6ff" />
         </div>
 
+        {/* ===== BOXES MODE ===== */}
+        {mode === 'boxes' && <React.Fragment>
         {/* search + filter bar */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 8 }}>
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Find a Pokémon in your boxes…" spellCheck={false}
@@ -259,7 +296,111 @@ window.VIEWS = window.VIEWS || {};
         <button onClick={addBox} style={{ cursor: 'pointer', width: '100%', marginTop: 18, padding: '16px', borderRadius: 14, background: 'repeating-linear-gradient(135deg, #0c0a1c, #0c0a1c 10px, #0e0b22 10px, #0e0b22 20px)', border: '1.5px dashed #3a2f6e', color: '#b08fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <span style={{ fontSize: 20 }}>＋</span> Add New Box
         </button>
+        </React.Fragment>}
+
+        {/* ===== GRID MODE ===== */}
+        {mode === 'grid' && <GridMode
+          boxes={boxes} q={q} setQ={setQ} filter={filter} setFilter={setFilter} FilterBtn={FilterBtn}
+          gridStatus={gridStatus} gridSet={gridSet} />}
       </div>
     );
   };
+
+  // ---- Grid mode: a Pokédex-style grid, alternate way to fill the same living dex ----
+  function GridMode({ boxes, q, setQ, filter, setFilter, FilterBtn, gridStatus, gridSet }) {
+    const species = DEX.filter(d => !d.undiscovered);
+    const term = q.trim().toLowerCase();
+
+    const stat = (d) => {
+      const s = gridStatus(d.dex);
+      return s ? { caught: !!(s.normal || s.shiny || s.anomaly), shiny: !!s.shiny, anomaly: !!s.anomaly } : { caught: false, shiny: false, anomaly: false };
+    };
+    // anomaly may only be ticked if this mon's anomaly is revealed (keeps secrets hidden)
+    const anomalyUnlocked = (d) => d.anomaly != null;
+
+    const set = (d, val) => {
+      // val is null to clear, or {normal,shiny,anomaly}
+      gridSet(d.dex, val);
+    };
+    const cycle = (d) => {
+      const s = stat(d);
+      if (!s.caught) set(d, { normal: true, shiny: false, anomaly: false });
+      else if (s.caught && !s.shiny && !s.anomaly) set(d, { normal: true, shiny: true, anomaly: false });
+      else if (s.shiny && !s.anomaly) {
+        if (anomalyUnlocked(d)) set(d, { normal: true, shiny: false, anomaly: true });
+        else set(d, null); // skip anomaly if locked
+      }
+      else set(d, null);
+    };
+
+    const list = species.filter(d => {
+      const s = stat(d);
+      if (filter === 'caught' && !s.caught) return false;
+      if (filter === 'uncaught' && s.caught) return false;
+      if (filter === 'shiny' && !s.shiny) return false;
+      if (filter === 'anomaly' && !s.anomaly) return false;
+      if (!term) return true;
+      return d.name.toLowerCase().includes(term) || d.dex.includes(term) ||
+        (d.types || []).some(t => TYPES[t] && TYPES[t].name.toLowerCase().includes(term));
+    });
+
+    const GFilter = ({ id, label, color }) => (
+      <button onClick={() => setFilter(id)} style={{ cursor: 'pointer', padding: '7px 13px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: filter === id ? (color || '#8a5cff') + '33' : '#100c24', border: `1px solid ${filter === id ? (color || '#8a5cff') : '#2a2545'}`, color: filter === id ? '#fff' : '#9a93bb' }}>{label}</button>
+    );
+
+    return (
+      <div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 16 }}>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Find a Pokémon…" spellCheck={false}
+            style={{ flex: '1 1 240px', padding: '10px 15px', borderRadius: 10, background: '#100c24', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, outline: 'none' }} />
+          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+            <GFilter id="all" label="All" />
+            <GFilter id="caught" label="Caught" color="#7ad17a" />
+            <GFilter id="uncaught" label="Uncaught" color="#9a93bb" />
+            <GFilter id="shiny" label="Shiny ✦" color="#ffd54a" />
+            <GFilter id="anomaly" label="Anomaly ☾" color="#ff7fe0" />
+          </div>
+        </div>
+
+        {list.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6a6388', fontFamily: "'Space Grotesk', sans-serif" }}>No Pokémon match this filter.</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(112px, 1fr))', gap: 10 }}>
+            {list.map(d => {
+              const s = stat(d);
+              const any = s.caught;
+              const accent = TYPES[d.types[0]] ? TYPES[d.types[0]].glow : '#8a5cff';
+              const anomOK = anomalyUnlocked(d);
+              return (
+                <div key={d.dex} style={{ position: 'relative', borderRadius: 12, padding: '12px 8px 9px', background: any ? `linear-gradient(160deg, ${accent}1f, #0e0a20)` : '#0b0818', border: `1px solid ${any ? accent + '66' : '#1d1838'}` }}>
+                  <div onClick={() => cycle(d)} title="Tap to cycle status"
+                    style={{ cursor: 'pointer', position: 'relative', width: 72, height: 72, margin: '0 auto', filter: any ? 'none' : 'grayscale(1) brightness(0.5)', opacity: any ? 1 : 0.7 }}>
+                    <SpriteSlot dex={d.dex} name={d.name} size={72} accent={accent} suffix={s.shiny ? 'shiny' : (s.anomaly ? 'anomaly' : undefined)} />
+                    {s.shiny && <img src={SHINY_ICON} alt="Shiny" style={{ position: 'absolute', top: -2, left: -2, width: 18, height: 18, imageRendering: 'pixelated', filter: 'drop-shadow(0 0 4px #ffd54a)' }} />}
+                    {s.anomaly && <img src={ANOMALY_ICON} alt="Anomaly" style={{ position: 'absolute', top: -2, right: -2, width: 18, height: 18, imageRendering: 'pixelated', filter: 'drop-shadow(0 0 4px #ff7fe0)' }} />}
+                    {s.caught && !s.shiny && !s.anomaly && <div style={{ position: 'absolute', top: -3, right: -3, width: 16, height: 16, borderRadius: '50%', background: '#7ad17a', border: '2px solid #0b0818', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#062b06', fontWeight: 900 }}>✓</div>}
+                  </div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: '#6a6388', marginTop: 6 }}>#{d.dex}</div>
+                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, color: any ? '#fff' : '#7a7398', lineHeight: 1.1, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</div>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 7 }}>
+                    <button onClick={() => set(d, s.caught ? null : { normal: true, shiny: false, anomaly: false })}
+                      title="Caught" style={{ cursor: 'pointer', width: 22, height: 20, borderRadius: 5, fontSize: 11, background: any ? '#7ad17a33' : '#15112a', border: `1px solid ${any ? '#7ad17a' : '#2a2545'}`, color: any ? '#7ad17a' : '#5f5980' }}>✓</button>
+                    <button onClick={() => set(d, { normal: true, shiny: !s.shiny, anomaly: false })}
+                      title="Shiny" style={{ cursor: 'pointer', width: 22, height: 20, borderRadius: 5, fontSize: 11, background: s.shiny ? '#ffd54a33' : '#15112a', border: `1px solid ${s.shiny ? '#ffd54a' : '#2a2545'}`, color: s.shiny ? '#ffd54a' : '#5f5980' }}>✦</button>
+                    {anomOK
+                      ? <button onClick={() => set(d, { normal: true, shiny: false, anomaly: !s.anomaly })}
+                          title="Anomaly" style={{ cursor: 'pointer', width: 22, height: 20, borderRadius: 5, fontSize: 11, background: s.anomaly ? '#ff7fe033' : '#15112a', border: `1px solid ${s.anomaly ? '#ff7fe0' : '#2a2545'}`, color: s.anomaly ? '#ff7fe0' : '#5f5980' }}>☾</button>
+                      : <button disabled title="This Pokémon has no known anomaly yet" style={{ width: 22, height: 20, borderRadius: 5, fontSize: 10, background: '#0c0a18', border: '1px solid #1d1838', color: '#3a3550', cursor: 'not-allowed' }}>🔒</button>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <p style={{ marginTop: 18, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#5f5980', lineHeight: 1.6 }}>
+          Grid view fills the same Living Dex as the PC Boxes. Tap a sprite to cycle Caught → Shiny → Anomaly, or use the small buttons. Saves automatically on this device.
+        </p>
+      </div>
+    );
+  }
 })();
