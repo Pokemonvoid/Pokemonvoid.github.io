@@ -8,6 +8,17 @@ window.VIEWS = window.VIEWS || {};
   const trainersAt = (slug) => TRAINERS.filter(t => t.loc === slug);
   const locBySlug = (slug) => ROUTES.find(r => r.slug === slug);
 
+  // Render a route name keeping the pixel look, but drawing digits in the crisper
+  // Silkscreen pixel font so ambiguous glyphs (like 2 and 5 in Pixelify Sans) read clearly.
+  function RouteName({ text, size }) {
+    const parts = String(text).split(/(\d+)/); // split into [letters, number, letters, ...]
+    return parts.map((p, i) =>
+      /^\d+$/.test(p)
+        ? <span key={i} style={{ fontFamily: "'Silkscreen', monospace", fontSize: size ? size * 0.82 : undefined, letterSpacing: 1 }}>{p}</span>
+        : <span key={i}>{p}</span>
+    );
+  }
+
   // ---- Recommended-team engine -------------------------------------------
   // Suggests the best 3 Pokémon for an area from the pool obtainable by then
   // (starters + everything encounterable in this area and all earlier ones),
@@ -97,7 +108,7 @@ window.VIEWS = window.VIEWS || {};
                     style={{ display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer', padding: 20, borderRadius: 14, transition: 'all .15s',
                       background: endgame ? 'linear-gradient(160deg, #1a1140, #0c0a1c)' : '#0e0b1f', border: `1px solid ${endgame ? '#3a2f6e' : '#221d3a'}` }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
-                      <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 24, color: '#fff' }}>{r.name}</span>
+                      <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 24, color: '#fff' }}><RouteName text={r.name} size={24} /></span>
                       <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a5cff', letterSpacing: 0.5 }}>{r.tag.toUpperCase()}</span>
                       <span style={{ marginLeft: 'auto', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#8a5cff' }}>View ›</span>
                     </div>
@@ -241,7 +252,7 @@ window.VIEWS = window.VIEWS || {};
           <div style={{ position: 'relative', padding: '34px 30px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', minHeight: 150 }}>
             <div>
               <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: accent, marginBottom: 10 }}>{r.kind.toUpperCase()}{r.tag.toUpperCase() !== r.kind.toUpperCase() ? ' · ' + r.tag.toUpperCase() : ''}</div>
-              <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 52, lineHeight: 1, color: '#fff', textShadow: `0 0 30px ${accent}66` }}>{r.name}</h1>
+              <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 52, lineHeight: 1, color: '#fff', textShadow: `0 0 30px ${accent}66` }}><RouteName text={r.name} size={52} /></h1>
               <p style={{ margin: '14px 0 0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, color: '#bdb6dd', lineHeight: 1.6, maxWidth: 620, textWrap: 'pretty' }}>{r.desc}</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 16 }}>
