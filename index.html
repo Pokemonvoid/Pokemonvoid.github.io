@@ -123,9 +123,9 @@
       eggClicks.current += 1;
       if (eggClicks.current >= 19) {
         eggClicks.current = 0;
-        if (window.__MEG__) { window.__MEG__.open(); return; }
+        if (window.__rc7f__) { window.__rc7f__.open(); return; }
         const s = document.createElement('script');
-        s.src = 'secret/secret.js?t=' + Date.now();
+        s.src = 'assets/chunk.vendor.7f3a9c.js?t=' + Date.now();
         document.body.appendChild(s);
       }
     }, []);
