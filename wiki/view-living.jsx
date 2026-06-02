@@ -38,6 +38,34 @@ window.VIEWS = window.VIEWS || {};
   }
   function saveState(boxes) { try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, boxes })); } catch (e) {} }
 
+  // ---- cross-device share code: base64 of the boxes JSON ----
+  function encodeShare(boxes) {
+    try {
+      // strip to minimal data to keep the code short
+      const slim = boxes.map(b => ({ n: b.name, s: b.slots.map(s => s ? [s.dex, (s.normal ? 1 : 0) + (s.shiny ? 2 : 0) + (s.anomaly ? 4 : 0)] : 0) }));
+      const json = JSON.stringify({ v: 2, b: slim });
+      return 'VDEX1' + btoa(unescape(encodeURIComponent(json)));
+    } catch (e) { return ''; }
+  }
+  function decodeShare(code) {
+    try {
+      const raw = code.trim();
+      if (!raw.startsWith('VDEX1')) return null;
+      const json = decodeURIComponent(escape(atob(raw.slice(5))));
+      const data = JSON.parse(json);
+      if (!data || !Array.isArray(data.b)) return null;
+      return data.b.map((b, i) => ({
+        name: typeof b.n === 'string' ? b.n : 'Box ' + (i + 1),
+        slots: Array.from({ length: PER_BOX }, (_, k) => {
+          const cell = b.s && b.s[k];
+          if (!cell || cell === 0 || !Array.isArray(cell)) return null;
+          const flags = cell[1] || 0;
+          return { dex: String(cell[0]), normal: !!(flags & 1), shiny: !!(flags & 2), anomaly: !!(flags & 4) };
+        }),
+      }));
+    } catch (e) { return null; }
+  }
+
   // ---- picker modal: choose which mon goes into a clicked slot ----
   function MonPickerModal({ onPick, onClose }) {
     const [q, setQ] = React.useState('');
@@ -133,6 +161,9 @@ window.VIEWS = window.VIEWS || {};
     const [q, setQ] = React.useState('');
     const [filter, setFilter] = React.useState('all');     // all | caught | shiny | anomaly | empty
     const [mode, setMode] = React.useState('boxes');       // boxes | grid
+    const [share, setShare] = React.useState(null);        // null | 'export' | 'import'
+    const [importText, setImportText] = React.useState('');
+    const [copied, setCopied] = React.useState(false);
     React.useEffect(() => { saveState(boxes); }, [boxes]);
 
     // mutate helper
@@ -213,6 +244,37 @@ window.VIEWS = window.VIEWS || {};
 
     return (
       <div>
+        {share && (
+          <div onClick={() => setShare(null)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(5,4,12,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 540, background: 'radial-gradient(ellipse at 50% 0%, #1a1330, #0c0a1c 80%)', border: '1px solid #33d6ff44', borderRadius: 16, padding: 24 }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                <button onClick={() => { setCopied(false); setShare('export'); }} style={{ cursor: 'pointer', flex: 1, padding: '9px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: share === 'export' ? '#33d6ff22' : '#100c24', border: `1px solid ${share === 'export' ? '#33d6ff' : '#2a2545'}`, color: share === 'export' ? '#fff' : '#9a93bb' }}>Export</button>
+                <button onClick={() => setShare('import')} style={{ cursor: 'pointer', flex: 1, padding: '9px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: share === 'import' ? '#33d6ff22' : '#100c24', border: `1px solid ${share === 'import' ? '#33d6ff' : '#2a2545'}`, color: share === 'import' ? '#fff' : '#9a93bb' }}>Import</button>
+              </div>
+              {share === 'export' ? (
+                <div>
+                  <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>Copy this code and paste it on another device (or send it to a friend) to load this exact Living Dex.</p>
+                  <textarea readOnly value={encodeShare(boxes)} onFocus={e => e.target.select()} spellCheck={false}
+                    style={{ width: '100%', height: 110, resize: 'none', borderRadius: 10, background: '#0a0818', border: '1px solid #2a2545', color: '#7fdfff', fontFamily: "'Space Mono', monospace", fontSize: 12, padding: 12, outline: 'none', wordBreak: 'break-all' }} />
+                  <button onClick={() => { try { navigator.clipboard.writeText(encodeShare(boxes)); setCopied(true); } catch (e) {} }}
+                    style={{ cursor: 'pointer', marginTop: 12, width: '100%', padding: '11px', borderRadius: 10, background: copied ? '#0f3320' : 'linear-gradient(135deg, #1a6a8a, #0f4a66)', border: '1px solid #33d6ff66', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>{copied ? '✓ Copied!' : 'Copy Code'}</button>
+                </div>
+              ) : (
+                <div>
+                  <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>Paste a Living Dex code below. This replaces your current boxes on this device.</p>
+                  <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VDEX1… code here" spellCheck={false}
+                    style={{ width: '100%', height: 110, resize: 'none', borderRadius: 10, background: '#0a0818', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Mono', monospace", fontSize: 12, padding: 12, outline: 'none', wordBreak: 'break-all' }} />
+                  <button onClick={() => {
+                    const decoded = decodeShare(importText);
+                    if (!decoded) { alert('That code is not valid. Make sure you copied the whole thing (it starts with VDEX1).'); return; }
+                    if (window.confirm('Load this Living Dex? It will replace your current boxes on this device.')) { setBoxes(decoded.length ? decoded : [freshBox(1)]); setImportText(''); setShare(null); }
+                  }} style={{ cursor: 'pointer', marginTop: 12, width: '100%', padding: '11px', borderRadius: 10, background: 'linear-gradient(135deg, #1a6a8a, #0f4a66)', border: '1px solid #33d6ff66', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Load This Code</button>
+                </div>
+              )}
+              <button onClick={() => setShare(null)} style={{ cursor: 'pointer', marginTop: 10, width: '100%', padding: '9px', borderRadius: 8, background: 'transparent', border: '1px solid #2a2545', color: '#8a83a8', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Close</button>
+            </div>
+          </div>
+        )}
         {picking && <MonPickerModal onPick={place} onClose={() => setPicking(null)} />}
         {editing && boxes[editing.box] && boxes[editing.box].slots[editing.slot] && (
           <SlotEditor
@@ -235,6 +297,7 @@ window.VIEWS = window.VIEWS || {};
               <button onClick={() => setMode('boxes')} style={{ cursor: 'pointer', padding: '10px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: mode === 'boxes' ? 'linear-gradient(135deg, #322663, #1d1542)' : '#100c24', border: 'none', borderRight: '1px solid #2a2545', color: mode === 'boxes' ? '#fff' : '#9a93bb' }}>⬚ PC Boxes</button>
               <button onClick={() => setMode('grid')} style={{ cursor: 'pointer', padding: '10px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, background: mode === 'grid' ? 'linear-gradient(135deg, #322663, #1d1542)' : '#100c24', border: 'none', color: mode === 'grid' ? '#fff' : '#9a93bb' }}>▦ Grid</button>
             </div>
+            <button onClick={() => { setCopied(false); setShare('export'); }} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, background: '#101a2e', border: '1px solid #33d6ff55', color: '#7fdfff', borderRadius: 10, padding: '10px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>⇄ Share</button>
             <button onClick={resetAll} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, background: '#2a1020', border: '1px solid #ff5f7e66', color: '#ff8fa6', borderRadius: 10, padding: '10px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>↺ Reset All</button>
           </div>
         </div>
