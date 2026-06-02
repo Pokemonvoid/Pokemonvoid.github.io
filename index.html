@@ -67,12 +67,16 @@
     [style*="grid-template-columns: repeat(2, 1fr)"],
     [style*="grid-template-columns: minmax(280px, 380px) 1fr"],
     [style*="grid-template-columns: 40px 1fr 1fr"],
-    [style*="grid-template-columns: 74px 34px 1fr"] {
+    [style*="grid-template-columns: 74px 34px 1fr"],
+    [style*="grid-template-columns: 1fr 1.05fr"],
+    [style*="grid-template-columns: 1fr 1.15fr"],
+    [style*="grid-template-columns: 210px 1fr"] {
       grid-template-columns: 1fr !important;
     }
 
-    /* tame oversized inline headings (e.g. Living Dex 52px title) */
+    /* tame oversized inline headings (Living Dex 52px title, detail-page 76px name, etc.) */
     h1[style*="font-size: 52px"], h1[style*="font-size: 46px"] { font-size: 30px !important; }
+    h1[style*="font-size: 76px"] { font-size: 40px !important; line-height: 1 !important; }
   }
 </style>
 </head>
