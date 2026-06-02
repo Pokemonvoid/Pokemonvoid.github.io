@@ -40,23 +40,68 @@ window.VIEWS = window.VIEWS || {};
   function saveAll(state) { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
 
   // ---- per-loadout share code ----
+  // Compact format:  VT2~<name>~<dex>.<2charMoveIds...>;<dex>.<...>;...
+  // Each move is a 2-char base36 id from the master list; an unknown move is stored as <Name>.
+  // dex is base36 (so '006' -> '6', '110' -> '32'). Still accepts old VTEAM1 codes.
+  const padDex = (n) => String(n).padStart(3, '0');
   function encodeTeam(loadout) {
     try {
-      const slim = { n: loadout.name, m: loadout.members.map(m => [m.dex, m.moves]) };
-      return 'VTEAM1' + btoa(unescape(encodeURIComponent(JSON.stringify(slim))));
+      const G = window.VGAME;
+      const parts = loadout.members.map(m => {
+        const ids = (m.moves || []).slice(0, 4).map(mv => {
+          const id = G.moveToId(mv);
+          return id ? id : '<' + mv + '>';
+        }).join('');
+        return parseInt(m.dex, 10).toString(36) + '.' + ids;
+      }).join(';');
+      return 'VT2~' + loadout.name + '~' + parts;
     } catch (e) { return ''; }
+  }
+  function _parseMoveIds(str) {
+    const G = window.VGAME, out = [];
+    let i = 0;
+    while (i < str.length && out.length < 4) {
+      if (str[i] === '<') {                       // literal <Name>
+        const end = str.indexOf('>', i);
+        if (end === -1) break;
+        out.push(str.slice(i + 1, end)); i = end + 1;
+      } else {                                     // 2-char id
+        const id = str.slice(i, i + 2);
+        const nm = G.idToMove(id);
+        if (nm) out.push(nm);
+        i += 2;
+      }
+    }
+    return out;
   }
   function decodeTeam(code) {
     try {
       const raw = code.trim();
-      if (!raw.startsWith('VTEAM1')) return null;
-      const d = JSON.parse(decodeURIComponent(escape(atob(raw.slice(6)))));
-      if (!d || !Array.isArray(d.m)) return null;
-      return {
-        id: 'L' + Date.now(),
-        name: typeof d.n === 'string' ? d.n : 'Imported Team',
-        members: d.m.slice(0, MAXTEAM).map(x => ({ dex: String(x[0]), moves: Array.isArray(x[1]) ? x[1].slice(0, 4) : [] })),
-      };
+      const G = window.VGAME;
+      if (raw.startsWith('VT2~')) {
+        const body = raw.slice(4);
+        const sep = body.indexOf('~');
+        const name = sep >= 0 ? body.slice(0, sep) : 'Imported Team';
+        const rest = sep >= 0 ? body.slice(sep + 1) : '';
+        const members = rest ? rest.split(';').filter(Boolean).slice(0, MAXTEAM).map(seg => {
+          const dot = seg.indexOf('.');
+          const dexRaw = dot >= 0 ? seg.slice(0, dot) : seg;
+          const movesStr = dot >= 0 ? seg.slice(dot + 1) : '';
+          return { dex: padDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
+        }) : [];
+        return { id: 'L' + Date.now(), name: name || 'Imported Team', members };
+      }
+      // legacy VTEAM1 (base64 JSON)
+      if (raw.startsWith('VTEAM1')) {
+        const d = JSON.parse(decodeURIComponent(escape(atob(raw.slice(6)))));
+        if (!d || !Array.isArray(d.m)) return null;
+        return {
+          id: 'L' + Date.now(),
+          name: typeof d.n === 'string' ? d.n : 'Imported Team',
+          members: d.m.slice(0, MAXTEAM).map(x => ({ dex: String(x[0]), moves: Array.isArray(x[1]) ? x[1].slice(0, 4) : [] })),
+        };
+      }
+      return null;
     } catch (e) { return null; }
   }
 
@@ -182,7 +227,7 @@ window.VIEWS = window.VIEWS || {};
     });
     const importLoadout = () => {
       const lo = decodeTeam(importText);
-      if (!lo) { alert('That team code is not valid. Make sure you copied the whole thing (it starts with VTEAM1).'); return; }
+      if (!lo) { alert('That team code is not valid. Make sure you copied the whole thing (it starts with VT2).'); return; }
       setData(d => ({ loadouts: [...d.loadouts, lo], active: d.loadouts.length }));
       setImportText(''); setShare(null);
     };
@@ -253,7 +298,7 @@ window.VIEWS = window.VIEWS || {};
               ) : (
                 <div>
                   <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>Paste a team code below. It's added as a new loadout (your current teams are kept).</p>
-                  <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VTEAM1… code here" spellCheck={false}
+                  <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VT2… code here" spellCheck={false}
                     style={{ width: '100%', height: 110, resize: 'none', borderRadius: 10, background: '#0a0818', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Mono', monospace", fontSize: 12, padding: 12, outline: 'none', wordBreak: 'break-all' }} />
                   <button onClick={importLoadout} style={{ cursor: 'pointer', marginTop: 12, width: '100%', padding: '11px', borderRadius: 10, background: 'linear-gradient(135deg, #4a3a9a, #2d2270)', border: '1px solid #6a52c0', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Add as New Loadout</button>
                 </div>

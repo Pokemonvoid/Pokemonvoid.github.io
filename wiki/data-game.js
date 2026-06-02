@@ -9217,5 +9217,20 @@ const TRAINERS = [
     return { x4, x2, half, quarter, immune };
   };
 
-  return { MOVES, ABILITIES, ITEMS, PICKUP, ROUTES, TRAINERS, CHART, eff, TYPE_ORDER, byMove, computeMatchups, computeMatchupsDetailed };
+  // ---- share-code compression helpers (used by Team Builder + Living Dex) ----
+  // Stable alphabetical move-id map: name <-> 2-char base36 id.
+  // Sorted by name so adding NEW moves later never shifts existing ids (old codes stay valid).
+  let _moveIds = null, _idMoves = null;
+  const _mvNorm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  function _buildMoveIds() {
+    const names = Array.from(new Set(MOVES.flat().map(m => m.name))).sort((a, b) => a.localeCompare(b));
+    _moveIds = new Map(); _idMoves = new Map();
+    names.forEach((n, i) => { const id = i.toString(36).padStart(2, '0'); _moveIds.set(_mvNorm(n), id); _idMoves.set(id, n); });
+  }
+  const moveToId = (name) => { if (!_moveIds) _buildMoveIds(); return _moveIds.get(_mvNorm(name)) || null; };
+  const idToMove = (id) => { if (!_idMoves) _buildMoveIds(); return _idMoves.get(id) || null; };
+
+
+
+  return { MOVES, ABILITIES, ITEMS, PICKUP, ROUTES, TRAINERS, CHART, eff, TYPE_ORDER, byMove, computeMatchups, computeMatchupsDetailed, moveToId, idToMove };
 })();

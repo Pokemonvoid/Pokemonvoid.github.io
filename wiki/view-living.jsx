@@ -38,31 +38,72 @@ window.VIEWS = window.VIEWS || {};
   }
   function saveState(boxes) { try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, boxes })); } catch (e) {} }
 
-  // ---- cross-device share code: base64 of the boxes JSON ----
+  // ---- cross-device share code (compact) ----
+  // VD2~boxName~slots;boxName~slots;...   slots = per-slot tokens:
+  //   filled = <dex base36, 2 chars><flag 1 char>  (flag: 1=normal,2=shiny,4=anomaly, base36)
+  //   empties = run-length "-N"  (e.g. "-30" = 30 empty slots). Still reads old VDEX1 codes.
   function encodeShare(boxes) {
     try {
-      // strip to minimal data to keep the code short
-      const slim = boxes.map(b => ({ n: b.name, s: b.slots.map(s => s ? [s.dex, (s.normal ? 1 : 0) + (s.shiny ? 2 : 0) + (s.anomaly ? 4 : 0)] : 0) }));
-      const json = JSON.stringify({ v: 2, b: slim });
-      return 'VDEX1' + btoa(unescape(encodeURIComponent(json)));
+      const segs = boxes.map(b => {
+        let out = '', empties = 0;
+        const flush = () => { if (empties) { out += '-' + empties + '.'; empties = 0; } };
+        for (const s of b.slots) {
+          if (!s) { empties++; continue; }
+          flush();
+          const flag = (s.normal ? 1 : 0) + (s.shiny ? 2 : 0) + (s.anomaly ? 4 : 0);
+          out += parseInt(s.dex, 10).toString(36).padStart(2, '0') + flag.toString(36);
+        }
+        flush();
+        return (b.name || '') + '~' + out;
+      });
+      return 'VD2~' + segs.join(';');
     } catch (e) { return ''; }
   }
   function decodeShare(code) {
     try {
       const raw = code.trim();
-      if (!raw.startsWith('VDEX1')) return null;
-      const json = decodeURIComponent(escape(atob(raw.slice(5))));
-      const data = JSON.parse(json);
-      if (!data || !Array.isArray(data.b)) return null;
-      return data.b.map((b, i) => ({
-        name: typeof b.n === 'string' ? b.n : 'Box ' + (i + 1),
-        slots: Array.from({ length: PER_BOX }, (_, k) => {
-          const cell = b.s && b.s[k];
-          if (!cell || cell === 0 || !Array.isArray(cell)) return null;
-          const flags = cell[1] || 0;
-          return { dex: String(cell[0]), normal: !!(flags & 1), shiny: !!(flags & 2), anomaly: !!(flags & 4) };
-        }),
-      }));
+      if (raw.startsWith('VD2~')) {
+        const segs = raw.slice(4).split(';').filter(s => s.length);
+        return segs.map((seg, bi) => {
+          const tilde = seg.indexOf('~');
+          const name = tilde >= 0 ? seg.slice(0, tilde) : 'Box ' + (bi + 1);
+          const body = tilde >= 0 ? seg.slice(tilde + 1) : '';
+          const slots = [];
+          let i = 0;
+          while (i < body.length && slots.length < PER_BOX) {
+            if (body[i] === '-') {                 // run of empties: -N.
+              let j = i + 1, num = '';
+              while (j < body.length && /[0-9]/.test(body[j])) { num += body[j]; j++; }
+              if (body[j] === '.') j++;             // consume terminator
+              const n = parseInt(num, 10) || 0;
+              for (let k = 0; k < n && slots.length < PER_BOX; k++) slots.push(null);
+              i = j;
+            } else {                                // dex(2) + flag(1)
+              const dex = String(parseInt(body.slice(i, i + 2), 36)).padStart(3, '0');
+              const flag = parseInt(body[i + 2], 36) || 0;
+              slots.push({ dex, normal: !!(flag & 1), shiny: !!(flag & 2), anomaly: !!(flag & 4) });
+              i += 3;
+            }
+          }
+          while (slots.length < PER_BOX) slots.push(null);
+          return { name, slots };
+        });
+      }
+      // legacy VDEX1 (base64 JSON)
+      if (raw.startsWith('VDEX1')) {
+        const data = JSON.parse(decodeURIComponent(escape(atob(raw.slice(5)))));
+        if (!data || !Array.isArray(data.b)) return null;
+        return data.b.map((b, i) => ({
+          name: typeof b.n === 'string' ? b.n : 'Box ' + (i + 1),
+          slots: Array.from({ length: PER_BOX }, (_, k) => {
+            const cell = b.s && b.s[k];
+            if (!cell || cell === 0 || !Array.isArray(cell)) return null;
+            const flags = cell[1] || 0;
+            return { dex: String(cell[0]), normal: !!(flags & 1), shiny: !!(flags & 2), anomaly: !!(flags & 4) };
+          }),
+        }));
+      }
+      return null;
     } catch (e) { return null; }
   }
 
@@ -262,11 +303,11 @@ window.VIEWS = window.VIEWS || {};
               ) : (
                 <div>
                   <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>Paste a Living Dex code below. This replaces your current boxes on this device.</p>
-                  <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VDEX1… code here" spellCheck={false}
+                  <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VD2… code here" spellCheck={false}
                     style={{ width: '100%', height: 110, resize: 'none', borderRadius: 10, background: '#0a0818', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Mono', monospace", fontSize: 12, padding: 12, outline: 'none', wordBreak: 'break-all' }} />
                   <button onClick={() => {
                     const decoded = decodeShare(importText);
-                    if (!decoded) { alert('That code is not valid. Make sure you copied the whole thing (it starts with VDEX1).'); return; }
+                    if (!decoded) { alert('That code is not valid. Make sure you copied the whole thing (it starts with VD2).'); return; }
                     if (window.confirm('Load this Living Dex? It will replace your current boxes on this device.')) { setBoxes(decoded.length ? decoded : [freshBox(1)]); setImportText(''); setShare(null); }
                   }} style={{ cursor: 'pointer', marginTop: 12, width: '100%', padding: '11px', borderRadius: 10, background: 'linear-gradient(135deg, #1a6a8a, #0f4a66)', border: '1px solid #33d6ff66', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Load This Code</button>
                 </div>
