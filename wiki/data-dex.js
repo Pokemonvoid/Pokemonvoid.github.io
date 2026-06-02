@@ -81,7 +81,6 @@ window.VDEX = (function () {
       flavor: 'Terradua treat their boulders with lots of tender love and care. Some have boulders so well kept that they sparkle like crystals.',
       evo: { from: '001', to: '003', method: 'Lv 16' },
       levelMoves: [
-        M('0', 'Rock Tomb'),
         M('1', 'Rock Tomb'),
         M('1', 'Tackle'),
         M('1', 'Defense Curl'),
@@ -118,7 +117,6 @@ window.VDEX = (function () {
       flavor: 'Terratlus, known as "Protectors", are calm and kind, devoted to the rock they\'ve kept. It\'s said that their rocks hold the light of the world.',
       evo: { from: '002', method: 'Lv 38' },
       levelMoves: [
-        M('0', 'Divine Gift'),
         M('1', 'Divine Gift'),
         M('1', 'Rock Tomb'),
         M('1', 'Tackle'),
@@ -157,7 +155,7 @@ window.VDEX = (function () {
       abilities: ['Blaze'],
       hidden: 'Competitive',
       stats: { HP: 45, ATK: 60, DEF: 45, SPA: 52, SPD: 45, SPE: 63 },
-      flavor: 'Flaret are most often seen on clears nights in groups of 4-5, stargazing. When excited, their tails can heat up to over 1000°F.”',
+      flavor: 'Flaret are most often seen on clear nights in groups of 4-5, stargazing. When excited, their tails can heat up to over 1000°F.',
       evo: { to: '005' },
       levelMoves: [
         M('1', 'Tackle'),
@@ -198,7 +196,6 @@ window.VDEX = (function () {
       flavor: 'The stars in Warrpen’s tail are stars that have yet to be born. When that time comes, they disappear from its tail.',
       evo: { from: '004', to: '006', method: 'Lv 16' },
       levelMoves: [
-        M('0', 'Space Dust'),
         M('1', 'Space Dust'),
         M('1', 'Tackle'),
         M('1', 'Tail Whip'),
@@ -235,10 +232,9 @@ window.VDEX = (function () {
       abilities: ['Burning Novae', 'Blaze'],
       hidden: 'Competitive',
       stats: { HP: 75, ATK: 96, DEF: 72, SPA: 102, SPD: 72, SPE: 113 },
-      flavor: 'Unlike its previous stage, Galeliadea’s stars are dying. As they fade, they ripple across it\'s body in stunning colors',
+      flavor: 'Unlike its previous stage, Galeliadea’s stars are dying. As they fade, they ripple across its body in stunning colors',
       evo: { from: '005', method: 'Lv 38' },
       levelMoves: [
-        M('0', 'Cleansing Flames'),
         M('1', 'Cleansing Flames'),
         M('1', 'Space Dust'),
         M('1', 'Tackle'),
@@ -319,7 +315,6 @@ window.VDEX = (function () {
       flavor: 'Popnaut love to jump around and are full of energy. They may not know much, but they put all of their energy towards having fun.',
       evo: { from: '007', to: '009', method: 'Lv 16' },
       levelMoves: [
-        M('0', 'Swift'),
         M('1', 'Swift'),
         M('1', 'Pound'),
         M('1', 'Growl'),
@@ -359,7 +354,6 @@ window.VDEX = (function () {
       flavor: 'Kodinaut love silent and dark places like the bottom of the ocean, known for its calm and silence. It\'s said that if awoken, a calamity soon follows.',
       evo: { from: '008', method: 'Lv 38' },
       levelMoves: [
-        M('0', 'Sonar Ping'),
         M('1', 'Sonar Ping'),
         M('1', 'Swift'),
         M('1', 'Pound'),
@@ -435,7 +429,7 @@ window.VDEX = (function () {
       abilities: ['Merciless', 'Poison Touch'],
       hidden: 'Overcoat',
       stats: { HP: 57, ATK: 46, DEF: 56, SPA: 74, SPD: 68, SPE: 87 },
-      flavor: 'Buzzant are oppurtunistic, known to pick on poisoned Pokémon, attacking them until they faint.',
+      flavor: 'Buzzant are opportunistic, known to pick on poisoned Pokémon, attacking them until they faint.',
       evo: { from: '010', to: '012', method: 'Lv 14' },
       levelMoves: [
         M('1', 'Tackle'),
@@ -475,7 +469,7 @@ window.VDEX = (function () {
       flavor: 'Grimazos are said to spread poison and sickness wherever it goes, though it seems to be a choice they make themselves.',
       evo: { from: '011', method: 'Lv 30' },
       levelMoves: [
-        M('0', 'Venoshock'),  // REVIEW name
+        M('1', 'Venoshock'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Growl'),
         M('1', 'Gust'),  // REVIEW name
@@ -514,7 +508,7 @@ window.VDEX = (function () {
       abilities: ['Pick up', 'Frisk'],
       hidden: 'Pickpocket',
       stats: { HP: 37, ATK: 42, DEF: 40, SPA: 32, SPD: 37, SPE: 54 },
-      flavor: 'Inspired by trashed, old, comic books, Racraft dream of becoming heroes. Their favorite powers are high durability, super speed and flight.',
+      flavor: 'Inspired by trashed, old, comic books, Rarcraft dream of becoming heroes. Their favorite powers are high durability, super speed and flight.',
       evo: { to: ['014', '015', '016'] },
       levelMoves: [
         M('1', 'Scratch'),  // REVIEW name
@@ -559,7 +553,6 @@ window.VDEX = (function () {
       flavor: 'Inspired by the hero "Might Knight", Raclank shields themselves with a trash can. No amount of heat or blunt force can put a dent into it.',
       evo: { from: '013', method: 'Lv 20 (Near Trash Can)' },
       levelMoves: [
-        M('0', 'Bulletpunch'),  // REVIEW name
         M('1', 'Bulletpunch'),  // REVIEW name
         M('1', 'Switcheroo'),  // REVIEW name
         M('1', 'Naturepower'),  // REVIEW name
@@ -607,7 +600,6 @@ window.VDEX = (function () {
       flavor: 'Inspired by the heroine "Harpyie", Rasoar use wings made out of newspapers to fly. Strangely, some of the newspapers showcase headlines from the future.',
       evo: { from: '013', method: 'Lv 20 (Near Quest Board)' },
       levelMoves: [
-        M('0', 'Wingattack'),  // REVIEW name
         M('1', 'Wingattack'),  // REVIEW name
         M('1', 'Switcheroo'),  // REVIEW name
         M('1', 'Naturepower'),  // REVIEW name
@@ -655,8 +647,6 @@ window.VDEX = (function () {
       flavor: 'Inspired by the hero "Sugar Rush", Razoom fuels itself with fizzed up energy drinks, racing beyond the naked eye. But never enough for time travel.',
       evo: { from: '013', method: 'Lv 20 (Near Vending Machine)' },
       levelMoves: [
-        M('0', 'Swift'),
-        M('0', 'Electroball'),  // REVIEW name
         M('1', 'Swift'),
         M('1', 'Electroball'),  // REVIEW name
         M('1', 'Switcheroo'),  // REVIEW name
@@ -733,7 +723,6 @@ window.VDEX = (function () {
       flavor: 'In ancient times their shell was used as armor. Concewn strangely enjoy taking hits and seek out strong attackers.',
       evo: { from: '017', to: '019', method: 'Lv 12' },
       levelMoves: [
-        M('0', 'Irondefense'),  // REVIEW name
         M('1', 'Irondefense'),  // REVIEW name
         M('1', 'Smackdown'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
@@ -770,7 +759,6 @@ window.VDEX = (function () {
       flavor: 'An enraged Rihnihilate can smash through walls, trees and even creatures alike to reach its target, earning the title "unstoppable force".',
       evo: { from: '018', method: 'Lv 32' },
       levelMoves: [
-        M('0', 'Drillrun'),  // REVIEW name
         M('1', 'Drillrun'),  // REVIEW name
         M('1', 'Irondefense'),  // REVIEW name
         M('1', 'Smackdown'),  // REVIEW name
@@ -850,7 +838,7 @@ window.VDEX = (function () {
       flavor: 'Their large bodies make them too heavy for flight, so instead, they use their strength to build ample rock niches with materials gathered by Dustalon.',
       evo: { from: '020', method: 'Lv 30 (Male)' },
       levelMoves: [
-        M('0', 'Muddywall'),  // REVIEW name
+        M('1', 'Muddywall'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Sand Attack'),
         M('1', 'Quickattack'),  // REVIEW name
@@ -890,7 +878,7 @@ window.VDEX = (function () {
       flavor: 'Their quick and nimble bodies make them able to fly, which helps them survey the ground and gather food for the group.',
       evo: { from: '020', method: 'Lv 30 (Female)' },
       levelMoves: [
-        M('0', 'Sandblast'),  // REVIEW name
+        M('1', 'Sandblast'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Sand Attack'),
         M('1', 'Quickattack'),  // REVIEW name
@@ -971,7 +959,6 @@ window.VDEX = (function () {
       flavor: 'Maulmot is immensely strong yet shuns conflict, using its bulk to block cave entrances, but would rather take a nap than throw a punch.',
       evo: { from: '023', method: 'Lv 25' },
       levelMoves: [
-        M('0', 'Obstruct'),  // REVIEW name
         M('1', 'Obstruct'),  // REVIEW name
         M('1', 'Bodypress'),  // REVIEW name
         M('1', 'Nastyplot'),  // REVIEW name
@@ -1057,7 +1044,6 @@ window.VDEX = (function () {
       flavor: 'Grantula are extremely loyal to their trainers. If you spend enough time with one, it will knit you a sweater using its yarn.',
       evo: { from: '025', method: 'Lv 15' },
       levelMoves: [
-        M('0', 'Silktrap'),  // REVIEW name
         M('1', 'Silktrap'),  // REVIEW name
         M('1', 'Fairywind'),  // REVIEW name
         M('1', 'Stringshot'),  // REVIEW name
@@ -1131,7 +1117,7 @@ window.VDEX = (function () {
       flavor: 'Now much braver, Peaknight is a noble fighter. It is said that ancient warriors modeled their armor after Peaknight\'s hard exterior.',
       evo: { from: '027', method: 'Level Up with Assault Vest' },
       levelMoves: [
-        M('0', 'Machpunch'),  // REVIEW name
+        M('1', 'Machpunch'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Bulletseed'),  // REVIEW name
@@ -1253,7 +1239,6 @@ window.VDEX = (function () {
       flavor: 'Capibarron emerge when Capicharga absorb ice from a snowstorm. They unleash freeze lightning at sub-zero temperatures, storing it for later.',
       evo: { from: '030', method: 'Knows Frost Breath' },
       levelMoves: [
-        M('0', 'Iondeluge'),  // REVIEW name
         M('1', 'Iondeluge'),  // REVIEW name
         M('1', 'Belly Drum'),
         M('1', 'Doubleslap'),  // REVIEW name
@@ -1479,7 +1464,6 @@ window.VDEX = (function () {
       flavor: 'Hydrena possess the most lethal bite of any Pokémon, with teeth capable of firing pressurized water. Packs are led by the oldest female.',
       evo: { from: '036', method: 'Lv 30' },
       levelMoves: [
-        M('0', 'Eclipsestrike'),  // REVIEW name
         M('1', 'Eclipsestrike'),  // REVIEW name
         M('1', 'Tractorbeam'),  // REVIEW name
         M('1', 'Icefang'),  // REVIEW name
@@ -1561,7 +1545,6 @@ window.VDEX = (function () {
       flavor: 'Bision anger quickly; though its charge is easy to dodge, its tail strikes independently and cannot be avoided.',
       evo: { from: '038', to: '040', method: 'Lv 15' },
       levelMoves: [
-        M('0', 'Poisontail'),  // REVIEW name
         M('1', 'Poisontail'),  // REVIEW name
         M('1', 'Poisonsting'),  // REVIEW name
         M('1', 'Tail Whip'),
@@ -1599,7 +1582,6 @@ window.VDEX = (function () {
       flavor: 'Constantly filled with rage and energy, Taurocnid store an assortment of toxins in its three tails; neurotoxin, cytotoxin, and sedative.',
       evo: { from: '039', method: 'Lv 40' },
       levelMoves: [
-        M('0', 'Ragingbull'),  // REVIEW name
         M('1', 'Ragingbull'),  // REVIEW name
         M('1', 'Poisontail'),  // REVIEW name
         M('1', 'Poisonsting'),  // REVIEW name
@@ -1678,7 +1660,6 @@ window.VDEX = (function () {
       flavor: 'Furilage are friendly yet a gardener’s nightmare, digging up plants and crops to claim their place for easy water and fertilizer.',
       evo: { from: '041', to: '043', method: 'Lv 22' },
       levelMoves: [
-        M('0', 'Grassyterrain'),  // REVIEW name
         M('1', 'Grassyterrain'),  // REVIEW name
         M('1', 'Leafage'),
         M('1', 'Leer'),  // REVIEW name
@@ -1718,7 +1699,6 @@ window.VDEX = (function () {
       flavor: 'A happy Grizzlawn releases pheromones that boost plant growth, but its fur demands constant care and mistreatment can make it aggressive.',
       evo: { from: '042', method: 'Leaf Stone' },
       levelMoves: [
-        M('0', 'Woodhammer'),  // REVIEW name
         M('1', 'Woodhammer'),  // REVIEW name
         M('1', 'Grassyterrain'),  // REVIEW name
         M('1', 'Leafage'),
@@ -1797,7 +1777,6 @@ window.VDEX = (function () {
       flavor: 'If left in soil too long, Rotato develops soft, dark patches. To avoid being picked, it releases an odor that leaves farmers and trainers dizzy.',
       evo: { from: '044', to: '046', method: 'Lv 18' },
       levelMoves: [
-        M('0', 'Bite'),  // REVIEW name
         M('1', 'Bite'),  // REVIEW name
         M('1', 'Absorb'),  // REVIEW name
         M('1', 'Growth'),  // REVIEW name
@@ -1837,7 +1816,6 @@ window.VDEX = (function () {
       flavor: 'Blightato thrives in abandoned fields. Its flesh and leaves rot so deeply that entire harvests are forsaken once it\'s beneath the soil.',
       evo: { from: '045', method: 'Lv 35' },
       levelMoves: [
-        M('0', 'Gastroacid'),  // REVIEW name
         M('1', 'Gastroacid'),  // REVIEW name
         M('1', 'Block'),  // REVIEW name
         M('1', 'Bite'),  // REVIEW name
@@ -1915,10 +1893,9 @@ window.VDEX = (function () {
       abilities: ['Berserk'],
       hidden: 'Guard Dog',
       stats: { HP: 70, ATK: 72, DEF: 105, SPA: 45, SPD: 90, SPE: 85 },
-      flavor: 'Rocweilers are protective of trainers who raised them till it\'s out of its rock. Newly caught Rockweilers will take time to gain its trust.',
+      flavor: 'Rocweilers are protective of trainers who raised them till it\'s out of its rock. Newly caught Rocweilers will take time to gain its trust.',
       evo: { from: '047', method: 'Lv 20' },
       levelMoves: [
-        M('0', 'Spikyshield'),  // REVIEW name
         M('1', 'Spikyshield'),  // REVIEW name
         M('1', 'Bide'),  // REVIEW name
         M('1', 'Rollout'),  // REVIEW name
@@ -2048,7 +2025,6 @@ window.VDEX = (function () {
       flavor: 'Little is known about Equinine, though they are said to be the Grandmasters of all Twilikind, commanding multiple packs across their territories.',
       evo: { from: '050', method: 'Shiny Stone' },
       levelMoves: [
-        M('0', 'Duality'),  // REVIEW name
         M('1', 'Duality'),  // REVIEW name
         M('1', 'Feint'),  // REVIEW name
         M('1', 'Growl'),
@@ -2135,7 +2111,7 @@ window.VDEX = (function () {
       abilities: ['Color Change', 'Protean'],
       hidden: 'Adaptability',
       stats: { HP: 74, ATK: 54, DEF: 54, SPA: 124, SPD: 89, SPE: 89 },
-      flavor: 'Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifted from the chaotic Karmold to the temperament it grows closest to.',
+      flavor: 'Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.',
       evo: { from: '052', method: 'Lv 32 (Form based on friendship)' },
       forms: [
         { name: 'Kamoleon (Low Friendship)', trigger: 'Appears when its bond with its trainer is weak.', types: ['NORMAL', 'PSYCHIC'], spriteSuffix: 'low', desc: 'A more guarded, chaotic temperament inherited from its pre-evolution.' },
@@ -2207,7 +2183,7 @@ window.VDEX = (function () {
       abilities: ['Run Away', 'Pick Up'],
       hidden: 'Fur Coat',
       stats: { HP: 60, ATK: 55, DEF: 65, SPA: 55, SPD: 55, SPE: 65 },
-      flavor: 'Purssume, found in the middle of routes, trails, and roads. It seems to always throw itself in harms way from the lack of their parent.',
+      flavor: 'Purssume, found in the middle of routes, trails, and roads. It seems to always throw itself in harm’s way from the lack of their parent.',
       evo: { to: ['057', '058'] },
       levelMoves: [
         M('1', 'Astonish'),  // REVIEW name
@@ -2247,10 +2223,9 @@ window.VDEX = (function () {
       abilities: ['Anticipation', 'Cursed body'],
       hidden: 'Perish body',
       stats: { HP: 80, ATK: 35, DEF: 85, SPA: 120, SPD: 100, SPE: 65 },
-      flavor: 'Fellsum results from Purssume\'s desire to harm itself, finding solace in aiding fainted and wild Purssume, protecting them at whatever cost..',
+      flavor: 'Fellsum results from Purssume\'s desire to harm itself, finding solace in aiding fainted and wild Purssume, protecting them at whatever cost.',
       evo: { from: '056', method: 'Lv 30 + Fainted 10 times' },
       levelMoves: [
-        M('0', 'Shadowball'),  // REVIEW name
         M('1', 'Shadowball'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
         M('1', 'Growl'),
@@ -2294,7 +2269,6 @@ window.VDEX = (function () {
       flavor: 'Foundsum is a result of a Purssume\'s wish to shield others from its own fate, embracing fellow Purssume with warmth and power.',
       evo: { from: '056', method: 'Lv 30 + High Friendship' },
       levelMoves: [
-        M('0', 'Drainingkiss'),  // REVIEW name
         M('1', 'Drainingkiss'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
         M('1', 'Growl'),
@@ -2470,7 +2444,6 @@ window.VDEX = (function () {
       flavor: 'It is said that Orbalink acts as a bridge between worlds, transmitting unknown types of energy and waves across vast cosmic distances.',
       evo: { from: '061', method: 'Moonstone' },
       levelMoves: [
-        M('0', 'Happilyeverafter'),  // REVIEW name
         M('1', 'Happilyeverafter'),  // REVIEW name
         M('1', 'Phaser'),  // REVIEW name
         M('1', 'Growl'),
@@ -2555,7 +2528,6 @@ window.VDEX = (function () {
       flavor: 'Like a guardian of the reefs, Swimatonic carves graceful paths through the ocean, leaving shimmering trails that help reefs flourish.',
       evo: { from: '063', method: 'Lv 30' },
       levelMoves: [
-        M('0', 'Sparklingaria'),  // REVIEW name
         M('1', 'Sparklingaria'),  // REVIEW name
         M('1', 'Bubble'),
         M('1', 'Growl'),
@@ -2662,7 +2634,6 @@ window.VDEX = (function () {
       flavor: 'Sedimage is deeply attached to its staff, using it to carve trails of glistening molten rock that mark its territory.',
       evo: { from: '067', method: 'Fire Stone' },
       levelMoves: [
-        M('0', 'Ember'),
         M('1', 'Ember'),
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -2712,7 +2683,6 @@ window.VDEX = (function () {
       flavor: 'Meditation is one of Sedimonk’s favorite activities. It often sits near rivers, canals, or any body of water to find peace.',
       evo: { from: '067', method: 'Water Stone' },
       levelMoves: [
-        M('0', 'Aquajet'),  // REVIEW name
         M('1', 'Aquajet'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -2759,10 +2729,9 @@ window.VDEX = (function () {
       abilities: ['Natural Cure'],
       hidden: 'Serene Grace',
       stats: { HP: 90, ATK: 50, DEF: 130, SPA: 70, SPD: 110, SPE: 80 },
-      flavor: 'Sedruid stands watch at the edge of forests. Its rocky frame shields the trees, while its leafy body is said to be able to restores damaged soil.',
+      flavor: 'Sedruid stands watch at the edge of forests. Its rocky frame shields the trees, while its leafy body is said to be able to restore damaged soil.',
       evo: { from: '067', method: 'Leaf Stone' },
       levelMoves: [
-        M('0', 'Trailblaze'),  // REVIEW name
         M('1', 'Trailblaze'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -2812,7 +2781,6 @@ window.VDEX = (function () {
       flavor: 'Sedificer’s glowing crystals hum like generators. It delights in crafting buzzing gadgets, startling opponents with sudden bursts of electricity.',
       evo: { from: '067', method: 'Thunder Stone' },
       levelMoves: [
-        M('0', 'Chargebeam'),  // REVIEW name
         M('1', 'Chargebeam'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -2863,7 +2831,6 @@ window.VDEX = (function () {
       flavor: 'Sedivout’s armor gleams with starlight, crowned by purple flames. It channels the vast silence of space itself.',
       evo: { from: '067', method: 'Sun Stone' },
       levelMoves: [
-        M('0', 'Bulletpunch'),  // REVIEW name
         M('1', 'Bulletpunch'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -2910,10 +2877,9 @@ window.VDEX = (function () {
       abilities: ['Unburden'],
       hidden: 'Stakeout',
       stats: { HP: 50, ATK: 110, DEF: 90, SPA: 80, SPD: 70, SPE: 130 },
-      flavor: 'Its chest glows with a cursed core. Sedirouge moves in the shade and shadows, striking swiftly before vanishing into smoke.',
+      flavor: 'Its chest glows with a cursed core. Sedirogue moves in the shade and shadows, striking swiftly before vanishing into smoke.',
       evo: { from: '067', method: 'Moon Stone' },
       levelMoves: [
-        M('0', 'Pursuit'),  // REVIEW name
         M('1', 'Pursuit'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -2963,7 +2929,6 @@ window.VDEX = (function () {
       flavor: 'Sediserker charges into battle with twin axes of frozen stone. Its icy mane blazes with fury, fighting till the battlefield itself cracks.',
       evo: { from: '067', method: 'Ice Stone' },
       levelMoves: [
-        M('0', 'Iceshard'),  // REVIEW name
         M('1', 'Iceshard'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -3013,7 +2978,6 @@ window.VDEX = (function () {
       flavor: 'when sedimite absorbs dawn energy it becomes the perfect hunter, it’s said this pokemon never misses its prey. Some say this is a "fan favorite flying type pokemon".',
       evo: { from: '067', method: 'Dawn Stone' },
       levelMoves: [
-        M('0', 'Gust'),  // REVIEW name
         M('1', 'Gust'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -3064,7 +3028,6 @@ window.VDEX = (function () {
       flavor: 'Sedimancer weaves ghostly energy into stone, raising walls that shift like living shadows. It is feared as the builder of haunted fortresses.',
       evo: { from: '067', method: 'Dusk Stone' },
       levelMoves: [
-        M('0', 'Nightshade'),  // REVIEW name
         M('1', 'Nightshade'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -3115,7 +3078,6 @@ window.VDEX = (function () {
       flavor: 'Sediric’s body glows with divine energy. It is known to restore vitality by bathing companions in radiant waves.',
       evo: { from: '067', method: 'Shiny Stone' },
       levelMoves: [
-        M('0', 'Divineslash'),  // REVIEW name
         M('1', 'Divineslash'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -3166,7 +3128,6 @@ window.VDEX = (function () {
       flavor: 'Sedilock glows with stardust, testing trainers with riddles; when angered, its aura is said to be strong enough to bend gravity.',
       evo: { from: '067', method: 'Cosmic Stone' },
       levelMoves: [
-        M('0', 'Starshot'),  // REVIEW name
         M('1', 'Starshot'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
@@ -3317,7 +3278,6 @@ window.VDEX = (function () {
       flavor: 'As they amass so much heat, it collapses into itself, resulting in a phenomenon called a supernova, becoming the unstable form that it is.',
       evo: { from: '082', method: 'Lv 50' },
       levelMoves: [
-        M('0', 'Brightcannon'),  // REVIEW name
         M('1', 'Brightcannon'),  // REVIEW name
         M('1', 'Supernova'),
         M('1', 'Destinybond'),  // REVIEW name
@@ -3397,10 +3357,9 @@ window.VDEX = (function () {
       abilities: ['Infiltrator', 'Suprise'],
       hidden: 'Fluffy',
       stats: { HP: 120, ATK: 93, DEF: 101, SPA: 93, SPD: 57, SPE: 45 },
-      flavor: 'Amalgaton are larger, braver Bunbris. Though still playful at heart, their size makes most trainers either battle them or flee from fear',
+      flavor: 'Amalgaton are larger, braver Bunbris. Though still playful at heart, their size makes most trainers either battle them or flee from fear.',
       evo: { from: '084', method: 'Lv 30 + full party of Bunbris' },
       levelMoves: [
-        M('0', 'Phantomforce'),  // REVIEW name
         M('1', 'Phantomforce'),  // REVIEW name
         M('1', 'Shadowsneak'),  // REVIEW name
         M('1', 'Pound'),
@@ -3484,7 +3443,6 @@ window.VDEX = (function () {
       flavor: 'Unlike their pre-evo, Flarflock despise music. Their cry is a rough croak, not a chirp, and it visibly frustrates them.',
       evo: { from: '086', to: '088', method: 'Lv 15' },
       levelMoves: [
-        M('0', 'Flatter'),  // REVIEW name
         M('1', 'Flatter'),  // REVIEW name
         M('1', 'Peck'),  // REVIEW name
         M('1', 'Growl'),
@@ -3528,7 +3486,6 @@ window.VDEX = (function () {
       flavor: 'With its tail feathers, Bawkurn weaves enchanting melodies. Regaining its singing voice, it manipulates fire by shifting notes.',
       evo: { from: '087', method: 'Lv 32' },
       levelMoves: [
-        M('0', 'Torchsong'),  // REVIEW name
         M('1', 'Torchsong'),  // REVIEW name
         M('1', 'Overdrive'),  // REVIEW name
         M('1', 'Flatter'),  // REVIEW name
@@ -3694,10 +3651,9 @@ window.VDEX = (function () {
       abilities: ['Steadfast', 'Scrappy'],
       hidden: 'Air lock',
       stats: { HP: 95, ATK: 90, DEF: 75, SPA: 70, SPD: 100, SPE: 105 },
-      flavor: 'With powerful ear movements and swift martial skills, it bends air, the air around its body to strike with invisible blasts of wind.',
+      flavor: 'With powerful ear movements and swift martial skills, it bends the air around its body to strike with invisible blasts of wind.',
       evo: { from: '091', method: 'Lv 45' },
       levelMoves: [
-        M('0', 'Flyingpress'),  // REVIEW name
         M('1', 'Flyingpress'),  // REVIEW name
         M('1', 'Quickattack'),  // REVIEW name
         M('1', 'Gust'),  // REVIEW name
@@ -3739,7 +3695,7 @@ window.VDEX = (function () {
       abilities: ['Purifying Salt', 'Shell Armor'],
       hidden: 'Storm Drain',
       stats: { HP: 40, ATK: 60, DEF: 75, SPA: 40, SPD: 40, SPE: 50 },
-      flavor: 'With its small claws, Shorecite burrows beneath the sand to evade predators. Leaving its stone-like shell exposed to blend with rocks.',
+      flavor: 'With its small claws, Shorecite burrows beneath the sand to evade predators, leaving its stone-like shell exposed to blend with rocks.',
       evo: { to: '094' },
       levelMoves: [
         M('1', 'Withdraw'),  // REVIEW name
@@ -3777,7 +3733,6 @@ window.VDEX = (function () {
       flavor: 'With its vast shell and claws, Giganshore fears no predators. It protects Shorecite, letting them roam across its back.',
       evo: { from: '093', method: 'Lv 40' },
       levelMoves: [
-        M('0', 'Saltcure'),  // REVIEW name
         M('1', 'Saltcure'),  // REVIEW name
         M('1', 'Defendorder'),  // REVIEW name
         M('1', 'Attackorder'),  // REVIEW name
@@ -4078,7 +4033,6 @@ window.VDEX = (function () {
       flavor: 'Gleeruption are very prideful creatures, usually getting into fights recklessly due to this; they\'re very prone to injuries.',
       evo: { from: '104', method: 'Positive Nature' },
       levelMoves: [
-        M('0', 'Healblock'),  // REVIEW name
         M('1', 'Healblock'),  // REVIEW name
         M('1', 'Return'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
@@ -4122,7 +4076,6 @@ window.VDEX = (function () {
       flavor: 'Shaped by a somber past, Scorow distrust humans and often attack when confronted. Yet recent domestication efforts have begun to succeed.',
       evo: { from: '104', method: 'Negative Nature' },
       levelMoves: [
-        M('0', 'Embargo'),  // REVIEW name
         M('1', 'Embargo'),  // REVIEW name
         M('1', 'Frustration'),  // REVIEW name
         M('1', 'Tearfullook'),  // REVIEW name
@@ -4167,7 +4120,6 @@ window.VDEX = (function () {
       evo: { from: ['105', '106'], method: 'Fuse Gleeruption + Scorow (Lv 40) w/ Binding Flame' },
       levelMoves: [
         M('1', 'Infernalparade'),  // REVIEW name
-        M('1', 'Infernalparade'),  // REVIEW name
         M('1', 'Doublehit'),  // REVIEW name
         M('1', 'Howl'),  // REVIEW name
         M('1', 'Ember'),
@@ -4207,7 +4159,7 @@ window.VDEX = (function () {
       abilities: ['Stakeout', 'Unnerve'],
       hidden: 'Triage',
       stats: { HP: 34, ATK: 50, DEF: 34, SPA: 60, SPD: 42, SPE: 74 },
-      flavor: 'It maybe small but Ocubitten watches in the shadows with its red glowing eyes and it likes to play tricks on passerby\'s to comes too close.',
+      flavor: 'It maybe small but Ocubitten watches in the shadows with its red glowing eyes and it likes to play tricks on passersby that come too close.',
       evo: { to: '109' },
       levelMoves: [
         M('1', 'Leer'),  // REVIEW name
@@ -4253,7 +4205,6 @@ window.VDEX = (function () {
       flavor: 'Ocuclaw cloaks itself like a shadow, often resting but sometimes swooping to startle smaller Pokémon before they can react.',
       evo: { from: '108', to: '110', method: 'Lv 18' },
       levelMoves: [
-        M('0', 'Feintattack'),  // REVIEW name
         M('1', 'Feintattack'),  // REVIEW name
         M('1', 'Razorwind'),  // REVIEW name
         M('1', 'Leer'),  // REVIEW name
@@ -4298,7 +4249,6 @@ window.VDEX = (function () {
       flavor: 'Ocurage soars through the night, its vast wings casting shadows below. Spotting prey within, it dives at blinding speed to strike.',
       evo: { from: '109', method: 'Lv 37' },
       levelMoves: [
-        M('0', 'Oblivionwing'),  // REVIEW name
         M('1', 'Oblivionwing'),  // REVIEW name
         M('1', 'Razorwind'),  // REVIEW name
         M('1', 'Feintattack'),  // REVIEW name
