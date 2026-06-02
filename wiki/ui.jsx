@@ -148,7 +148,7 @@
     return (
       <div style={{ marginBottom: 26 }}>
         {kicker && <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 2, color: '#8a5cff', marginBottom: 10 }}>{kicker}</div>}
-        <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 46, lineHeight: 1, color: '#fff', textShadow: '0 0 28px #8a5cff44' }}>{title}</h1>
+        <h1 className="v-pagehead" style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 46, lineHeight: 1, color: '#fff', textShadow: '0 0 28px #8a5cff44' }}>{title}</h1>
         {sub && <p style={{ margin: '12px 0 0', fontSize: 16, color: '#9a93b5', maxWidth: 640, textWrap: 'pretty' }}>{sub}</p>}
       </div>
     );
@@ -186,17 +186,17 @@
           .vsocial.youtube:hover { color: #fff; background: #FF0000; border-color: #FF0000; box-shadow: 0 0 14px #ff000066; }
           .vsocial.download:hover { color: #fff; background: #8a5cff; border-color: #8a5cff; box-shadow: 0 0 14px #8a5cff77; }
         `}</style>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, padding: '13px 24px' }}>
+        <div className="v-navbar-inner" style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, padding: '13px 24px' }}>
           <a href="#/pokedex" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
             <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'radial-gradient(circle at 38% 32%, #1a1640, #05030c)', border: '1px solid #8a5cff', boxShadow: '0 0 12px #8a5cff77' }} />
             <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20, color: '#fff' }}>VOID<span style={{ color: '#8a5cff' }}>DEX</span></span>
           </a>
-          <nav style={{ display: 'flex', gap: 3, marginLeft: 8, flexWrap: 'wrap' }}>
+          <nav className="v-navlinks" style={{ display: 'flex', gap: 3, marginLeft: 8, flexWrap: 'wrap' }}>
             {NAV.map(([n, h]) => (
               <a key={h} href={h} className={'vnav-link' + (active(h) ? ' vnav-active' : '')}>{n}</a>
             ))}
           </nav>
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="v-navright" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <a className="vsocial discord" href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" title="Official Discord">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.198.352-.43.83-.59 1.207a18.27 18.27 0 0 0-5.93 0A12.6 12.6 0 0 0 9.44 3 19.74 19.74 0 0 0 5.677 4.37C2.79 8.62 2.01 12.75 2.4 16.82a19.95 19.95 0 0 0 5.99 3.03c.48-.66.91-1.36 1.28-2.1-.7-.26-1.37-.59-2-.98.17-.12.33-.25.49-.38 3.86 1.8 8.03 1.8 11.84 0 .16.13.32.26.49.38-.64.39-1.31.72-2.01.98.37.74.8 1.44 1.28 2.1a19.9 19.9 0 0 0 5.99-3.03c.46-4.71-.78-8.8-3.3-12.45ZM9.68 14.32c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Zm4.64 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.94 2.41-2.15 2.41Z"/></svg>

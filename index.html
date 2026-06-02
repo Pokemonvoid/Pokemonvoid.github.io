@@ -44,6 +44,36 @@
   ::-webkit-scrollbar-thumb:hover { background: #3a2f6e; }
   input::placeholder { color: #6a6388; }
   a { color: inherit; }
+
+  /* ===== MOBILE ONLY — every rule below applies only at <=640px. Desktop layout is untouched. ===== */
+  @media (max-width: 640px) {
+    .v-main { padding: 18px 14px 64px !important; }
+    .v-pagehead { font-size: 32px !important; }
+
+    /* nav: logo+search on top row, scrolly link strip below */
+    .v-navbar-inner { flex-wrap: wrap !important; gap: 8px !important; padding: 10px 12px !important; }
+    .v-navright { margin-left: auto !important; }
+    .v-navlinks {
+      order: 3; width: 100%; flex-wrap: nowrap !important; margin-left: 0 !important;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .v-navlinks::-webkit-scrollbar { display: none; }
+    .v-navlinks .vnav-link { white-space: nowrap; flex: 0 0 auto; }
+
+    /* collapse common hard-coded multi-column grids to a single column */
+    [style*="grid-template-columns: 1fr 1fr"],
+    [style*="grid-template-columns: repeat(3, 1fr)"],
+    [style*="grid-template-columns: repeat(2, 1fr)"],
+    [style*="grid-template-columns: minmax(280px, 380px) 1fr"],
+    [style*="grid-template-columns: 40px 1fr 1fr"],
+    [style*="grid-template-columns: 74px 34px 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* tame oversized inline headings (e.g. Living Dex 52px title) */
+    h1[style*="font-size: 52px"], h1[style*="font-size: 46px"] { font-size: 30px !important; }
+  }
 </style>
 </head>
 <body>
@@ -117,7 +147,7 @@
     return (
       <React.Fragment>
         <NavBar route={'/' + view + (param ? '/' + param : '')} query={query} setQuery={setQuery} />
-        <main style={{ maxWidth: 1240, margin: '0 auto', padding: '32px 24px 80px' }}>{content}</main>
+        <main className="v-main" style={{ maxWidth: 1240, margin: '0 auto', padding: '32px 24px 80px' }}>{content}</main>
         <footer style={{ maxWidth: 1240, margin: '0 auto', padding: '24px', borderTop: '1px solid #1d1838', color: '#5f5980', fontFamily: "'Space Mono', monospace", fontSize: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
           <span style={{ maxWidth: 720, lineHeight: 1.6 }}>
             <strong style={{ color: '#8a5cff', letterSpacing: 0.5 }}>VOIDDEX</strong> — an official wiki for <em>Pokémon Void</em>.
