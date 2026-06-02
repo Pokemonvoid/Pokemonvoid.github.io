@@ -401,15 +401,15 @@ window.VDEX = (function () {
         M('1', 'Growl'),
         M('5', 'Gust'),  // REVIEW name
         M('8', 'Acid'),  // REVIEW name
-        M('12', 'Quickattack'),  // REVIEW name
+        M('12', 'Quick Attack'),  // REVIEW name
         M('15', 'Double Team'),
-        M('21', 'Airslash'),  // REVIEW name
+        M('21', 'Air Slash'),  // REVIEW name
         M('25', 'Toxic'),  // REVIEW name
         M('31', 'Sludge'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Steelwing'),  // REVIEW name
-        EGG('Ominouswind'),  // REVIEW name
+        EGG('Steel Wing'),  // REVIEW name
+        EGG('Ominous Wind'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -436,14 +436,14 @@ window.VDEX = (function () {
         M('1', 'Growl'),
         M('1', 'Gust'),  // REVIEW name
         M('1', 'Acid'),  // REVIEW name
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('18', 'Double Team'),
-        M('22', 'Airslash'),  // REVIEW name
+        M('22', 'Air Slash'),  // REVIEW name
         M('26', 'Sludge'),  // REVIEW name
         M('29', 'Toxic'),  // REVIEW name
         M('32', 'Defog'),  // REVIEW name
-        M('37', 'Sludgebomb'),  // REVIEW name
-        M('42', 'Toxicspikes'),  // REVIEW name
+        M('37', 'Sludge Bomb'),  // REVIEW name
+        M('42', 'Toxic Spikes'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -474,18 +474,18 @@ window.VDEX = (function () {
         M('1', 'Growl'),
         M('1', 'Gust'),  // REVIEW name
         M('1', 'Acid'),  // REVIEW name
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('1', 'Double Team'),
-        M('1', 'Airslash'),  // REVIEW name
+        M('1', 'Air Slash'),  // REVIEW name
         M('1', 'Sludge'),  // REVIEW name
         M('1', 'Toxic'),  // REVIEW name
         M('36', 'Defog'),  // REVIEW name
-        M('41', 'Sludgebomb'),  // REVIEW name
-        M('45', 'Hurricaine'),  // REVIEW name
-        M('49', 'Toxicspikes'),  // REVIEW name
-        M('53', 'Bravebird'),  // REVIEW name
-        M('58', 'Sludgewave'),  // REVIEW name
-        M('64', 'Momento'),  // REVIEW name
+        M('41', 'Sludge Bomb'),  // REVIEW name
+        M('45', 'Hurricane'),  // REVIEW name
+        M('49', 'Toxic Spikes'),  // REVIEW name
+        M('53', 'Brave Bird'),  // REVIEW name
+        M('58', 'Sludge Wave'),  // REVIEW name
+        M('64', 'Memento'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -520,17 +520,17 @@ window.VDEX = (function () {
         M('15', 'Charm'),  // REVIEW name
         M('18', 'Retaliate'),  // REVIEW name
         M('21', 'Switcheroo'),  // REVIEW name
-        M('24', 'Naturepower'),  // REVIEW name
-        M('27', 'Playrough'),  // REVIEW name
+        M('24', 'Nature Power'),  // REVIEW name
+        M('27', 'Play Rough'),  // REVIEW name
         M('30', 'Snatch'),  // REVIEW name
         M('33', 'Fling'),  // REVIEW name
-        M('36', 'Lastresort'),  // REVIEW name
-        M('39', 'Tidyup'),  // REVIEW name
+        M('36', 'Last Resort'),  // REVIEW name
+        M('39', 'Tidy Up'),  // REVIEW name
         M('42', 'Baton Pass'),
       ],
       eggMoves: [
-        EGG('Mudslap'),  // REVIEW name
-        EGG('Cometpunch'),  // REVIEW name
+        EGG('Mud-Slap'),  // REVIEW name
+        EGG('Comet Punch'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -538,7 +538,7 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 1 }, baseFriendship: 70, baseExp: 51, growthRate: 'Medium',
@@ -553,10 +553,10 @@ window.VDEX = (function () {
       flavor: 'Inspired by the hero "Might Knight", Raclank shields themselves with a trash can. No amount of heat or blunt force can put a dent into it.',
       evo: { from: '013', method: 'Lv 20 (Near Trash Can)' },
       levelMoves: [
-        M('1', 'Bulletpunch'),  // REVIEW name
+        M('1', 'Bullet Punch'),  // REVIEW name
         M('1', 'Switcheroo'),  // REVIEW name
-        M('1', 'Naturepower'),  // REVIEW name
-        M('1', 'Playrough'),  // REVIEW name
+        M('1', 'Nature Power'),  // REVIEW name
+        M('1', 'Play Rough'),  // REVIEW name
         M('1', 'Fling'),  // REVIEW name
         M('1', 'Scratch'),  // REVIEW name
         M('1', 'Tail Whip'),
@@ -566,13 +566,13 @@ window.VDEX = (function () {
         M('12', 'Snarl'),  // REVIEW name
         M('15', 'Charm'),  // REVIEW name
         M('18', 'Retaliate'),  // REVIEW name
-        M('23', 'Wideguard'),  // REVIEW name
-        M('28', 'Heavyslam'),  // REVIEW name
-        M('33', 'Leafblade'),  // REVIEW name
+        M('23', 'Wide Guard'),  // REVIEW name
+        M('28', 'Heavy Slam'),  // REVIEW name
+        M('33', 'Leaf Blade'),  // REVIEW name
         M('38', 'Snatch'),  // REVIEW name
-        M('43', 'Meteormash'),  // REVIEW name
-        M('48', 'Lastresort'),  // REVIEW name
-        M('53', 'Sacredsword'),  // REVIEW name
+        M('43', 'Meteor Mash'),  // REVIEW name
+        M('48', 'Last Resort'),  // REVIEW name
+        M('53', 'Sacred Sword'),  // REVIEW name
         M('58', 'Baton Pass'),
       ],
       eggMoves: [
@@ -584,8 +584,8 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
-        TM('07', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
+        TM('07', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { DEF: 1, ATK: 1 }, baseFriendship: 70, baseExp: 145, growthRate: 'Medium',
@@ -600,10 +600,10 @@ window.VDEX = (function () {
       flavor: 'Inspired by the heroine "Harpyie", Rasoar use wings made out of newspapers to fly. Strangely, some of the newspapers showcase headlines from the future.',
       evo: { from: '013', method: 'Lv 20 (Near Quest Board)' },
       levelMoves: [
-        M('1', 'Wingattack'),  // REVIEW name
+        M('1', 'Wing Attack'),  // REVIEW name
         M('1', 'Switcheroo'),  // REVIEW name
-        M('1', 'Naturepower'),  // REVIEW name
-        M('1', 'Playrough'),  // REVIEW name
+        M('1', 'Nature Power'),  // REVIEW name
+        M('1', 'Play Rough'),  // REVIEW name
         M('1', 'Fling'),  // REVIEW name
         M('1', 'Scratch'),  // REVIEW name
         M('1', 'Tail Whip'),
@@ -613,13 +613,13 @@ window.VDEX = (function () {
         M('12', 'Snarl'),  // REVIEW name
         M('15', 'Charm'),  // REVIEW name
         M('18', 'Retaliate'),  // REVIEW name
-        M('23', 'Quickguard'),  // REVIEW name
+        M('23', 'Quick Guard'),  // REVIEW name
         M('28', 'Fly'),  // REVIEW name
-        M('33', 'Gravapple'),  // REVIEW name
+        M('33', 'Grav Apple'),  // REVIEW name
         M('38', 'Snatch'),  // REVIEW name
         M('43', 'Tailwind'),  // REVIEW name
-        M('48', 'Lastresort'),  // REVIEW name
-        M('53', 'Flyingpress'),  // REVIEW name
+        M('48', 'Last Resort'),  // REVIEW name
+        M('53', 'Flying Press'),  // REVIEW name
         M('58', 'Baton Pass'),
       ],
       eggMoves: [
@@ -631,7 +631,7 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
         TM('07', 'Aerial Ace'),
       ],
       anomaly: null,
@@ -648,10 +648,10 @@ window.VDEX = (function () {
       evo: { from: '013', method: 'Lv 20 (Near Vending Machine)' },
       levelMoves: [
         M('1', 'Swift'),
-        M('1', 'Electroball'),  // REVIEW name
+        M('1', 'Electro Ball'),  // REVIEW name
         M('1', 'Switcheroo'),  // REVIEW name
-        M('1', 'Naturepower'),  // REVIEW name
-        M('1', 'Playrough'),  // REVIEW name
+        M('1', 'Nature Power'),  // REVIEW name
+        M('1', 'Play Rough'),  // REVIEW name
         M('1', 'Fling'),  // REVIEW name
         M('1', 'Scratch'),  // REVIEW name
         M('1', 'Tail Whip'),
@@ -662,11 +662,11 @@ window.VDEX = (function () {
         M('15', 'Charm'),  // REVIEW name
         M('18', 'Retaliate'),  // REVIEW name
         M('23', 'Detect'),  // REVIEW name
-        M('28', 'Paraboliccharge'),  // REVIEW name
-        M('33', 'Triattack'),  // REVIEW name
+        M('28', 'Parabolic Charge'),  // REVIEW name
+        M('33', 'Tri Attack'),  // REVIEW name
         M('38', 'Snatch'),  // REVIEW name
         M('43', 'Thunderclap'),  // REVIEW name
-        M('48', 'Lastresort'),  // REVIEW name
+        M('48', 'Last Resort'),  // REVIEW name
         M('53', 'Boomburst'),  // REVIEW name
         M('58', 'Baton Pass'),
       ],
@@ -679,8 +679,8 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
-        TM('07', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
+        TM('07', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 2 }, baseFriendship: 70, baseExp: 145, growthRate: 'Medium',
@@ -723,19 +723,19 @@ window.VDEX = (function () {
       flavor: 'In ancient times their shell was used as armor. Concewn strangely enjoy taking hits and seek out strong attackers.',
       evo: { from: '017', to: '019', method: 'Lv 12' },
       levelMoves: [
-        M('1', 'Irondefense'),  // REVIEW name
-        M('1', 'Smackdown'),  // REVIEW name
+        M('1', 'Iron Defense'),  // REVIEW name
+        M('1', 'Smack Down'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
         M('1', 'Growl'),
         M('4', 'Flail'),  // REVIEW name
         M('8', 'Pounce'),  // REVIEW name
         M('12', 'Screech'),  // REVIEW name
         M('16', 'Magnitude'),  // REVIEW name
-        M('21', 'Laserfocus'),  // REVIEW name
-        M('26', 'Takedown'),  // REVIEW name
+        M('21', 'Laser Focus'),  // REVIEW name
+        M('26', 'Take Down'),  // REVIEW name
         M('31', 'Lunge'),  // REVIEW name
         M('36', 'Acupressure'),  // REVIEW name
-        M('41', 'Doubleedge'),  // REVIEW name
+        M('41', 'Double-Edge'),  // REVIEW name
         M('46', 'Spikes'),  // REVIEW name
       ],
       eggMoves: [
@@ -759,24 +759,24 @@ window.VDEX = (function () {
       flavor: 'An enraged Rihnihilate can smash through walls, trees and even creatures alike to reach its target, earning the title "unstoppable force".',
       evo: { from: '018', method: 'Lv 32' },
       levelMoves: [
-        M('1', 'Drillrun'),  // REVIEW name
-        M('1', 'Irondefense'),  // REVIEW name
-        M('1', 'Smackdown'),  // REVIEW name
+        M('1', 'Drill Run'),  // REVIEW name
+        M('1', 'Iron Defense'),  // REVIEW name
+        M('1', 'Smack Down'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
         M('1', 'Growl'),
         M('4', 'Flail'),  // REVIEW name
         M('8', 'Pounce'),  // REVIEW name
         M('12', 'Screech'),  // REVIEW name
         M('16', 'Magnitude'),  // REVIEW name
-        M('21', 'Laserfocus'),  // REVIEW name
-        M('26', 'Takedown'),  // REVIEW name
+        M('21', 'Laser Focus'),  // REVIEW name
+        M('26', 'Take Down'),  // REVIEW name
         M('31', 'Lunge'),  // REVIEW name
         M('36', 'Acupressure'),  // REVIEW name
-        M('42', 'Doubleedge'),  // REVIEW name
+        M('42', 'Double-Edge'),  // REVIEW name
         M('48', 'Megahorn'),  // REVIEW name
         M('54', 'Spikes'),  // REVIEW name
-        M('60', 'Headsmash'),  // REVIEW name
-        M('66', 'Headlongrush'),  // REVIEW name
+        M('60', 'Head Smash'),  // REVIEW name
+        M('66', 'Headlong Rush'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -802,19 +802,19 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Tackle'),
         M('1', 'Sand Attack'),
-        M('6', 'Quickattack'),  // REVIEW name
+        M('6', 'Quick Attack'),  // REVIEW name
         M('9', 'Gust'),  // REVIEW name
-        M('13', 'Honeclaws'),  // REVIEW name
-        M('17', 'Mudslap'),  // REVIEW name
+        M('13', 'Hone Claws'),  // REVIEW name
+        M('17', 'Mud-Slap'),  // REVIEW name
         M('22', 'Whirlwind'),  // REVIEW name
         M('26', 'Aerial Ace'),
         M('31', 'Agility'),
-        M('36', 'Featherdance'),  // REVIEW name
-        M('41', 'Bravebird'),  // REVIEW name
-        M('46', 'Hurricaine'),  // REVIEW name
+        M('36', 'Feather Dance'),  // REVIEW name
+        M('41', 'Brave Bird'),  // REVIEW name
+        M('46', 'Hurricane'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Aircutter'),  // REVIEW name
+        EGG('Air Cutter'),  // REVIEW name
         EGG('Pursuit'),  // REVIEW name
       ],
       tmMoves: [
@@ -841,17 +841,17 @@ window.VDEX = (function () {
         M('1', 'Muddywall'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Sand Attack'),
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('1', 'Gust'),  // REVIEW name
-        M('1', 'Honeclaws'),  // REVIEW name
-        M('1', 'Mudslap'),  // REVIEW name
+        M('1', 'Hone Claws'),  // REVIEW name
+        M('1', 'Mud-Slap'),  // REVIEW name
         M('1', 'Whirlwind'),  // REVIEW name
         M('1', 'Aerial Ace'),
-        M('35', 'Stompingtantrum'),  // REVIEW name
-        M('41', 'Featherdance'),  // REVIEW name
-        M('47', 'Bravebird'),  // REVIEW name
-        M('52', 'Stealthrocks'),  // REVIEW name
-        M('58', 'Irondefense'),  // REVIEW name
+        M('35', 'Stomping Tantrum'),  // REVIEW name
+        M('41', 'Feather Dance'),  // REVIEW name
+        M('47', 'Brave Bird'),  // REVIEW name
+        M('52', 'Stealth Rock'),  // REVIEW name
+        M('58', 'Iron Defense'),  // REVIEW name
         M('64', 'Earthquake'),  // REVIEW name
       ],
       eggMoves: [
@@ -881,18 +881,18 @@ window.VDEX = (function () {
         M('1', 'Sandblast'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Sand Attack'),
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('1', 'Gust'),  // REVIEW name
-        M('1', 'Honeclaws'),  // REVIEW name
-        M('1', 'Mudslap'),  // REVIEW name
+        M('1', 'Hone Claws'),  // REVIEW name
+        M('1', 'Mud-Slap'),  // REVIEW name
         M('1', 'Whirlwind'),  // REVIEW name
         M('1', 'Aerial Ace'),
-        M('35', 'Scorchingsands'),  // REVIEW name
+        M('35', 'Scorching Sands'),  // REVIEW name
         M('41', 'Defog'),  // REVIEW name
-        M('47', 'Hurricaine'),  // REVIEW name
-        M('52', 'Uturn'),  // REVIEW name
+        M('47', 'Hurricane'),  // REVIEW name
+        M('52', 'U-turn'),  // REVIEW name
         M('58', 'Agility'),
-        M('64', 'Earthpower'),  // REVIEW name
+        M('64', 'Earth Power'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -918,23 +918,23 @@ window.VDEX = (function () {
       flavor: 'Despite its tiny size, Marmie brims with fighting spirit. Swinging its tiny fists at foes ten times larger, though they land like soft and fluffy pats.',
       evo: { to: '024' },
       levelMoves: [
-        M('1', 'Powertrip'),  // REVIEW name
+        M('1', 'Power Trip'),  // REVIEW name
         M('1', 'Leer'),  // REVIEW name
         M('5', 'Work Up'),
         M('8', 'Fake Out'),
-        M('12', 'Armthrust'),  // REVIEW name
-        M('15', 'Focusenergy'),  // REVIEW name
-        M('19', 'Cometpunch'),  // REVIEW name
-        M('22', 'Beatup'),  // REVIEW name
+        M('12', 'Arm Thrust'),  // REVIEW name
+        M('15', 'Focus Energy'),  // REVIEW name
+        M('19', 'Comet Punch'),  // REVIEW name
+        M('22', 'Beat Up'),  // REVIEW name
         M('26', 'Vital Throw'),
         M('29', 'Bulk Up'),
         M('33', 'Strength'),  // REVIEW name
-        M('36', 'Knockoff'),  // REVIEW name
-        M('40', 'Drainpunch'),  // REVIEW name
-        M('43', 'Nastyplot'),  // REVIEW name
+        M('36', 'Knock Off'),  // REVIEW name
+        M('40', 'Drain Punch'),  // REVIEW name
+        M('43', 'Nasty Plot'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Chipaway'),  // REVIEW name
+        EGG('Chip Away'),  // REVIEW name
         EGG('Taunt'),  // REVIEW name
       ],
       tmMoves: [
@@ -943,8 +943,8 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
-        TM('07', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
+        TM('07', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { ATK: 1 }, baseFriendship: 50, baseExp: 70, growthRate: 'Slow',
@@ -960,23 +960,23 @@ window.VDEX = (function () {
       evo: { from: '023', method: 'Lv 25' },
       levelMoves: [
         M('1', 'Obstruct'),  // REVIEW name
-        M('1', 'Bodypress'),  // REVIEW name
-        M('1', 'Nastyplot'),  // REVIEW name
-        M('1', 'Powertrip'),  // REVIEW name
+        M('1', 'Body Press'),  // REVIEW name
+        M('1', 'Nasty Plot'),  // REVIEW name
+        M('1', 'Power Trip'),  // REVIEW name
         M('1', 'Leer'),  // REVIEW name
         M('1', 'Work Up'),
         M('1', 'Fake Out'),
-        M('12', 'Armthrust'),  // REVIEW name
-        M('15', 'Focusenergy'),  // REVIEW name
-        M('19', 'Cometpunch'),  // REVIEW name
-        M('22', 'Beatup'),  // REVIEW name
+        M('12', 'Arm Thrust'),  // REVIEW name
+        M('15', 'Focus Energy'),  // REVIEW name
+        M('19', 'Comet Punch'),  // REVIEW name
+        M('22', 'Beat Up'),  // REVIEW name
         M('27', 'Vital Throw'),
         M('31', 'Bulk Up'),
         M('36', 'Strength'),  // REVIEW name
-        M('40', 'Knockoff'),  // REVIEW name
-        M('45', 'Drainpunch'),  // REVIEW name
+        M('40', 'Knock Off'),  // REVIEW name
+        M('45', 'Drain Punch'),  // REVIEW name
         M('49', 'Yawn'),
-        M('54', 'Finalgambit'),  // REVIEW name
+        M('54', 'Final Gambit'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -987,8 +987,8 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
-        TM('07', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
+        TM('07', 'Low Sweep'),  // REVIEW name
         TM('08', 'Bulldoze'),
       ],
       anomaly: null,
@@ -1004,20 +1004,20 @@ window.VDEX = (function () {
       flavor: 'Yarnsect Yarn is a Drapallan Staple as one of the largest farmed materials known for it\'s surprising durability, softness, and warmth.',
       evo: { to: '026' },
       levelMoves: [
-        M('1', 'Fairywind'),  // REVIEW name
-        M('1', 'Stringshot'),  // REVIEW name
+        M('1', 'Fairy Wind'),  // REVIEW name
+        M('1', 'String Shot'),  // REVIEW name
         M('5', 'Cut'),  // REVIEW name
-        M('8', 'Sturgglebug'),  // REVIEW name
-        M('11', 'Sweetscent'),  // REVIEW name
-        M('14', 'Drainingkiss'),  // REVIEW name
-        M('18', 'Spiderweb'),  // REVIEW name
-        M('22', 'Signalbeam'),  // REVIEW name
+        M('8', 'Struggle Bug'),  // REVIEW name
+        M('11', 'Sweet Scent'),  // REVIEW name
+        M('14', 'Draining Kiss'),  // REVIEW name
+        M('18', 'Spider Web'),  // REVIEW name
+        M('22', 'Signal Beam'),  // REVIEW name
         M('25', 'Happilyeverafter'),  // REVIEW name
-        M('29', 'Stickyweb'),  // REVIEW name
-        M('33', 'Ragepowder'),  // REVIEW name
-        M('36', 'Bugbuzz'),  // REVIEW name
+        M('29', 'Sticky Web'),  // REVIEW name
+        M('33', 'Rage Powder'),  // REVIEW name
+        M('36', 'Bug Buzz'),  // REVIEW name
         M('40', 'Fantasiablast'),  // REVIEW name
-        M('44', 'Firstimpession'),  // REVIEW name
+        M('44', 'First Impression'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Lunge'),  // REVIEW name
@@ -1044,21 +1044,21 @@ window.VDEX = (function () {
       flavor: 'Grantula are extremely loyal to their trainers. If you spend enough time with one, it will knit you a sweater using its yarn.',
       evo: { from: '025', method: 'Lv 15' },
       levelMoves: [
-        M('1', 'Silktrap'),  // REVIEW name
-        M('1', 'Fairywind'),  // REVIEW name
-        M('1', 'Stringshot'),  // REVIEW name
+        M('1', 'Silk Trap'),  // REVIEW name
+        M('1', 'Fairy Wind'),  // REVIEW name
+        M('1', 'String Shot'),  // REVIEW name
         M('1', 'Cut'),  // REVIEW name
-        M('1', 'Sturgglebug'),  // REVIEW name
-        M('11', 'Sweetscent'),  // REVIEW name
-        M('14', 'Drainingkiss'),  // REVIEW name
-        M('19', 'Spiderweb'),  // REVIEW name
-        M('24', 'Signalbeam'),  // REVIEW name
+        M('1', 'Struggle Bug'),  // REVIEW name
+        M('11', 'Sweet Scent'),  // REVIEW name
+        M('14', 'Draining Kiss'),  // REVIEW name
+        M('19', 'Spider Web'),  // REVIEW name
+        M('24', 'Signal Beam'),  // REVIEW name
         M('28', 'Happilyeverafter'),  // REVIEW name
-        M('33', 'Stickyweb'),  // REVIEW name
-        M('37', 'Ragepowder'),  // REVIEW name
-        M('41', 'Bugbuzz'),  // REVIEW name
+        M('33', 'Sticky Web'),  // REVIEW name
+        M('37', 'Rage Powder'),  // REVIEW name
+        M('41', 'Bug Buzz'),  // REVIEW name
         M('45', 'Fantasiablast'),  // REVIEW name
-        M('49', 'Firstimpession'),  // REVIEW name
+        M('49', 'First Impression'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1087,17 +1087,17 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Tackle'),
         M('1', 'Harden'),  // REVIEW name
-        M('4', 'Leechseed'),  // REVIEW name
+        M('4', 'Leech Seed'),  // REVIEW name
         M('7', 'Growth'),  // REVIEW name
         M('11', 'Protect'),
-        M('16', 'Bulletseed'),  // REVIEW name
-        M('22', 'Gigadrain'),  // REVIEW name
+        M('16', 'Bullet Seed'),  // REVIEW name
+        M('22', 'Giga Drain'),  // REVIEW name
         M('26', 'Ingrain'),  // REVIEW name
-        M('32', 'Seedbomb'),  // REVIEW name
+        M('32', 'Seed Bomb'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Worry Seed'),
-        EGG('Powerwhip'),  // REVIEW name
+        EGG('Power Whip'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1117,23 +1117,23 @@ window.VDEX = (function () {
       flavor: 'Now much braver, Peaknight is a noble fighter. It is said that ancient warriors modeled their armor after Peaknight\'s hard exterior.',
       evo: { from: '027', method: 'Level Up with Assault Vest' },
       levelMoves: [
-        M('1', 'Machpunch'),  // REVIEW name
+        M('1', 'Mach Punch'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Harden'),  // REVIEW name
-        M('1', 'Bulletseed'),  // REVIEW name
+        M('1', 'Bullet Seed'),  // REVIEW name
         M('1', 'Growth'),  // REVIEW name
         M('1', 'Protect'),
-        M('1', 'Leechseed'),  // REVIEW name
-        M('1', 'Gigadrain'),  // REVIEW name
+        M('1', 'Leech Seed'),  // REVIEW name
+        M('1', 'Giga Drain'),  // REVIEW name
         M('1', 'Ingrain'),  // REVIEW name
-        M('26', 'Brickbreak'),  // REVIEW name
+        M('26', 'Brick Break'),  // REVIEW name
         M('30', 'Fake Out'),
-        M('35', 'Lowkick'),  // REVIEW name
+        M('35', 'Low Kick'),  // REVIEW name
         M('38', 'Trailblaze'),  // REVIEW name
         M('42', 'Facade'),  // REVIEW name
-        M('48', 'Seedbomb'),  // REVIEW name
-        M('53', 'Highhorsepower'),  // REVIEW name
-        M('58', 'Closecombat'),  // REVIEW name
+        M('48', 'Seed Bomb'),  // REVIEW name
+        M('53', 'High Horsepower'),  // REVIEW name
+        M('58', 'Close Combat'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1142,7 +1142,7 @@ window.VDEX = (function () {
         TM('01', 'Work Up'),
         TM('02', 'Protect'),
         TM('03', 'Rest'),
-        TM('04', 'Lowsweep'),  // REVIEW name
+        TM('04', 'Low Sweep'),  // REVIEW name
         TM('05', 'Bulldoze'),
       ],
       anomaly: { discoverer: 'Cybermage' },
@@ -1158,17 +1158,17 @@ window.VDEX = (function () {
       flavor: 'Capikid stores electrical energy in the fluffy clouds around its body. On dry days, herds roll about, rumbling like tiny thunderstorms.',
       evo: { to: '030' },
       levelMoves: [
-        M('1', 'Thundershock'),  // REVIEW name
-        M('1', 'Babydolleyes'),  // REVIEW name
-        M('4', 'Doubleslap'),  // REVIEW name
-        M('8', 'Thunderwave'),  // REVIEW name
-        M('12', 'Chargebeam'),  // REVIEW name
-        M('16', 'Helpinghand'),  // REVIEW name
-        M('20', 'Followme'),  // REVIEW name
+        M('1', 'Thunder Shock'),  // REVIEW name
+        M('1', 'Baby-Doll Eyes'),  // REVIEW name
+        M('4', 'Double Slap'),  // REVIEW name
+        M('8', 'Thunder Wave'),  // REVIEW name
+        M('12', 'Charge Beam'),  // REVIEW name
+        M('16', 'Helping Hand'),  // REVIEW name
+        M('20', 'Follow Me'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Spark'),  // REVIEW name
-        EGG('Bodyslam'),  // REVIEW name
+        EGG('Body Slam'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1178,7 +1178,7 @@ window.VDEX = (function () {
         TM('05', 'Disarming Voice'),
         TM('06', 'Confuse Ray'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'miggins' },
       evYield: { SPE: 1 }, baseFriendship: 50, baseExp: 41, growthRate: 'Medium',
@@ -1193,25 +1193,25 @@ window.VDEX = (function () {
       flavor: 'Capicharga delight in thunderstorms, happily waiting to absorb lightning strikes. Its cheeks would hum and glow indicating that it\'s full of charge.',
       evo: { from: '029', to: '031', method: 'High Friendship' },
       levelMoves: [
-        M('1', 'Doubleslap'),  // REVIEW name
-        M('1', 'Followme'),  // REVIEW name
-        M('1', 'Chargebeam'),  // REVIEW name
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Thunderwave'),  // REVIEW name
-        M('1', 'Thundershock'),  // REVIEW name
-        M('1', 'Babydolleyes'),  // REVIEW name
-        M('3', 'Quickattack'),  // REVIEW name
+        M('1', 'Double Slap'),  // REVIEW name
+        M('1', 'Follow Me'),  // REVIEW name
+        M('1', 'Charge Beam'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Thunder Wave'),  // REVIEW name
+        M('1', 'Thunder Shock'),  // REVIEW name
+        M('1', 'Baby-Doll Eyes'),  // REVIEW name
+        M('3', 'Quick Attack'),  // REVIEW name
         M('8', 'Nuzzle'),  // REVIEW name
         M('12', 'Electrify'),  // REVIEW name
-        M('15', 'Hyperfang'),  // REVIEW name
-        M('18', 'Shockwave'),  // REVIEW name
-        M('23', 'Eerieimpulse'),  // REVIEW name
+        M('15', 'Hyper Fang'),  // REVIEW name
+        M('18', 'Shock Wave'),  // REVIEW name
+        M('23', 'Eerie Impulse'),  // REVIEW name
         M('27', 'Mist'),  // REVIEW name
         M('30', 'Discharge'),  // REVIEW name
-        M('35', 'Frostbreath'),  // REVIEW name
+        M('35', 'Frost Breath'),  // REVIEW name
         M('39', 'Calm Mind'),
-        M('42', 'Superfang'),  // REVIEW name
-        M('45', 'Volttackle'),  // REVIEW name
+        M('42', 'Super Fang'),  // REVIEW name
+        M('45', 'Volt Tackle'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1224,7 +1224,7 @@ window.VDEX = (function () {
         TM('05', 'Disarming Voice'),
         TM('06', 'Confuse Ray'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'miggins' },
       evYield: { SPE: 2 }, baseFriendship: 50, baseExp: 118, growthRate: 'Medium',
@@ -1239,29 +1239,29 @@ window.VDEX = (function () {
       flavor: 'Capibarron emerge when Capicharga absorb ice from a snowstorm. They unleash freeze lightning at sub-zero temperatures, storing it for later.',
       evo: { from: '030', method: 'Knows Frost Breath' },
       levelMoves: [
-        M('1', 'Iondeluge'),  // REVIEW name
+        M('1', 'Ion Deluge'),  // REVIEW name
         M('1', 'Belly Drum'),
-        M('1', 'Doubleslap'),  // REVIEW name
-        M('1', 'Followme'),  // REVIEW name
-        M('1', 'Chargebeam'),  // REVIEW name
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Thunderwave'),  // REVIEW name
-        M('1', 'Thundershock'),  // REVIEW name
-        M('1', 'Babydolleyes'),  // REVIEW name
-        M('3', 'Quickattack'),  // REVIEW name
+        M('1', 'Double Slap'),  // REVIEW name
+        M('1', 'Follow Me'),  // REVIEW name
+        M('1', 'Charge Beam'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Thunder Wave'),  // REVIEW name
+        M('1', 'Thunder Shock'),  // REVIEW name
+        M('1', 'Baby-Doll Eyes'),  // REVIEW name
+        M('3', 'Quick Attack'),  // REVIEW name
         M('8', 'Nuzzle'),  // REVIEW name
         M('12', 'Electrify'),  // REVIEW name
-        M('15', 'Hyperfang'),  // REVIEW name
-        M('18', 'Shockwave'),  // REVIEW name
-        M('23', 'Eerieimpulse'),  // REVIEW name
+        M('15', 'Hyper Fang'),  // REVIEW name
+        M('18', 'Shock Wave'),  // REVIEW name
+        M('23', 'Eerie Impulse'),  // REVIEW name
         M('27', 'Mist'),  // REVIEW name
         M('30', 'Discharge'),  // REVIEW name
-        M('35', 'Frostbreath'),  // REVIEW name
+        M('35', 'Frost Breath'),  // REVIEW name
         M('40', 'Calm Mind'),
-        M('44', 'Superfang'),  // REVIEW name
+        M('44', 'Super Fang'),  // REVIEW name
         M('47', 'Thunder'),  // REVIEW name
-        M('51', 'Chillyreception'),  // REVIEW name
-        M('56', 'Sheercold'),  // REVIEW name
+        M('51', 'Chilly Reception'),  // REVIEW name
+        M('56', 'Sheer Cold'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1274,7 +1274,7 @@ window.VDEX = (function () {
         TM('05', 'Disarming Voice'),
         TM('06', 'Confuse Ray'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
         TM('09', 'Bulldoze'),
       ],
       anomaly: { discoverer: 'miggins' },
@@ -1293,23 +1293,23 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Tail Whip'),
         M('4', 'Work Up'),
-        M('8', 'Quickattack'),  // REVIEW name
-        M('13', 'Focusenergy'),  // REVIEW name
-        M('17', 'Doublehit'),  // REVIEW name
-        M('21', 'Firefang'),  // REVIEW name
+        M('8', 'Quick Attack'),  // REVIEW name
+        M('13', 'Focus Energy'),  // REVIEW name
+        M('17', 'Double Hit'),  // REVIEW name
+        M('21', 'Fire Fang'),  // REVIEW name
         M('26', 'Spark'),  // REVIEW name
-        M('26', 'Selfdestruct'),  // REVIEW name
+        M('26', 'Self-Destruct'),  // REVIEW name
         M('30', 'Uproar'),  // REVIEW name
-        M('34', 'Painsplit'),  // REVIEW name
+        M('34', 'Pain Split'),  // REVIEW name
         M('39', 'Bounce'),  // REVIEW name
         M('43', 'Explosion'),  // REVIEW name
-        M('47', 'Superfang'),  // REVIEW name
-        M('52', 'Skullbash'),  // REVIEW name
+        M('47', 'Super Fang'),  // REVIEW name
+        M('52', 'Skull Bash'),  // REVIEW name
         M('56', 'Memento'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Meteor Beam'),
-        EGG('Babydolleyes'),  // REVIEW name
+        EGG('Baby-Doll Eyes'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1317,7 +1317,7 @@ window.VDEX = (function () {
         TM('03', 'Revealing Light'),
         TM('04', 'Protect'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { ATK: 1 }, baseFriendship: 50, baseExp: 61, growthRate: 'Medium',
@@ -1332,22 +1332,22 @@ window.VDEX = (function () {
       flavor: 'When angered, its tail ignites. Once the flame reaches the body of Boomurine, it erupts in a blast equal to 55 megatons of TNT.',
       evo: { from: '032', method: 'Fire Stone' },
       levelMoves: [
-        M('1', 'Firelash'),  // REVIEW name
+        M('1', 'Fire Lash'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Tail Whip'),
         M('4', 'Work Up'),
-        M('8', 'Quickattack'),  // REVIEW name
-        M('13', 'Focusenergy'),  // REVIEW name
-        M('17', 'Doublehit'),  // REVIEW name
-        M('21', 'Firefang'),  // REVIEW name
+        M('8', 'Quick Attack'),  // REVIEW name
+        M('13', 'Focus Energy'),  // REVIEW name
+        M('17', 'Double Hit'),  // REVIEW name
+        M('21', 'Fire Fang'),  // REVIEW name
         M('26', 'Spark'),  // REVIEW name
-        M('26', 'Selfdestruct'),  // REVIEW name
+        M('26', 'Self-Destruct'),  // REVIEW name
         M('30', 'Uproar'),  // REVIEW name
-        M('34', 'Painsplit'),  // REVIEW name
+        M('34', 'Pain Split'),  // REVIEW name
         M('39', 'Bounce'),  // REVIEW name
         M('43', 'Explosion'),  // REVIEW name
-        M('47', 'Superfang'),  // REVIEW name
-        M('52', 'Skullbash'),  // REVIEW name
+        M('47', 'Super Fang'),  // REVIEW name
+        M('52', 'Skull Bash'),  // REVIEW name
         M('56', 'Memento'),  // REVIEW name
         M('60', 'Burn Up'),
       ],
@@ -1360,7 +1360,7 @@ window.VDEX = (function () {
         TM('03', 'Revealing Light'),
         TM('04', 'Protect'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { ATK: 1, SPA: 1 }, baseFriendship: 50, baseExp: 176, growthRate: 'Medium',
@@ -1376,24 +1376,24 @@ window.VDEX = (function () {
       evo: { to: '035' },
       levelMoves: [
         M('1', 'Absorb'),  // REVIEW name
-        M('1', 'Sweetscent'),  // REVIEW name
-        M('1', 'Naturalgift'),  // REVIEW name
+        M('1', 'Sweet Scent'),  // REVIEW name
+        M('1', 'Natural Gift'),  // REVIEW name
         M('5', 'Growth'),  // REVIEW name
-        M('10', 'Breakingswipe'),  // REVIEW name
-        M('15', 'Leaftornado'),  // REVIEW name
-        M('20', 'Aromaticmist'),  // REVIEW name
+        M('10', 'Breaking Swipe'),  // REVIEW name
+        M('15', 'Leaf Tornado'),  // REVIEW name
+        M('20', 'Aromatic Mist'),  // REVIEW name
         M('25', 'Chilling Water'),
-        M('30', 'Gigadrain'),  // REVIEW name
-        M('35', 'Weatherball'),  // REVIEW name
-        M('40', 'Nastyplot'),  // REVIEW name
-        M('45', 'Earthpower'),  // REVIEW name
+        M('30', 'Giga Drain'),  // REVIEW name
+        M('35', 'Weather Ball'),  // REVIEW name
+        M('40', 'Nasty Plot'),  // REVIEW name
+        M('45', 'Earth Power'),  // REVIEW name
         M('50', 'Decorate'),  // REVIEW name
         M('55', 'Aromatherapy'),  // REVIEW name
         M('60', 'Leaf Storm'),
       ],
       eggMoves: [
-        EGG('Leechseed'),  // REVIEW name
-        EGG('Dragontail'),  // REVIEW name
+        EGG('Leech Seed'),  // REVIEW name
+        EGG('Dragon Tail'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1425,23 +1425,23 @@ window.VDEX = (function () {
       evo: { to: '037' },
       levelMoves: [
         M('1', 'Tackle'),
-        M('4', 'Watersport'),  // REVIEW name
+        M('4', 'Water Sport'),  // REVIEW name
         M('7', 'Howl'),  // REVIEW name
         M('10', 'Bite'),  // REVIEW name
-        M('13', 'Odorleuth'),  // REVIEW name
-        M('16', 'Aquajet'),  // REVIEW name
+        M('13', 'Odor Sleuth'),  // REVIEW name
+        M('16', 'Aqua Jet'),  // REVIEW name
         M('19', 'Snarl'),  // REVIEW name
         M('22', 'Screech'),  // REVIEW name
-        M('25', 'Poisonfang'),  // REVIEW name
+        M('25', 'Poison Fang'),  // REVIEW name
         M('28', 'Roar'),  // REVIEW name
-        M('31', 'Chipaway'),  // REVIEW name
-        M('34', 'Flipturn'),  // REVIEW name
+        M('31', 'Chip Away'),  // REVIEW name
+        M('34', 'Flip Turn'),  // REVIEW name
         M('36', 'Crunch'),  // REVIEW name
         M('40', 'Taunt'),  // REVIEW name
-        M('44', 'Wavecrash'),  // REVIEW name
+        M('44', 'Wave Crash'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Hyperfang'),  // REVIEW name
+        EGG('Hyper Fang'),  // REVIEW name
         EGG('Soak'),  // REVIEW name
       ],
       tmMoves: [
@@ -1466,23 +1466,23 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Eclipsestrike'),  // REVIEW name
         M('1', 'Tractorbeam'),  // REVIEW name
-        M('1', 'Icefang'),  // REVIEW name
-        M('1', 'Aquacutter'),  // REVIEW name
+        M('1', 'Ice Fang'),  // REVIEW name
+        M('1', 'Aqua Cutter'),  // REVIEW name
         M('1', 'Tackle'),
-        M('1', 'Watersport'),  // REVIEW name
+        M('1', 'Water Sport'),  // REVIEW name
         M('1', 'Howl'),  // REVIEW name
         M('1', 'Bite'),  // REVIEW name
-        M('13', 'Odorleuth'),  // REVIEW name
-        M('16', 'Aquajet'),  // REVIEW name
+        M('13', 'Odor Sleuth'),  // REVIEW name
+        M('16', 'Aqua Jet'),  // REVIEW name
         M('19', 'Snarl'),  // REVIEW name
         M('22', 'Screech'),  // REVIEW name
-        M('25', 'Poisonfang'),  // REVIEW name
+        M('25', 'Poison Fang'),  // REVIEW name
         M('28', 'Roar'),  // REVIEW name
-        M('33', 'Chipaway'),  // REVIEW name
-        M('37', 'Flipturn'),  // REVIEW name
-        M('40', 'Jawlock'),  // REVIEW name
+        M('33', 'Chip Away'),  // REVIEW name
+        M('37', 'Flip Turn'),  // REVIEW name
+        M('40', 'Jaw Lock'),  // REVIEW name
         M('45', 'Moonlight'),
-        M('50', 'Wavecrash'),  // REVIEW name
+        M('50', 'Wave Crash'),  // REVIEW name
         M('56', 'Supernova'),
       ],
       eggMoves: [
@@ -1508,20 +1508,20 @@ window.VDEX = (function () {
       flavor: 'Scalfling’s poison is undeveloped, so it battles by charging its horns around to gain momentum and striking at opponents’ blind spots.',
       evo: { to: '039' },
       levelMoves: [
-        M('1', 'Poisonsting'),  // REVIEW name
+        M('1', 'Poison Sting'),  // REVIEW name
         M('1', 'Tail Whip'),
         M('5', 'Rage'),  // REVIEW name
-        M('10', 'Beatup'),  // REVIEW name
+        M('10', 'Beat Up'),  // REVIEW name
         M('14', 'Curse'),  // REVIEW name
         M('20', 'Headbutt'),
         M('25', 'Belch'),  // REVIEW name
-        M('30', 'Poisonjab'),  // REVIEW name
+        M('30', 'Poison Jab'),  // REVIEW name
         M('35', 'Agility'),
         M('40', 'Superpower'),  // REVIEW name
-        M('45', 'Skullbash'),  // REVIEW name
+        M('45', 'Skull Bash'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Headlongrush'),  // REVIEW name
+        EGG('Headlong Rush'),  // REVIEW name
         EGG('Pounce'),  // REVIEW name
       ],
       tmMoves: [
@@ -1530,7 +1530,7 @@ window.VDEX = (function () {
         TM('03', 'Bulldoze'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'Wolfernix' },
       evYield: { HP: 1 }, baseFriendship: 60, baseExp: 50, growthRate: 'Parabolic',
@@ -1545,18 +1545,18 @@ window.VDEX = (function () {
       flavor: 'Bision anger quickly; though its charge is easy to dodge, its tail strikes independently and cannot be avoided.',
       evo: { from: '038', to: '040', method: 'Lv 15' },
       levelMoves: [
-        M('1', 'Poisontail'),  // REVIEW name
-        M('1', 'Poisonsting'),  // REVIEW name
+        M('1', 'Poison Tail'),  // REVIEW name
+        M('1', 'Poison Sting'),  // REVIEW name
         M('1', 'Tail Whip'),
         M('1', 'Rage'),  // REVIEW name
-        M('1', 'Beatup'),  // REVIEW name
+        M('1', 'Beat Up'),  // REVIEW name
         M('14', 'Curse'),  // REVIEW name
         M('21', 'Headbutt'),
         M('27', 'Belch'),  // REVIEW name
-        M('33', 'Poisonjab'),  // REVIEW name
+        M('33', 'Poison Jab'),  // REVIEW name
         M('39', 'Agility'),
         M('45', 'Superpower'),  // REVIEW name
-        M('51', 'Skullbash'),  // REVIEW name
+        M('51', 'Skull Bash'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1567,7 +1567,7 @@ window.VDEX = (function () {
         TM('03', 'Bulldoze'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { HP: 1, ATK: 1 }, baseFriendship: 60, baseExp: 131, growthRate: 'Parabolic',
@@ -1582,20 +1582,20 @@ window.VDEX = (function () {
       flavor: 'Constantly filled with rage and energy, Taurocnid store an assortment of toxins in its three tails; neurotoxin, cytotoxin, and sedative.',
       evo: { from: '039', method: 'Lv 40' },
       levelMoves: [
-        M('1', 'Ragingbull'),  // REVIEW name
-        M('1', 'Poisontail'),  // REVIEW name
-        M('1', 'Poisonsting'),  // REVIEW name
+        M('1', 'Raging Bull'),  // REVIEW name
+        M('1', 'Poison Tail'),  // REVIEW name
+        M('1', 'Poison Sting'),  // REVIEW name
         M('1', 'Tail Whip'),
         M('1', 'Rage'),  // REVIEW name
-        M('1', 'Beatup'),  // REVIEW name
+        M('1', 'Beat Up'),  // REVIEW name
         M('14', 'Curse'),  // REVIEW name
         M('21', 'Headbutt'),
         M('27', 'Belch'),  // REVIEW name
-        M('33', 'Poisonjab'),  // REVIEW name
+        M('33', 'Poison Jab'),  // REVIEW name
         M('39', 'Agility'),
         M('46', 'Superpower'),  // REVIEW name
-        M('54', 'Firelash'),  // REVIEW name
-        M('62', 'Skullbash'),  // REVIEW name
+        M('54', 'Fire Lash'),  // REVIEW name
+        M('62', 'Skull Bash'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1606,7 +1606,7 @@ window.VDEX = (function () {
         TM('03', 'Bulldoze'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { HP: 2, ATK: 1 }, baseFriendship: 60, baseExp: 231, growthRate: 'Parabolic',
@@ -1624,22 +1624,22 @@ window.VDEX = (function () {
         M('1', 'Leafage'),
         M('1', 'Leer'),  // REVIEW name
         M('4', 'Absorb'),  // REVIEW name
-        M('8', 'Furyswipes'),  // REVIEW name
-        M('12', 'Stunspore'),  // REVIEW name
-        M('14', 'Megadrain'),  // REVIEW name
-        M('16', 'Sleeppowder'),  // REVIEW name
+        M('8', 'Fury Swipes'),  // REVIEW name
+        M('12', 'Stun Spore'),  // REVIEW name
+        M('14', 'Mega Drain'),  // REVIEW name
+        M('16', 'Sleep Powder'),  // REVIEW name
         M('18', 'Assurance'),  // REVIEW name
         M('20', 'Razor Leaf'),
-        M('24', 'Gigadrain'),  // REVIEW name
+        M('24', 'Giga Drain'),  // REVIEW name
         M('28', 'Rest'),
-        M('32', 'Leafblade'),  // REVIEW name
-        M('36', 'Nighslash'),  // REVIEW name
+        M('32', 'Leaf Blade'),  // REVIEW name
+        M('36', 'Night Slash'),  // REVIEW name
         M('40', 'Synthesis'),  // REVIEW name
         M('44', 'Leaf Storm'),
       ],
       eggMoves: [
-        EGG('Leaftornado'),  // REVIEW name
-        EGG('Stompingtantrum'),  // REVIEW name
+        EGG('Leaf Tornado'),  // REVIEW name
+        EGG('Stomping Tantrum'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1660,20 +1660,20 @@ window.VDEX = (function () {
       flavor: 'Furilage are friendly yet a gardener’s nightmare, digging up plants and crops to claim their place for easy water and fertilizer.',
       evo: { from: '041', to: '043', method: 'Lv 22' },
       levelMoves: [
-        M('1', 'Grassyterrain'),  // REVIEW name
+        M('1', 'Grassy Terrain'),  // REVIEW name
         M('1', 'Leafage'),
         M('1', 'Leer'),  // REVIEW name
         M('1', 'Absorb'),  // REVIEW name
-        M('1', 'Furyswipes'),  // REVIEW name
-        M('12', 'Stunspore'),  // REVIEW name
-        M('14', 'Megadrain'),  // REVIEW name
-        M('16', 'Sleeppowder'),  // REVIEW name
+        M('1', 'Fury Swipes'),  // REVIEW name
+        M('12', 'Stun Spore'),  // REVIEW name
+        M('14', 'Mega Drain'),  // REVIEW name
+        M('16', 'Sleep Powder'),  // REVIEW name
         M('18', 'Assurance'),  // REVIEW name
         M('20', 'Razor Leaf'),
-        M('25', 'Gigadrain'),  // REVIEW name
+        M('25', 'Giga Drain'),  // REVIEW name
         M('30', 'Rest'),
-        M('35', 'Leafblade'),  // REVIEW name
-        M('40', 'Nighslash'),  // REVIEW name
+        M('35', 'Leaf Blade'),  // REVIEW name
+        M('40', 'Night Slash'),  // REVIEW name
         M('45', 'Synthesis'),  // REVIEW name
         M('50', 'Leaf Storm'),
       ],
@@ -1699,21 +1699,21 @@ window.VDEX = (function () {
       flavor: 'A happy Grizzlawn releases pheromones that boost plant growth, but its fur demands constant care and mistreatment can make it aggressive.',
       evo: { from: '042', method: 'Leaf Stone' },
       levelMoves: [
-        M('1', 'Woodhammer'),  // REVIEW name
-        M('1', 'Grassyterrain'),  // REVIEW name
+        M('1', 'Wood Hammer'),  // REVIEW name
+        M('1', 'Grassy Terrain'),  // REVIEW name
         M('1', 'Leafage'),
         M('1', 'Leer'),  // REVIEW name
         M('1', 'Absorb'),  // REVIEW name
-        M('1', 'Furyswipes'),  // REVIEW name
-        M('12', 'Stunspore'),  // REVIEW name
-        M('14', 'Megadrain'),  // REVIEW name
-        M('16', 'Sleeppowder'),  // REVIEW name
+        M('1', 'Fury Swipes'),  // REVIEW name
+        M('12', 'Stun Spore'),  // REVIEW name
+        M('14', 'Mega Drain'),  // REVIEW name
+        M('16', 'Sleep Powder'),  // REVIEW name
         M('18', 'Assurance'),  // REVIEW name
         M('20', 'Razor Leaf'),
-        M('25', 'Gigadrain'),  // REVIEW name
+        M('25', 'Giga Drain'),  // REVIEW name
         M('30', 'Rest'),
-        M('35', 'Leafblade'),  // REVIEW name
-        M('40', 'Nighslash'),  // REVIEW name
+        M('35', 'Leaf Blade'),  // REVIEW name
+        M('40', 'Night Slash'),  // REVIEW name
         M('45', 'Synthesis'),  // REVIEW name
         M('50', 'Leaf Storm'),
       ],
@@ -1744,19 +1744,19 @@ window.VDEX = (function () {
         M('4', 'Rollout'),  // REVIEW name
         M('7', 'Sand Attack'),
         M('10', 'Infestation'),  // REVIEW name
-        M('13', 'Mudshot'),  // REVIEW name
-        M('16', 'Leechseed'),  // REVIEW name
+        M('13', 'Mud Shot'),  // REVIEW name
+        M('16', 'Leech Seed'),  // REVIEW name
         M('19', 'Frustration'),  // REVIEW name
-        M('22', 'Scaryface'),  // REVIEW name
-        M('25', 'Gigadrain'),  // REVIEW name
-        M('28', 'Stompingtantrum'),  // REVIEW name
-        M('31', 'Scaryface'),  // REVIEW name
-        M('34', 'Poisonjab'),  // REVIEW name
-        M('37', 'Strengthsap'),  // REVIEW name
+        M('22', 'Scary Face'),  // REVIEW name
+        M('25', 'Giga Drain'),  // REVIEW name
+        M('28', 'Stomping Tantrum'),  // REVIEW name
+        M('31', 'Scary Face'),  // REVIEW name
+        M('34', 'Poison Jab'),  // REVIEW name
+        M('37', 'Strength Sap'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Sludge'),  // REVIEW name
-        EGG('Snaptrap'),  // REVIEW name
+        EGG('Snap Trap'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1783,16 +1783,16 @@ window.VDEX = (function () {
         M('1', 'Rollout'),  // REVIEW name
         M('1', 'Sand Attack'),
         M('10', 'Infestation'),  // REVIEW name
-        M('13', 'Mudshot'),  // REVIEW name
-        M('16', 'Leechseed'),  // REVIEW name
+        M('13', 'Mud Shot'),  // REVIEW name
+        M('16', 'Leech Seed'),  // REVIEW name
         M('20', 'Frustration'),  // REVIEW name
         M('24', 'Ingrain'),  // REVIEW name
-        M('28', 'Gigadrain'),  // REVIEW name
-        M('32', 'Stompingtantrum'),  // REVIEW name
-        M('36', 'Scaryface'),  // REVIEW name
-        M('40', 'Poisonjab'),  // REVIEW name
-        M('44', 'Strengthsap'),  // REVIEW name
-        M('48', 'Powerwhip'),  // REVIEW name
+        M('28', 'Giga Drain'),  // REVIEW name
+        M('32', 'Stomping Tantrum'),  // REVIEW name
+        M('36', 'Scary Face'),  // REVIEW name
+        M('40', 'Poison Jab'),  // REVIEW name
+        M('44', 'Strength Sap'),  // REVIEW name
+        M('48', 'Power Whip'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1816,7 +1816,7 @@ window.VDEX = (function () {
       flavor: 'Blightato thrives in abandoned fields. Its flesh and leaves rot so deeply that entire harvests are forsaken once it\'s beneath the soil.',
       evo: { from: '045', method: 'Lv 35' },
       levelMoves: [
-        M('1', 'Gastroacid'),  // REVIEW name
+        M('1', 'Gastro Acid'),  // REVIEW name
         M('1', 'Block'),  // REVIEW name
         M('1', 'Bite'),  // REVIEW name
         M('1', 'Absorb'),  // REVIEW name
@@ -1824,16 +1824,16 @@ window.VDEX = (function () {
         M('1', 'Rollout'),  // REVIEW name
         M('1', 'Sand Attack'),
         M('10', 'Infestation'),  // REVIEW name
-        M('13', 'Mudshot'),  // REVIEW name
-        M('16', 'Leechseed'),  // REVIEW name
+        M('13', 'Mud Shot'),  // REVIEW name
+        M('16', 'Leech Seed'),  // REVIEW name
         M('20', 'Frustration'),  // REVIEW name
         M('24', 'Ingrain'),  // REVIEW name
-        M('28', 'Gigadrain'),  // REVIEW name
-        M('32', 'Stompingtantrum'),  // REVIEW name
-        M('37', 'Scaryface'),  // REVIEW name
-        M('42', 'Poisonjab'),  // REVIEW name
-        M('47', 'Strengthsap'),  // REVIEW name
-        M('52', 'Powerwhip'),  // REVIEW name
+        M('28', 'Giga Drain'),  // REVIEW name
+        M('32', 'Stomping Tantrum'),  // REVIEW name
+        M('37', 'Scary Face'),  // REVIEW name
+        M('42', 'Poison Jab'),  // REVIEW name
+        M('47', 'Strength Sap'),  // REVIEW name
+        M('52', 'Power Whip'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1860,19 +1860,19 @@ window.VDEX = (function () {
         M('1', 'Bide'),  // REVIEW name
         M('4', 'Rollout'),  // REVIEW name
         M('7', 'Defense Curl'),
-        M('10', 'Odorleuth'),  // REVIEW name
-        M('13', 'Smackdown'),  // REVIEW name
-        M('16', 'Rockpolish'),  // REVIEW name
+        M('10', 'Odor Sleuth'),  // REVIEW name
+        M('13', 'Smack Down'),  // REVIEW name
+        M('16', 'Rock Polish'),  // REVIEW name
         M('19', 'Accelerock'),  // REVIEW name
-        M('22', 'Firefang'),  // REVIEW name
-        M('25', 'Laserfocus'),  // REVIEW name
-        M('28', 'Takedown'),  // REVIEW name
-        M('32', 'Lavaplume'),  // REVIEW name
-        M('36', 'Rockslide'),  // REVIEW name
-        M('40', 'Scaryface'),  // REVIEW name
+        M('22', 'Fire Fang'),  // REVIEW name
+        M('25', 'Laser Focus'),  // REVIEW name
+        M('28', 'Take Down'),  // REVIEW name
+        M('32', 'Lava Plume'),  // REVIEW name
+        M('36', 'Rock Slide'),  // REVIEW name
+        M('40', 'Scary Face'),  // REVIEW name
         M('44', 'Crunch'),  // REVIEW name
-        M('48', 'Swordsdance'),  // REVIEW name
-        M('52', 'Headsmash'),  // REVIEW name
+        M('48', 'Swords Dance'),  // REVIEW name
+        M('52', 'Head Smash'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Shelter'),  // REVIEW name
@@ -1896,23 +1896,23 @@ window.VDEX = (function () {
       flavor: 'Rocweilers are protective of trainers who raised them till it\'s out of its rock. Newly caught Rocweilers will take time to gain its trust.',
       evo: { from: '047', method: 'Lv 20' },
       levelMoves: [
-        M('1', 'Spikyshield'),  // REVIEW name
+        M('1', 'Spiky Shield'),  // REVIEW name
         M('1', 'Bide'),  // REVIEW name
         M('1', 'Rollout'),  // REVIEW name
         M('1', 'Defense Curl'),
-        M('1', 'Odorleuth'),  // REVIEW name
-        M('13', 'Smackdown'),  // REVIEW name
-        M('16', 'Rockpolish'),  // REVIEW name
+        M('1', 'Odor Sleuth'),  // REVIEW name
+        M('13', 'Smack Down'),  // REVIEW name
+        M('16', 'Rock Polish'),  // REVIEW name
         M('19', 'Accelerock'),  // REVIEW name
-        M('23', 'Firefang'),  // REVIEW name
-        M('27', 'Laserfocus'),  // REVIEW name
-        M('31', 'Takedown'),  // REVIEW name
-        M('36', 'Lavaplume'),  // REVIEW name
-        M('41', 'Rockslide'),  // REVIEW name
-        M('46', 'Scaryface'),  // REVIEW name
+        M('23', 'Fire Fang'),  // REVIEW name
+        M('27', 'Laser Focus'),  // REVIEW name
+        M('31', 'Take Down'),  // REVIEW name
+        M('36', 'Lava Plume'),  // REVIEW name
+        M('41', 'Rock Slide'),  // REVIEW name
+        M('46', 'Scary Face'),  // REVIEW name
         M('51', 'Crunch'),  // REVIEW name
-        M('56', 'Swordsdance'),  // REVIEW name
-        M('61', 'Headsmash'),  // REVIEW name
+        M('56', 'Swords Dance'),  // REVIEW name
+        M('61', 'Head Smash'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -1940,23 +1940,23 @@ window.VDEX = (function () {
         M('1', 'Growl'),
         M('5', 'Howl'),  // REVIEW name
         M('9', 'Swift'),
-        M('12', 'Feintattack'),  // REVIEW name
+        M('12', 'Feint Attack'),  // REVIEW name
         M('16', 'Roar'),  // REVIEW name
         M('20', 'Flashstep'),  // REVIEW name
-        M('23', 'Thunderfang'),  // REVIEW name
+        M('23', 'Thunder Fang'),  // REVIEW name
         M('27', 'Swagger'),  // REVIEW name
-        M('31', 'Nightdaze'),  // REVIEW name
+        M('31', 'Night Daze'),  // REVIEW name
         M('34', 'Haze'),  // REVIEW name
         M('38', 'Crunch'),  // REVIEW name
-        M('42', 'Partinshot'),  // REVIEW name
+        M('42', 'Parting Shot'),  // REVIEW name
         M('45', 'Shinefang'),  // REVIEW name
         M('49', 'Eclipsestrike'),  // REVIEW name
-        M('54', 'Swordsdance'),  // REVIEW name
-        M('57', 'Extremespeed'),  // REVIEW name
+        M('54', 'Swords Dance'),  // REVIEW name
+        M('57', 'Extreme Speed'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Icefang'),  // REVIEW name
-        EGG('Firefang'),  // REVIEW name
+        EGG('Ice Fang'),  // REVIEW name
+        EGG('Fire Fang'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -1966,7 +1966,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPD: 1 }, baseFriendship: 70, baseExp: 70, growthRate: 'Fast',
@@ -1985,19 +1985,19 @@ window.VDEX = (function () {
         M('1', 'Growl'),
         M('5', 'Howl'),  // REVIEW name
         M('8', 'Swift'),
-        M('11', 'Feintattack'),  // REVIEW name
+        M('11', 'Feint Attack'),  // REVIEW name
         M('15', 'Roar'),  // REVIEW name
         M('18', 'Flashstep'),  // REVIEW name
-        M('21', 'Thunderfang'),  // REVIEW name
+        M('21', 'Thunder Fang'),  // REVIEW name
         M('25', 'Swagger'),  // REVIEW name
         M('28', 'Haze'),  // REVIEW name
-        M('31', 'Nightdaze'),  // REVIEW name
+        M('31', 'Night Daze'),  // REVIEW name
         M('36', 'Crunch'),  // REVIEW name
-        M('40', 'Partinshot'),  // REVIEW name
+        M('40', 'Parting Shot'),  // REVIEW name
         M('44', 'Shinefang'),  // REVIEW name
         M('49', 'Eclipsestrike'),  // REVIEW name
-        M('53', 'Swordsdance'),  // REVIEW name
-        M('57', 'Extremespeed'),  // REVIEW name
+        M('53', 'Swords Dance'),  // REVIEW name
+        M('57', 'Extreme Speed'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2010,7 +2010,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 1, ATK: 1 }, baseFriendship: 70, baseExp: 140, growthRate: 'Fast',
@@ -2030,19 +2030,19 @@ window.VDEX = (function () {
         M('1', 'Growl'),
         M('5', 'Howl'),  // REVIEW name
         M('8', 'Swift'),
-        M('11', 'Feintattack'),  // REVIEW name
+        M('11', 'Feint Attack'),  // REVIEW name
         M('15', 'Roar'),  // REVIEW name
         M('18', 'Flashstep'),  // REVIEW name
-        M('21', 'Thunderfang'),  // REVIEW name
+        M('21', 'Thunder Fang'),  // REVIEW name
         M('25', 'Swagger'),  // REVIEW name
         M('28', 'Haze'),  // REVIEW name
-        M('31', 'Nightdaze'),  // REVIEW name
+        M('31', 'Night Daze'),  // REVIEW name
         M('36', 'Crunch'),  // REVIEW name
-        M('40', 'Partinshot'),  // REVIEW name
+        M('40', 'Parting Shot'),  // REVIEW name
         M('44', 'Shinefang'),  // REVIEW name
         M('49', 'Eclipsestrike'),  // REVIEW name
-        M('53', 'Swordsdance'),  // REVIEW name
-        M('57', 'Extremespeed'),  // REVIEW name
+        M('53', 'Swords Dance'),  // REVIEW name
+        M('57', 'Extreme Speed'),  // REVIEW name
         M('63', 'Eternalaura'),  // REVIEW name
       ],
       eggMoves: [
@@ -2056,7 +2056,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPD: 2, ATK: 1 }, baseFriendship: 70, baseExp: 180, growthRate: 'Fast',
@@ -2072,21 +2072,21 @@ window.VDEX = (function () {
       evo: { to: '053' },
       levelMoves: [
         M('1', 'Camouflage'),  // REVIEW name
-        M('1', 'Reflecttype'),  // REVIEW name
+        M('1', 'Reflect Type'),  // REVIEW name
         M('1', 'Lick'),  // REVIEW name
         M('5', 'Hypnosis'),  // REVIEW name
         M('10', 'Return'),  // REVIEW name
         M('10', 'Frustration'),  // REVIEW name
-        M('13', 'Nightshade'),  // REVIEW name
+        M('13', 'Night Shade'),  // REVIEW name
         M('17', 'Glare'),  // REVIEW name
         M('22', 'Swift'),
-        M('25', 'Psychicnoise'),  // REVIEW name
-        M('29', 'Miracleeye'),  // REVIEW name
+        M('25', 'Psychic Noise'),  // REVIEW name
+        M('29', 'Miracle Eye'),  // REVIEW name
         M('34', 'Rgbeam'),  // REVIEW name
-        M('37', 'Roleplay'),  // REVIEW name
-        M('41', 'Wringout'),  // REVIEW name
-        M('46', 'Futuresight'),  // REVIEW name
-        M('49', 'Nastyplot'),  // REVIEW name
+        M('37', 'Role Play'),  // REVIEW name
+        M('41', 'Wring Out'),  // REVIEW name
+        M('46', 'Future Sight'),  // REVIEW name
+        M('49', 'Nasty Plot'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Warminglight'),  // REVIEW name
@@ -2099,7 +2099,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 1 }, baseFriendship: 50, baseExp: 52, growthRate: 'Medium',
@@ -2119,24 +2119,24 @@ window.VDEX = (function () {
       ],
       levelMoves: [
         M('1', 'Moodswing'),  // REVIEW name
-        M('1', 'Guardsplit'),  // REVIEW name
+        M('1', 'Guard Split'),  // REVIEW name
         M('1', 'Camouflage'),  // REVIEW name
-        M('1', 'Reflecttype'),  // REVIEW name
+        M('1', 'Reflect Type'),  // REVIEW name
         M('1', 'Lick'),  // REVIEW name
         M('1', 'Hypnosis'),  // REVIEW name
         M('10', 'Return'),  // REVIEW name
         M('10', 'Frustration'),  // REVIEW name
-        M('13', 'Nightshade'),  // REVIEW name
+        M('13', 'Night Shade'),  // REVIEW name
         M('17', 'Glare'),  // REVIEW name
         M('22', 'Swift'),
-        M('25', 'Psychicnoise'),  // REVIEW name
-        M('29', 'Miracleeye'),  // REVIEW name
+        M('25', 'Psychic Noise'),  // REVIEW name
+        M('29', 'Miracle Eye'),  // REVIEW name
         M('35', 'Rgbeam'),  // REVIEW name
-        M('39', 'Roleplay'),  // REVIEW name
-        M('44', 'Wringout'),  // REVIEW name
-        M('50', 'Futuresight'),  // REVIEW name
-        M('54', 'Nastyplot'),  // REVIEW name
-        M('59', 'Eeriespell'),  // REVIEW name
+        M('39', 'Role Play'),  // REVIEW name
+        M('44', 'Wring Out'),  // REVIEW name
+        M('50', 'Future Sight'),  // REVIEW name
+        M('54', 'Nasty Plot'),  // REVIEW name
+        M('59', 'Eerie Spell'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2149,7 +2149,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 2, SPD: 1 }, baseFriendship: 50, baseExp: 155, growthRate: 'Medium',
@@ -2188,22 +2188,22 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Astonish'),  // REVIEW name
         M('5', 'Growl'),
-        M('7', 'Quickattack'),  // REVIEW name
+        M('7', 'Quick Attack'),  // REVIEW name
         M('11', 'Bite'),  // REVIEW name
         M('13', 'Double Team'),
         M('15', 'Confusion'),  // REVIEW name
         M('17', 'Swift'),
         M('19', 'Fake Out'),
-        M('24', 'Hyperfang'),  // REVIEW name
-        M('27', 'Psychicfang'),  // REVIEW name
+        M('24', 'Hyper Fang'),  // REVIEW name
+        M('27', 'Psychic Fangs'),  // REVIEW name
         M('29', 'Rest'),
         M('32', 'Crunch'),  // REVIEW name
         M('33', 'Bulk Up'),
-        M('36', 'Craftyshield'),  // REVIEW name
+        M('36', 'Crafty Shield'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Spotlight'),  // REVIEW name
-        EGG('Lastresort'),  // REVIEW name
+        EGG('Last Resort'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -2211,7 +2211,7 @@ window.VDEX = (function () {
         TM('03', 'Disarming Voice'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { DEF: 1 }, baseFriendship: 0, baseExp: 150, growthRate: 'Parabolic',
@@ -2226,22 +2226,22 @@ window.VDEX = (function () {
       flavor: 'Fellsum results from Purssume\'s desire to harm itself, finding solace in aiding fainted and wild Purssume, protecting them at whatever cost.',
       evo: { from: '056', method: 'Lv 30 + Fainted 10 times' },
       levelMoves: [
-        M('1', 'Shadowball'),  // REVIEW name
+        M('1', 'Shadow Ball'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('11', 'Bite'),  // REVIEW name
         M('13', 'Double Team'),
         M('15', 'Confusion'),  // REVIEW name
         M('17', 'Swift'),
         M('19', 'Fake Out'),
-        M('24', 'Hyperfang'),  // REVIEW name
-        M('27', 'Psychicfangs'),  // REVIEW name
+        M('24', 'Hyper Fang'),  // REVIEW name
+        M('27', 'Psychic Fangs'),  // REVIEW name
         M('36', 'Curse'),  // REVIEW name
-        M('39', 'Destinybond'),  // REVIEW name
+        M('39', 'Destiny Bond'),  // REVIEW name
         M('45', 'Psychic'),  // REVIEW name
-        M('47', 'Wideguard'),  // REVIEW name
-        M('50', 'Wilowisp'),  // REVIEW name
+        M('47', 'Wide Guard'),  // REVIEW name
+        M('50', 'Will-O-Wisp'),  // REVIEW name
         M('50', '53'),  // REVIEW name
       ],
       eggMoves: [
@@ -2253,7 +2253,7 @@ window.VDEX = (function () {
         TM('03', 'Disarming Voice'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
         TM('07', 'Confuse Ray'),
       ],
       anomaly: null,
@@ -2269,27 +2269,27 @@ window.VDEX = (function () {
       flavor: 'Foundsum is a result of a Purssume\'s wish to shield others from its own fate, embracing fellow Purssume with warmth and power.',
       evo: { from: '056', method: 'Lv 30 + High Friendship' },
       levelMoves: [
-        M('1', 'Drainingkiss'),  // REVIEW name
+        M('1', 'Draining Kiss'),  // REVIEW name
         M('1', 'Astonish'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('11', 'Bite'),  // REVIEW name
         M('13', 'Double Team'),
         M('15', 'Confusion'),  // REVIEW name
         M('17', 'Swift'),
         M('19', 'Fake Out'),
-        M('24', 'Hyperfang'),  // REVIEW name
-        M('27', 'Psychicfang'),  // REVIEW name
+        M('24', 'Hyper Fang'),  // REVIEW name
+        M('27', 'Psychic Fangs'),  // REVIEW name
         M('30', 'Psychic'),  // REVIEW name
         M('33', 'Light Screen'),
         M('36', 'Reflect'),  // REVIEW name
         M('40', 'Moonblast'),  // REVIEW name
-        M('45', 'Shadowball'),  // REVIEW name
-        M('47', 'Quickguard'),  // REVIEW name
+        M('45', 'Shadow Ball'),  // REVIEW name
+        M('47', 'Quick Guard'),  // REVIEW name
         M('50', 'Moonlight'),
-        M('50', 'Thunderwave'),  // REVIEW name
+        M('50', 'Thunder Wave'),  // REVIEW name
         M('53', '57'),  // REVIEW name
-        M('60', 'Revivalblessing'),  // REVIEW name
+        M('60', 'Revival Blessing'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2300,7 +2300,7 @@ window.VDEX = (function () {
         TM('03', 'Disarming Voice'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
         TM('07', 'Revealing Light'),
       ],
       anomaly: null,
@@ -2319,24 +2319,24 @@ window.VDEX = (function () {
         M('1', 'Splash'),  // REVIEW name
         M('1', 'Sand Attack'),
         M('1', 'Pound'),
-        M('1', 'Watersport'),  // REVIEW name
-        M('11', 'Aquajet'),  // REVIEW name
+        M('1', 'Water Sport'),  // REVIEW name
+        M('11', 'Aqua Jet'),  // REVIEW name
         M('14', 'Fake Out'),
-        M('17', 'Stuffcheeks'),  // REVIEW name
-        M('21', 'Smellingsalts'),  // REVIEW name
+        M('17', 'Stuff Cheeks'),  // REVIEW name
+        M('21', 'Smelling Salts'),  // REVIEW name
         M('24', 'Surf'),  // REVIEW name
         M('27', 'Soak'),  // REVIEW name
-        M('31', 'Wakeupslap'),  // REVIEW name
-        M('34', 'Superfang'),  // REVIEW name
+        M('31', 'Wake-Up Slap'),  // REVIEW name
+        M('34', 'Super Fang'),  // REVIEW name
         M('37', 'Coaching'),  // REVIEW name
-        M('41', 'Tripledive'),  // REVIEW name
-        M('44', 'Flipturn'),  // REVIEW name
+        M('41', 'Triple Dive'),  // REVIEW name
+        M('44', 'Flip Turn'),  // REVIEW name
         M('47', 'Baton Pass'),
-        M('51', 'Lastresort'),  // REVIEW name
+        M('51', 'Last Resort'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Aqua Ring'),
-        EGG('Bodyslam'),  // REVIEW name
+        EGG('Body Slam'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -2362,20 +2362,20 @@ window.VDEX = (function () {
         M('1', 'Splash'),  // REVIEW name
         M('1', 'Sand Attack'),
         M('1', 'Pound'),
-        M('1', 'Watersport'),  // REVIEW name
-        M('11', 'Aquajet'),  // REVIEW name
+        M('1', 'Water Sport'),  // REVIEW name
+        M('11', 'Aqua Jet'),  // REVIEW name
         M('14', 'Fake Out'),
-        M('17', 'Stuffcheeks'),  // REVIEW name
-        M('21', 'Smellingsalts'),  // REVIEW name
+        M('17', 'Stuff Cheeks'),  // REVIEW name
+        M('21', 'Smelling Salts'),  // REVIEW name
         M('24', 'Surf'),  // REVIEW name
         M('27', 'Soak'),  // REVIEW name
-        M('31', 'Wakeupslap'),  // REVIEW name
-        M('34', 'Superfang'),  // REVIEW name
+        M('31', 'Wake-Up Slap'),  // REVIEW name
+        M('34', 'Super Fang'),  // REVIEW name
         M('37', 'Coaching'),  // REVIEW name
-        M('41', 'Tripledive'),  // REVIEW name
-        M('44', 'Flipturn'),  // REVIEW name
+        M('41', 'Triple Dive'),  // REVIEW name
+        M('44', 'Flip Turn'),  // REVIEW name
         M('47', 'Baton Pass'),
-        M('51', 'Lastresort'),  // REVIEW name
+        M('51', 'Last Resort'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2386,7 +2386,7 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Thief'),
         TM('05', 'Rest'),
-        TM('06', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Low Sweep'),  // REVIEW name
         TM('07', 'Aerial Ace'),
       ],
       anomaly: { discoverer: '.z25' },
@@ -2404,15 +2404,15 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Phaser'),  // REVIEW name
         M('1', 'Growl'),
-        M('5', 'Fairywind'),  // REVIEW name
-        M('9', 'Sweetkiss'),  // REVIEW name
-        M('13', 'Sonicboom'),  // REVIEW name
-        M('17', 'Shockwave'),  // REVIEW name
+        M('5', 'Fairy Wind'),  // REVIEW name
+        M('9', 'Sweet Kiss'),  // REVIEW name
+        M('13', 'Sonic Boom'),  // REVIEW name
+        M('17', 'Shock Wave'),  // REVIEW name
         M('21', 'Starseeker'),  // REVIEW name
         M('25', 'Tractorbeam'),  // REVIEW name
-        M('29', 'Selfdestruct'),  // REVIEW name
-        M('33', 'Mirrorcoat'),  // REVIEW name
-        M('37', 'Orbitallaser'),  // REVIEW name
+        M('29', 'Self-Destruct'),  // REVIEW name
+        M('33', 'Mirror Coat'),  // REVIEW name
+        M('37', 'Orbital Laser'),  // REVIEW name
         M('41', 'Calm Mind'),
         M('45', 'Fantasiablast'),  // REVIEW name
         M('49', 'Wish'),  // REVIEW name
@@ -2429,7 +2429,7 @@ window.VDEX = (function () {
         TM('04', 'Protect'),
         TM('05', 'Disarming Voice'),
         TM('06', 'Confuse Ray'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'thepitthedarknesscomesfrom' },
       evYield: { SPD: 1 }, baseFriendship: 50, baseExp: 56, growthRate: 'Fast',
@@ -2447,15 +2447,15 @@ window.VDEX = (function () {
         M('1', 'Happilyeverafter'),  // REVIEW name
         M('1', 'Phaser'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Fairywind'),  // REVIEW name
-        M('1', 'Sweetkiss'),  // REVIEW name
-        M('13', 'Sonicboom'),  // REVIEW name
-        M('17', 'Shockwave'),  // REVIEW name
+        M('1', 'Fairy Wind'),  // REVIEW name
+        M('1', 'Sweet Kiss'),  // REVIEW name
+        M('13', 'Sonic Boom'),  // REVIEW name
+        M('17', 'Shock Wave'),  // REVIEW name
         M('21', 'Starseeker'),  // REVIEW name
         M('25', 'Tractorbeam'),  // REVIEW name
-        M('29', 'Selfdestruct'),  // REVIEW name
-        M('33', 'Mirrorcoat'),  // REVIEW name
-        M('37', 'Orbitallaser'),  // REVIEW name
+        M('29', 'Self-Destruct'),  // REVIEW name
+        M('33', 'Mirror Coat'),  // REVIEW name
+        M('37', 'Orbital Laser'),  // REVIEW name
         M('41', 'Calm Mind'),
         M('45', 'Fantasiablast'),  // REVIEW name
         M('49', 'Wish'),  // REVIEW name
@@ -2472,7 +2472,7 @@ window.VDEX = (function () {
         TM('04', 'Protect'),
         TM('05', 'Disarming Voice'),
         TM('06', 'Confuse Ray'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'thepitthedarknesscomesfrom' },
       evYield: { SPD: 2 }, baseFriendship: 50, baseExp: 168, growthRate: 'Fast',
@@ -2489,25 +2489,25 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Bubble'),
         M('3', 'Growl'),
-        M('6', 'Aquajet'),  // REVIEW name
+        M('6', 'Aqua Jet'),  // REVIEW name
         M('8', 'Sing'),  // REVIEW name
         M('11', 'Round'),  // REVIEW name
         M('14', 'Bubble Beam'),
-        M('17', 'Lifedew'),  // REVIEW name
+        M('17', 'Life Dew'),  // REVIEW name
         M('20', 'Screech'),  // REVIEW name
         M('23', 'Whirlpool'),
-        M('26', 'Metalsound'),  // REVIEW name
+        M('26', 'Metal Sound'),  // REVIEW name
         M('30', 'Hyper Voice'),
         M('33', 'Surf'),  // REVIEW name
-        M('36', 'Icywind'),  // REVIEW name
-        M('39', 'Healbell'),  // REVIEW name
-        M('42', 'Raindance'),  // REVIEW name
-        M('45', 'Psychicnoise'),  // REVIEW name
-        M('48', 'Perishsong'),  // REVIEW name
+        M('36', 'Icy Wind'),  // REVIEW name
+        M('39', 'Heal Bell'),  // REVIEW name
+        M('42', 'Rain Dance'),  // REVIEW name
+        M('45', 'Psychic Noise'),  // REVIEW name
+        M('48', 'Perish Song'),  // REVIEW name
         M('51', 'Boomburst'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Waterspout'),  // REVIEW name
+        EGG('Water Spout'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -2528,24 +2528,24 @@ window.VDEX = (function () {
       flavor: 'Like a guardian of the reefs, Swimatonic carves graceful paths through the ocean, leaving shimmering trails that help reefs flourish.',
       evo: { from: '063', method: 'Lv 30' },
       levelMoves: [
-        M('1', 'Sparklingaria'),  // REVIEW name
+        M('1', 'Sparkling Aria'),  // REVIEW name
         M('1', 'Bubble'),
         M('1', 'Growl'),
-        M('1', 'Aquajet'),  // REVIEW name
+        M('1', 'Aqua Jet'),  // REVIEW name
         M('8', 'Sing'),  // REVIEW name
         M('11', 'Round'),  // REVIEW name
         M('14', 'Bubble Beam'),
-        M('17', 'Lifedew'),  // REVIEW name
+        M('17', 'Life Dew'),  // REVIEW name
         M('20', 'Screech'),  // REVIEW name
         M('23', 'Whirlpool'),
-        M('26', 'Metalsound'),  // REVIEW name
+        M('26', 'Metal Sound'),  // REVIEW name
         M('30', 'Hyper Voice'),
         M('34', 'Surf'),  // REVIEW name
-        M('37', 'Icywind'),  // REVIEW name
-        M('41', 'Healbell'),  // REVIEW name
-        M('45', 'Raindance'),  // REVIEW name
-        M('50', 'Psychicnoise'),  // REVIEW name
-        M('53', 'Perishsong'),  // REVIEW name
+        M('37', 'Icy Wind'),  // REVIEW name
+        M('41', 'Heal Bell'),  // REVIEW name
+        M('45', 'Rain Dance'),  // REVIEW name
+        M('50', 'Psychic Noise'),  // REVIEW name
+        M('53', 'Perish Song'),  // REVIEW name
         M('57', 'Boomburst'),  // REVIEW name
       ],
       eggMoves: [
@@ -2595,19 +2595,19 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
-        M('20', 'Ancientpower'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
+        M('20', 'Ancient Power'),  // REVIEW name
         M('25', 'Rock Tomb'),
         M('30', 'Metronome'),  // REVIEW name
-        M('35', 'Roleplay'),  // REVIEW name
-        M('40', 'Secretpower'),  // REVIEW name
+        M('35', 'Role Play'),  // REVIEW name
+        M('40', 'Secret Power'),  // REVIEW name
         M('45', 'Charm'),  // REVIEW name
-        M('50', 'Selfdestruct'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('50', 'Self-Destruct'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Encore'),  // REVIEW name
@@ -2638,26 +2638,26 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Confuse Ray'),
         M('25', 'Incinerate'),  // REVIEW name
-        M('30', 'Magicpowder'),  // REVIEW name
-        M('35', 'Mysticalfire'),  // REVIEW name
-        M('40', 'Powergem'),  // REVIEW name
+        M('30', 'Magic Powder'),  // REVIEW name
+        M('35', 'Mystical Fire'),  // REVIEW name
+        M('40', 'Power Gem'),  // REVIEW name
         M('45', 'Barrier'),  // REVIEW name
-        M('50', 'Fireblast'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('50', 'Fire Blast'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2683,30 +2683,30 @@ window.VDEX = (function () {
       flavor: 'Meditation is one of Sedimonk’s favorite activities. It often sits near rivers, canals, or any body of water to find peace.',
       evo: { from: '067', method: 'Water Stone' },
       levelMoves: [
-        M('1', 'Aquajet'),  // REVIEW name
+        M('1', 'Aqua Jet'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
-        M('20', 'Focusenergy'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
+        M('20', 'Focus Energy'),  // REVIEW name
         M('25', 'Brine'),  // REVIEW name
-        M('30', 'Courtchange'),  // REVIEW name
-        M('35', 'Megapunch'),  // REVIEW name
+        M('30', 'Court Change'),  // REVIEW name
+        M('35', 'Mega Punch'),  // REVIEW name
         M('40', 'Liquidation'),  // REVIEW name
-        M('45', 'Quickguard'),  // REVIEW name
-        M('50', 'Surgingstrikes'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('45', 'Quick Guard'),  // REVIEW name
+        M('50', 'Surging Strikes'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2736,26 +2736,26 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Grass Whistle'),
-        M('25', 'Magicalleaf'),  // REVIEW name
-        M('30', 'Forestscurse'),  // REVIEW name
+        M('25', 'Magical Leaf'),  // REVIEW name
+        M('30', 'Forest\'s Curse'),  // REVIEW name
         M('35', 'Aromatherapy'),  // REVIEW name
-        M('40', 'Energyball'),  // REVIEW name
-        M('45', 'Junglehealing'),  // REVIEW name
-        M('50', 'Woodhammer'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('40', 'Energy Ball'),  // REVIEW name
+        M('45', 'Jungle Healing'),  // REVIEW name
+        M('50', 'Wood Hammer'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2781,30 +2781,30 @@ window.VDEX = (function () {
       flavor: 'Sedificer’s glowing crystals hum like generators. It delights in crafting buzzing gadgets, startling opponents with sudden bursts of electricity.',
       evo: { from: '067', method: 'Thunder Stone' },
       levelMoves: [
-        M('1', 'Chargebeam'),  // REVIEW name
+        M('1', 'Charge Beam'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Charge'),  // REVIEW name
-        M('25', 'Paraboliccharge'),  // REVIEW name
-        M('30', 'Iondeluge'),  // REVIEW name
+        M('25', 'Parabolic Charge'),  // REVIEW name
+        M('30', 'Ion Deluge'),  // REVIEW name
         M('35', 'Crystalize'),  // REVIEW name
-        M('40', 'Signalbeam'),  // REVIEW name
-        M('45', 'Rockpolish'),  // REVIEW name
-        M('50', 'Electroshot'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('40', 'Signal Beam'),  // REVIEW name
+        M('45', 'Rock Polish'),  // REVIEW name
+        M('50', 'Electro Shot'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2816,7 +2816,7 @@ window.VDEX = (function () {
         TM('04', 'Protect'),
         TM('05', 'Bulldoze'),
         TM('06', 'Rest'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'tyla771' },
       evYield: { SPD: 2 }, baseFriendship: 50, baseExp: 184, growthRate: 'Slow',
@@ -2831,30 +2831,30 @@ window.VDEX = (function () {
       flavor: 'Sedivout’s armor gleams with starlight, crowned by purple flames. It channels the vast silence of space itself.',
       evo: { from: '067', method: 'Sun Stone' },
       levelMoves: [
-        M('1', 'Bulletpunch'),  // REVIEW name
+        M('1', 'Bullet Punch'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Endure'),  // REVIEW name
-        M('25', 'Mirrorshot'),  // REVIEW name
-        M('30', 'Wideguard'),  // REVIEW name
+        M('25', 'Mirror Shot'),  // REVIEW name
+        M('30', 'Wide Guard'),  // REVIEW name
         M('35', 'Rock Blast'),
-        M('40', 'Anchorshot'),  // REVIEW name
+        M('40', 'Anchor Shot'),  // REVIEW name
         M('45', 'Autotomize'),  // REVIEW name
-        M('50', 'Sunsteelstrike'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('50', 'Sunsteel Strike'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2884,26 +2884,26 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Snatch'),  // REVIEW name
-        M('25', 'Feintattack'),  // REVIEW name
-        M('30', 'Psychocut'),  // REVIEW name
+        M('25', 'Feint Attack'),  // REVIEW name
+        M('30', 'Psycho Cut'),  // REVIEW name
         M('35', 'Embargo'),  // REVIEW name
-        M('40', 'Nightslash'),  // REVIEW name
+        M('40', 'Night Slash'),  // REVIEW name
         M('45', 'Taunt'),  // REVIEW name
-        M('50', 'Kowtowcleave'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('50', 'Kowtow Cleave'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2929,30 +2929,30 @@ window.VDEX = (function () {
       flavor: 'Sediserker charges into battle with twin axes of frozen stone. Its icy mane blazes with fury, fighting till the battlefield itself cracks.',
       evo: { from: '067', method: 'Ice Stone' },
       levelMoves: [
-        M('1', 'Iceshard'),  // REVIEW name
+        M('1', 'Ice Shard'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Mist'),  // REVIEW name
         M('25', 'Avalanche'),  // REVIEW name
         M('30', 'Slash'),  // REVIEW name
         M('35', 'Swagger'),  // REVIEW name
-        M('40', 'Stoneaxe'),  // REVIEW name
-        M('45', 'Noretreat'),  // REVIEW name
-        M('50', 'Iciclecrash'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('40', 'Stone Axe'),  // REVIEW name
+        M('45', 'No Retreat'),  // REVIEW name
+        M('50', 'Icicle Crash'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -2982,26 +2982,26 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
-        M('20', 'Focusenergy'),  // REVIEW name
-        M('25', 'Aircutter'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
+        M('20', 'Focus Energy'),  // REVIEW name
+        M('25', 'Air Cutter'),  // REVIEW name
         M('30', 'Cupidsbow'),  // REVIEW name
         M('35', 'Acupressure'),  // REVIEW name
-        M('40', 'Airslash'),  // REVIEW name
-        M('45', 'Spiritshackle'),  // REVIEW name
-        M('50', 'Lockon'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('40', 'Air Slash'),  // REVIEW name
+        M('45', 'Spirit Shackle'),  // REVIEW name
+        M('50', 'Lock-On'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3028,30 +3028,30 @@ window.VDEX = (function () {
       flavor: 'Sedimancer weaves ghostly energy into stone, raising walls that shift like living shadows. It is feared as the builder of haunted fortresses.',
       evo: { from: '067', method: 'Dusk Stone' },
       levelMoves: [
-        M('1', 'Nightshade'),  // REVIEW name
+        M('1', 'Night Shade'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
         M('20', 'Spite'),  // REVIEW name
         M('25', 'Hex'),  // REVIEW name
         M('30', 'Fullmoonbind'),  // REVIEW name
         M('35', 'Curse'),  // REVIEW name
-        M('40', 'Bittermalice'),  // REVIEW name
-        M('45', 'Revivalblessing'),  // REVIEW name
-        M('50', 'Lastrespects'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('40', 'Bitter Malice'),  // REVIEW name
+        M('45', 'Revival Blessing'),  // REVIEW name
+        M('50', 'Last Respects'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3082,26 +3082,26 @@ window.VDEX = (function () {
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
-        M('20', 'Cleansinglight'),  // REVIEW name
-        M('25', 'Aurorabeam'),  // REVIEW name
-        M('30', 'Drainingkiss'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
+        M('20', 'Cleansing Light'),  // REVIEW name
+        M('25', 'Aurora Beam'),  // REVIEW name
+        M('30', 'Draining Kiss'),  // REVIEW name
         M('35', 'Warminglight'),  // REVIEW name
         M('40', 'Shiningburst'),  // REVIEW name
         M('45', 'Radiantblessing'),  // REVIEW name
         M('50', 'Rainbowbolt'),  // REVIEW name
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3128,30 +3128,30 @@ window.VDEX = (function () {
       flavor: 'Sedilock glows with stardust, testing trainers with riddles; when angered, its aura is said to be strong enough to bend gravity.',
       evo: { from: '067', method: 'Cosmic Stone' },
       levelMoves: [
-        M('1', 'Starshot'),  // REVIEW name
+        M('1', 'Star Shot'),  // REVIEW name
         M('1', 'Pound'),
         M('1', 'Harden'),  // REVIEW name
         M('1', 'Growl'),
-        M('1', 'Helpinghand'),  // REVIEW name
-        M('1', 'Rockthrow'),  // REVIEW name
-        M('1', 'Ancientpower'),  // REVIEW name
+        M('1', 'Helping Hand'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Ancient Power'),  // REVIEW name
         M('1', 'Rock Tomb'),
         M('1', 'Metronome'),  // REVIEW name
-        M('1', 'Roleplay'),  // REVIEW name
-        M('1', 'Secretpower'),  // REVIEW name
+        M('1', 'Role Play'),  // REVIEW name
+        M('1', 'Secret Power'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
-        M('1', 'Selfdestruct'),  // REVIEW name
+        M('1', 'Self-Destruct'),  // REVIEW name
         M('5', 'Sharpen'),  // REVIEW name
-        M('10', 'Hiddenpower'),  // REVIEW name
-        M('15', 'Playnice'),  // REVIEW name
-        M('20', 'Healblock'),  // REVIEW name
+        M('10', 'Hidden Power'),  // REVIEW name
+        M('15', 'Play Nice'),  // REVIEW name
+        M('20', 'Heal Block'),  // REVIEW name
         M('25', 'Starseeker'),  // REVIEW name
         M('30', 'Swift'),
         M('35', 'Zerogravity'),  // REVIEW name
         M('40', 'Starstorm'),  // REVIEW name
         M('45', 'Gammacharge'),  // REVIEW name
         M('50', 'Meteor Beam'),
-        M('55', 'Rockwrecker'),  // REVIEW name
+        M('55', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3200,19 +3200,19 @@ window.VDEX = (function () {
       flavor: 'Once part of a gigantrum, it split away and rose to the mesosphere. Legends say a shooting corelet heralds the fulfillment of deepest desires.',
       evo: { to: '082' },
       levelMoves: [
-        M('1', 'Sunnyday'),  // REVIEW name
-        M('1', 'Starshot'),  // REVIEW name
+        M('1', 'Sunny Day'),  // REVIEW name
+        M('1', 'Star Shot'),  // REVIEW name
         M('5', 'Defense Curl'),
         M('10', 'Gravity'),  // REVIEW name
-        M('15', 'Flameburst'),  // REVIEW name
-        M('19', 'Cleansinglight'),  // REVIEW name
+        M('15', 'Flame Burst'),  // REVIEW name
+        M('19', 'Cleansing Light'),  // REVIEW name
         M('24', 'Starstorm'),  // REVIEW name
-        M('29', 'Powersplit'),  // REVIEW name
-        M('33', 'Dazzlinggleam'),  // REVIEW name
-        M('38', 'Willowisp'),  // REVIEW name
-        M('43', 'Weatherball'),  // REVIEW name
-        M('47', 'Heatwave'),  // REVIEW name
-        M('52', 'Morningsun'),  // REVIEW name
+        M('29', 'Power Split'),  // REVIEW name
+        M('33', 'Dazzling Gleam'),  // REVIEW name
+        M('38', 'Will-O-Wisp'),  // REVIEW name
+        M('43', 'Weather Ball'),  // REVIEW name
+        M('47', 'Heat Wave'),  // REVIEW name
+        M('52', 'Morning Sun'),  // REVIEW name
         M('57', 'Galacticnebula'),  // REVIEW name
       ],
       eggMoves: [
@@ -3224,7 +3224,7 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Confuse Ray'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: { discoverer: 'Azel42' },
       evYield: { HP: 1 }, baseFriendship: 50, baseExp: 110, growthRate: 'Fast',
@@ -3239,19 +3239,19 @@ window.VDEX = (function () {
       flavor: 'As they grow, Gigantrum drains heat from its surroundings, leaving itself in eternal cold. Only authorized labs may possess this species.',
       evo: { from: '081', to: '083', method: 'Lv 20' },
       levelMoves: [
-        M('1', 'Sunnyday'),  // REVIEW name
-        M('1', 'Starshot'),  // REVIEW name
+        M('1', 'Sunny Day'),  // REVIEW name
+        M('1', 'Star Shot'),  // REVIEW name
         M('1', 'Defense Curl'),
         M('1', 'Gravity'),  // REVIEW name
-        M('15', 'Flameburst'),  // REVIEW name
-        M('19', 'Cleansinglight'),  // REVIEW name
+        M('15', 'Flame Burst'),  // REVIEW name
+        M('19', 'Cleansing Light'),  // REVIEW name
         M('25', 'Starstorm'),  // REVIEW name
-        M('31', 'Powersplit'),  // REVIEW name
-        M('36', 'Dazzlinggleam'),  // REVIEW name
-        M('42', 'Willowisp'),  // REVIEW name
-        M('48', 'Weatherball'),  // REVIEW name
-        M('53', 'Heatwave'),  // REVIEW name
-        M('59', 'Morningsun'),  // REVIEW name
+        M('31', 'Power Split'),  // REVIEW name
+        M('36', 'Dazzling Gleam'),  // REVIEW name
+        M('42', 'Will-O-Wisp'),  // REVIEW name
+        M('48', 'Weather Ball'),  // REVIEW name
+        M('53', 'Heat Wave'),  // REVIEW name
+        M('59', 'Morning Sun'),  // REVIEW name
         M('65', 'Galacticnebula'),  // REVIEW name
       ],
       eggMoves: [
@@ -3263,7 +3263,7 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Confuse Ray'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { HP: 2 }, baseFriendship: 30, baseExp: 350, growthRate: 'Fast',
@@ -3280,23 +3280,23 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Brightcannon'),  // REVIEW name
         M('1', 'Supernova'),
-        M('1', 'Destinybond'),  // REVIEW name
+        M('1', 'Destiny Bond'),  // REVIEW name
         M('1', 'Explosion'),  // REVIEW name
-        M('1', 'Sunnyday'),  // REVIEW name
-        M('1', 'Starshot'),  // REVIEW name
+        M('1', 'Sunny Day'),  // REVIEW name
+        M('1', 'Star Shot'),  // REVIEW name
         M('1', 'Defense Curl'),
         M('1', 'Gravity'),  // REVIEW name
-        M('15', 'Flameburst'),  // REVIEW name
+        M('15', 'Flame Burst'),  // REVIEW name
         M('19', 'Gravity'),  // REVIEW name
         M('25', 'Starstorm'),  // REVIEW name
-        M('31', 'Powersplit'),  // REVIEW name
-        M('36', 'Dazzlinggleam'),  // REVIEW name
-        M('42', 'Willowisp'),  // REVIEW name
-        M('48', 'Weatherball'),  // REVIEW name
-        M('54', 'Heatwave'),  // REVIEW name
-        M('61', 'Morningsun'),  // REVIEW name
+        M('31', 'Power Split'),  // REVIEW name
+        M('36', 'Dazzling Gleam'),  // REVIEW name
+        M('42', 'Will-O-Wisp'),  // REVIEW name
+        M('48', 'Weather Ball'),  // REVIEW name
+        M('54', 'Heat Wave'),  // REVIEW name
+        M('61', 'Morning Sun'),  // REVIEW name
         M('68', 'Galacticnebula'),  // REVIEW name
-        M('76', 'Shellburst'),  // REVIEW name
+        M('76', 'Shell Burst'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3307,7 +3307,7 @@ window.VDEX = (function () {
         TM('03', 'Protect'),
         TM('04', 'Confuse Ray'),
         TM('05', 'Rest'),
-        TM('06', 'Thunderwave'),  // REVIEW name
+        TM('06', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { HP: 3 }, baseFriendship: 30, baseExp: 601, growthRate: 'Fast',
@@ -3323,20 +3323,20 @@ window.VDEX = (function () {
       evo: { to: '085' },
       levelMoves: [
         M('1', 'Pound'),
-        M('1', 'Babydolleyes'),  // REVIEW name
+        M('1', 'Baby-Doll Eyes'),  // REVIEW name
         M('5', 'Work Up'),
-        M('8', 'Clearsmog'),  // REVIEW name
-        M('13', 'Doubleslap'),  // REVIEW name
-        M('18', 'Cottonspore'),  // REVIEW name
-        M('21', 'Mudbomb'),  // REVIEW name
+        M('8', 'Clear Smog'),  // REVIEW name
+        M('13', 'Double Slap'),  // REVIEW name
+        M('18', 'Cotton Spore'),  // REVIEW name
+        M('21', 'Mud Bomb'),  // REVIEW name
         M('26', 'Uproar'),  // REVIEW name
         M('31', 'Curse'),  // REVIEW name
         M('34', 'Happilyeverafter'),  // REVIEW name
         M('39', 'Substitute'),  // REVIEW name
         M('44', 'Thrash'),  // REVIEW name
-        M('47', 'Cottonguard'),  // REVIEW name
+        M('47', 'Cotton Guard'),  // REVIEW name
         M('52', 'Grudge'),  // REVIEW name
-        M('58', 'Trumpcard'),  // REVIEW name
+        M('58', 'Trump Card'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Charm'),  // REVIEW name
@@ -3360,23 +3360,23 @@ window.VDEX = (function () {
       flavor: 'Amalgaton are larger, braver Bunbris. Though still playful at heart, their size makes most trainers either battle them or flee from fear.',
       evo: { from: '084', method: 'Lv 30 + full party of Bunbris' },
       levelMoves: [
-        M('1', 'Phantomforce'),  // REVIEW name
-        M('1', 'Shadowsneak'),  // REVIEW name
+        M('1', 'Phantom Force'),  // REVIEW name
+        M('1', 'Shadow Sneak'),  // REVIEW name
         M('1', 'Pound'),
-        M('1', 'Babydolleyes'),  // REVIEW name
+        M('1', 'Baby-Doll Eyes'),  // REVIEW name
         M('1', 'Work Up'),
-        M('1', 'Clearsmog'),  // REVIEW name
-        M('13', 'Doubleslap'),  // REVIEW name
-        M('18', 'Cottonspore'),  // REVIEW name
-        M('21', 'Mudbomb'),  // REVIEW name
+        M('1', 'Clear Smog'),  // REVIEW name
+        M('13', 'Double Slap'),  // REVIEW name
+        M('18', 'Cotton Spore'),  // REVIEW name
+        M('21', 'Mud Bomb'),  // REVIEW name
         M('26', 'Uproar'),  // REVIEW name
         M('32', 'Curse'),  // REVIEW name
         M('36', 'Happilyeverafter'),  // REVIEW name
         M('42', 'Substitute'),  // REVIEW name
         M('48', 'Thrash'),  // REVIEW name
-        M('52', 'Cottonguard'),  // REVIEW name
+        M('52', 'Cotton Guard'),  // REVIEW name
         M('58', 'Grudge'),  // REVIEW name
-        M('65', 'Trumpcard'),  // REVIEW name
+        M('65', 'Trump Card'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3406,19 +3406,19 @@ window.VDEX = (function () {
         M('5', 'Ember'),
         M('8', 'Sing'),  // REVIEW name
         M('12', 'Round'),  // REVIEW name
-        M('15', 'Sunnyday'),  // REVIEW name
+        M('15', 'Sunny Day'),  // REVIEW name
         M('19', 'Incinerate'),  // REVIEW name
         M('22', 'Echoed Voice'),
         M('26', 'Encore'),  // REVIEW name
-        M('29', 'Blazekick'),  // REVIEW name
-        M('33', 'Alluringvoice'),  // REVIEW name
-        M('36', 'Featherdance'),  // REVIEW name
-        M('40', 'Heatwave'),  // REVIEW name
+        M('29', 'Blaze Kick'),  // REVIEW name
+        M('33', 'Alluring Voice'),  // REVIEW name
+        M('36', 'Feather Dance'),  // REVIEW name
+        M('40', 'Heat Wave'),  // REVIEW name
         M('43', 'Spotlight'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Airslash'),  // REVIEW name
-        EGG('Burningjealousy'),  // REVIEW name
+        EGG('Air Slash'),  // REVIEW name
+        EGG('Burning Jealousy'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -3428,7 +3428,7 @@ window.VDEX = (function () {
         TM('05', 'Protect'),
         TM('06', 'Disarming Voice'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 1 }, baseFriendship: 50, baseExp: 50, growthRate: 'Fast',
@@ -3449,14 +3449,14 @@ window.VDEX = (function () {
         M('1', 'Ember'),
         M('1', 'Sing'),  // REVIEW name
         M('12', 'Round'),  // REVIEW name
-        M('15', 'Sunnyday'),  // REVIEW name
+        M('15', 'Sunny Day'),  // REVIEW name
         M('20', 'Incinerate'),  // REVIEW name
         M('24', 'Echoed Voice'),
         M('29', 'Encore'),  // REVIEW name
-        M('33', 'Blazekick'),  // REVIEW name
-        M('38', 'Alluringvoice'),  // REVIEW name
-        M('42', 'Featherdance'),  // REVIEW name
-        M('47', 'Heatwave'),  // REVIEW name
+        M('33', 'Blaze Kick'),  // REVIEW name
+        M('38', 'Alluring Voice'),  // REVIEW name
+        M('42', 'Feather Dance'),  // REVIEW name
+        M('47', 'Heat Wave'),  // REVIEW name
         M('51', 'Spotlight'),  // REVIEW name
       ],
       eggMoves: [
@@ -3470,8 +3470,8 @@ window.VDEX = (function () {
         TM('05', 'Protect'),
         TM('06', 'Disarming Voice'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
-        TM('09', 'Lowsweep'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
+        TM('09', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 2 }, baseFriendship: 50, baseExp: 122, growthRate: 'Fast',
@@ -3486,7 +3486,7 @@ window.VDEX = (function () {
       flavor: 'With its tail feathers, Bawkurn weaves enchanting melodies. Regaining its singing voice, it manipulates fire by shifting notes.',
       evo: { from: '087', method: 'Lv 32' },
       levelMoves: [
-        M('1', 'Torchsong'),  // REVIEW name
+        M('1', 'Torch Song'),  // REVIEW name
         M('1', 'Overdrive'),  // REVIEW name
         M('1', 'Flatter'),  // REVIEW name
         M('1', 'Peck'),  // REVIEW name
@@ -3494,16 +3494,16 @@ window.VDEX = (function () {
         M('1', 'Ember'),
         M('1', 'Sing'),  // REVIEW name
         M('12', 'Round'),  // REVIEW name
-        M('15', 'Sunnyday'),  // REVIEW name
+        M('15', 'Sunny Day'),  // REVIEW name
         M('20', 'Incinerate'),  // REVIEW name
         M('24', 'Echoed Voice'),
         M('29', 'Encore'),  // REVIEW name
-        M('33', 'Blazekick'),  // REVIEW name
-        M('39', 'Alluringvoice'),  // REVIEW name
-        M('44', 'Featherdance'),  // REVIEW name
-        M('50', 'Heatwave'),  // REVIEW name
+        M('33', 'Blaze Kick'),  // REVIEW name
+        M('39', 'Alluring Voice'),  // REVIEW name
+        M('44', 'Feather Dance'),  // REVIEW name
+        M('50', 'Heat Wave'),  // REVIEW name
         M('55', 'Spotlight'),  // REVIEW name
-        M('61', 'Perishsong'),  // REVIEW name
+        M('61', 'Perish Song'),  // REVIEW name
         M('66', 'Boomburst'),  // REVIEW name
       ],
       eggMoves: [
@@ -3517,8 +3517,8 @@ window.VDEX = (function () {
         TM('05', 'Protect'),
         TM('06', 'Disarming Voice'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
-        TM('09', 'Lowsweep'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
+        TM('09', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 2, SPA: 1 }, baseFriendship: 50, baseExp: 240, growthRate: 'Fast',
@@ -3533,27 +3533,27 @@ window.VDEX = (function () {
       flavor: 'Garot waits in the dark waters, striking so swiftly that prey seldom sees— or survives the attack.',
       evo: { to: '090' },
       levelMoves: [
-        M('1', 'Watergun'),  // REVIEW name
+        M('1', 'Water Gun'),  // REVIEW name
         M('3', 'Meditate'),  // REVIEW name
         M('6', 'Confuse Ray'),
         M('10', 'Bite'),  // REVIEW name
-        M('13', 'Miracleye'),  // REVIEW name
+        M('13', 'Miracle Eye'),  // REVIEW name
         M('16', 'Psybeam'),  // REVIEW name
-        M('20', 'Waterpulse'),  // REVIEW name
+        M('20', 'Water Pulse'),  // REVIEW name
         M('23', 'Imprison'),  // REVIEW name
         M('26', 'Barrage'),
-        M('30', 'Magicroom'),  // REVIEW name
-        M('33', 'Ancientpower'),  // REVIEW name
-        M('36', 'Lifedew'),  // REVIEW name
-        M('40', 'Psychicfangs'),  // REVIEW name
+        M('30', 'Magic Room'),  // REVIEW name
+        M('33', 'Ancient Power'),  // REVIEW name
+        M('36', 'Life Dew'),  // REVIEW name
+        M('40', 'Psychic Fangs'),  // REVIEW name
         M('43', 'Surf'),  // REVIEW name
         M('46', 'Recover'),  // REVIEW name
-        M('50', 'Powergem'),  // REVIEW name
-        M('53', 'Shadowball'),  // REVIEW name
-        M('55', 'Futuresight'),  // REVIEW name
+        M('50', 'Power Gem'),  // REVIEW name
+        M('53', 'Shadow Ball'),  // REVIEW name
+        M('55', 'Future Sight'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Aquajet'),  // REVIEW name
+        EGG('Aqua Jet'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -3574,18 +3574,18 @@ window.VDEX = (function () {
       flavor: 'Garcana drifts through shadowed waters, its vast form a silent presence that unsettles all who sense it nearby.',
       evo: { from: '089', method: 'Has Ancient Power' },
       levelMoves: [
-        M('1', 'Watergun'),  // REVIEW name
+        M('1', 'Water Gun'),  // REVIEW name
         M('3', 'Meditate'),  // REVIEW name
         M('6', 'Confuse Ray'),
         M('10', 'Bite'),  // REVIEW name
-        M('13', 'Miracleye'),  // REVIEW name
+        M('13', 'Miracle Eye'),  // REVIEW name
         M('16', 'Psybeam'),  // REVIEW name
-        M('20', 'Waterpulse'),  // REVIEW name
+        M('20', 'Water Pulse'),  // REVIEW name
         M('23', 'Imprison'),  // REVIEW name
         M('26', 'Barrage'),
-        M('30', 'Magicroom'),  // REVIEW name
-        M('33', 'Ancientpower'),  // REVIEW name
-        M('36', 'Lifedew'),  // REVIEW name
+        M('30', 'Magic Room'),  // REVIEW name
+        M('33', 'Ancient Power'),  // REVIEW name
+        M('36', 'Life Dew'),  // REVIEW name
         M('40', 'Psychicfangs43'),  // REVIEW name
       ],
       eggMoves: [
@@ -3610,28 +3610,28 @@ window.VDEX = (function () {
       flavor: 'Mangmo often trains alone, mastering small gusts of wind. It guides air around its body to glide great distances.',
       evo: { to: '092' },
       levelMoves: [
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('4', 'Gust'),  // REVIEW name
         M('7', 'Leer'),  // REVIEW name
         M('10', 'Twister'),  // REVIEW name
         M('13', 'Defog'),  // REVIEW name
-        M('16', 'Wingattack'),  // REVIEW name
-        M('19', 'Focusenergy'),  // REVIEW name
-        M('22', 'Vaccumwave'),  // REVIEW name
+        M('16', 'Wing Attack'),  // REVIEW name
+        M('19', 'Focus Energy'),  // REVIEW name
+        M('22', 'Vacuum Wave'),  // REVIEW name
         M('25', 'Tickle'),  // REVIEW name
         M('28', 'Slam'),
         M('31', 'Agility'),
         M('35', 'Acrobatics'),  // REVIEW name
-        M('39', 'Drainpunch'),  // REVIEW name
+        M('39', 'Drain Punch'),  // REVIEW name
         M('43', 'Seismic Toss'),
         M('47', 'Bulk Up'),
         M('51', 'Thrash'),  // REVIEW name
-        M('55', 'Closecombat'),  // REVIEW name
+        M('55', 'Close Combat'),  // REVIEW name
         M('59', 'Hurricane'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Cometpunch'),  // REVIEW name
-        EGG('Aircutter'),  // REVIEW name
+        EGG('Comet Punch'),  // REVIEW name
+        EGG('Air Cutter'),  // REVIEW name
       ],
       tmMoves: [
         TM('01', 'Work Up'),
@@ -3639,7 +3639,7 @@ window.VDEX = (function () {
         TM('03', 'Aerial Ace'),
         TM('04', 'Protect'),
         TM('05', 'Rest'),
-        TM('06', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: { discoverer: 'TheDragonMaster' },
       evYield: { SPD: 1 }, baseFriendship: 50, baseExp: 62, growthRate: 'Fast',
@@ -3654,24 +3654,24 @@ window.VDEX = (function () {
       flavor: 'With powerful ear movements and swift martial skills, it bends the air around its body to strike with invisible blasts of wind.',
       evo: { from: '091', method: 'Lv 45' },
       levelMoves: [
-        M('1', 'Flyingpress'),  // REVIEW name
-        M('1', 'Quickattack'),  // REVIEW name
+        M('1', 'Flying Press'),  // REVIEW name
+        M('1', 'Quick Attack'),  // REVIEW name
         M('1', 'Gust'),  // REVIEW name
         M('1', 'Leer'),  // REVIEW name
         M('10', 'Twister'),  // REVIEW name
         M('13', 'Defog'),  // REVIEW name
-        M('16', 'Wingattack'),  // REVIEW name
-        M('19', 'Focusenergy'),  // REVIEW name
-        M('22', 'Vaccumwave'),  // REVIEW name
+        M('16', 'Wing Attack'),  // REVIEW name
+        M('19', 'Focus Energy'),  // REVIEW name
+        M('22', 'Vacuum Wave'),  // REVIEW name
         M('25', 'Tickle'),  // REVIEW name
         M('28', 'Slam'),
         M('31', 'Agility'),
         M('35', 'Acrobatics'),  // REVIEW name
-        M('39', 'Drainpunch'),  // REVIEW name
+        M('39', 'Drain Punch'),  // REVIEW name
         M('43', 'Seismic Toss'),
         M('48', 'Bulk Up'),
         M('53', 'Thrash'),  // REVIEW name
-        M('58', 'Closecombat'),  // REVIEW name
+        M('58', 'Close Combat'),  // REVIEW name
         M('63', 'Hurricane'),  // REVIEW name
       ],
       eggMoves: [
@@ -3683,7 +3683,7 @@ window.VDEX = (function () {
         TM('03', 'Aerial Ace'),
         TM('04', 'Protect'),
         TM('05', 'Rest'),
-        TM('06', 'Lowsweep'),  // REVIEW name
+        TM('06', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: { discoverer: 'TheDragonMaster' },
       evYield: { SPD: 2 }, baseFriendship: 50, baseExp: 201, growthRate: 'Fast',
@@ -3699,17 +3699,17 @@ window.VDEX = (function () {
       evo: { to: '094' },
       levelMoves: [
         M('1', 'Withdraw'),  // REVIEW name
-        M('3', 'Rocktrhow'),  // REVIEW name
-        M('8', 'Visegrip'),  // REVIEW name
+        M('3', 'Rock Throw'),  // REVIEW name
+        M('8', 'Vise Grip'),  // REVIEW name
         M('13', 'Protect'),
         M('17', 'Brine'),  // REVIEW name
         M('22', 'Safeguard'),  // REVIEW name
         M('27', 'Rock Blast'),
-        M('31', 'Razorshell'),  // REVIEW name
+        M('31', 'Razor Shell'),  // REVIEW name
         M('36', 'Shelter'),  // REVIEW name
         M('41', 'Crabhammer'),  // REVIEW name
-        M('45', 'Heavyslam'),  // REVIEW name
-        M('56', 'Shellsmash'),  // REVIEW name
+        M('45', 'Heavy Slam'),  // REVIEW name
+        M('56', 'Shell Smash'),  // REVIEW name
         M('61', 'Stealth Rock'),
       ],
       eggMoves: [
@@ -3733,23 +3733,23 @@ window.VDEX = (function () {
       flavor: 'With its vast shell and claws, Giganshore fears no predators. It protects Shorecite, letting them roam across its back.',
       evo: { from: '093', method: 'Lv 40' },
       levelMoves: [
-        M('1', 'Saltcure'),  // REVIEW name
-        M('1', 'Defendorder'),  // REVIEW name
-        M('1', 'Attackorder'),  // REVIEW name
+        M('1', 'Salt Cure'),  // REVIEW name
+        M('1', 'Defend Order'),  // REVIEW name
+        M('1', 'Attack Order'),  // REVIEW name
         M('1', 'Withdraw'),  // REVIEW name
-        M('1', 'Rocktrhow'),  // REVIEW name
-        M('1', 'Visegrip'),  // REVIEW name
+        M('1', 'Rock Throw'),  // REVIEW name
+        M('1', 'Vise Grip'),  // REVIEW name
         M('1', 'Protect'),
         M('17', 'Brine'),  // REVIEW name
         M('22', 'Safeguard'),  // REVIEW name
         M('27', 'Rock Blast'),
-        M('31', 'Razorshell'),  // REVIEW name
+        M('31', 'Razor Shell'),  // REVIEW name
         M('36', 'Shelter'),  // REVIEW name
         M('42', 'Crabhammer'),  // REVIEW name
-        M('47', 'Heavyslam'),  // REVIEW name
-        M('53', 'Shellsmash'),  // REVIEW name
+        M('47', 'Heavy Slam'),  // REVIEW name
+        M('53', 'Shell Smash'),  // REVIEW name
         M('59', 'Stealth Rock'),
-        M('66', 'Rockwrecker'),  // REVIEW name
+        M('66', 'Rock Wrecker'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3798,16 +3798,16 @@ window.VDEX = (function () {
         M('1', 'Tackle'),
         M('1', 'Tail Whip'),
         M('3', 'Pursuit'),  // REVIEW name
-        M('6', 'Watergun'),  // REVIEW name
+        M('6', 'Water Gun'),  // REVIEW name
         M('10', 'Mist'),  // REVIEW name
-        M('13', 'Raindance'),  // REVIEW name
-        M('16', 'Waterpulse'),  // REVIEW name
+        M('13', 'Rain Dance'),  // REVIEW name
+        M('16', 'Water Pulse'),  // REVIEW name
         M('20', 'Whirlwind'),  // REVIEW name
         M('23', 'Dive'),  // REVIEW name
         M('26', 'Defog'),  // REVIEW name
         M('30', 'Fly'),  // REVIEW name
-        M('33', 'Airslash'),  // REVIEW name
-        M('36', 'Steelwing'),  // REVIEW name
+        M('33', 'Air Slash'),  // REVIEW name
+        M('36', 'Steel Wing'),  // REVIEW name
         M('40', 'Tailwind'),  // REVIEW name
       ],
       eggMoves: [
@@ -3834,21 +3834,21 @@ window.VDEX = (function () {
       flavor: 'Is it a Sicklet? Is it a plane? No, it\'s Brooskip! Ecstatic about their newfound ability to fly, they spend more time in the sky than in the water.',
       evo: { from: '097', to: '099', method: 'Lv 17' },
       levelMoves: [
-        M('1', 'Skydrop'),  // REVIEW name
-        M('1', 'Aerialce'),  // REVIEW name
+        M('1', 'Sky Drop'),  // REVIEW name
+        M('1', 'Aerial Ace'),  // REVIEW name
         M('1', 'Tackle'),
         M('1', 'Tail Whip'),
         M('3', 'Pursuit'),  // REVIEW name
-        M('6', 'Watergun'),  // REVIEW name
+        M('6', 'Water Gun'),  // REVIEW name
         M('10', 'Mist'),  // REVIEW name
-        M('13', 'Raindance'),  // REVIEW name
-        M('16', 'Waterpulse'),  // REVIEW name
+        M('13', 'Rain Dance'),  // REVIEW name
+        M('16', 'Water Pulse'),  // REVIEW name
         M('21', 'Whirlwind'),  // REVIEW name
         M('25', 'Dive'),  // REVIEW name
         M('29', 'Defog'),  // REVIEW name
         M('34', 'Fly'),  // REVIEW name
-        M('38', 'Airslash'),  // REVIEW name
-        M('42', 'Steelwing'),  // REVIEW name
+        M('38', 'Air Slash'),  // REVIEW name
+        M('42', 'Steel Wing'),  // REVIEW name
         M('47', 'Tailwind'),  // REVIEW name
       ],
       eggMoves: [
@@ -3874,23 +3874,23 @@ window.VDEX = (function () {
       flavor: 'During droughts, Writrout carries aquatic Pokémon to safer waters. Its age is measured by wingspan.',
       evo: { from: '098', method: 'Has move "Fly"' },
       levelMoves: [
-        M('1', 'Skydrop'),  // REVIEW name
+        M('1', 'Sky Drop'),  // REVIEW name
         M('1', 'Aerial Ace'),
         M('1', 'Tackle'),
         M('1', 'Tail Whip'),
         M('3', 'Pursuit'),  // REVIEW name
-        M('6', 'Watergun'),  // REVIEW name
+        M('6', 'Water Gun'),  // REVIEW name
         M('10', 'Mist'),  // REVIEW name
-        M('13', 'Raindance'),  // REVIEW name
-        M('16', 'Waterpulse'),  // REVIEW name
+        M('13', 'Rain Dance'),  // REVIEW name
+        M('16', 'Water Pulse'),  // REVIEW name
         M('21', 'Whirlwind'),  // REVIEW name
         M('25', 'Dive'),  // REVIEW name
         M('29', 'Defog'),  // REVIEW name
         M('34', 'Fly'),  // REVIEW name
-        M('39', 'Airslash'),  // REVIEW name
-        M('44', 'Steelwing'),  // REVIEW name
+        M('39', 'Air Slash'),  // REVIEW name
+        M('44', 'Steel Wing'),  // REVIEW name
         M('50', 'Tailwind'),  // REVIEW name
-        M('58', 'Waterspout'),  // REVIEW name
+        M('58', 'Water Spout'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -3917,21 +3917,21 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Prismpunch'),  // REVIEW name
         M('3', 'Defense Curl'),
-        M('6', 'Rapidspin'),  // REVIEW name
+        M('6', 'Rapid Spin'),  // REVIEW name
         M('10', 'Spotlight'),  // REVIEW name
-        M('12', 'Metalclaw'),  // REVIEW name
+        M('12', 'Metal Claw'),  // REVIEW name
         M('15', 'Metronome'),  // REVIEW name
         M('19', 'Rgbeam'),  // REVIEW name
-        M('21', 'Teeterdance'),  // REVIEW name
+        M('21', 'Teeter Dance'),  // REVIEW name
         M('24', 'Entrainment'),  // REVIEW name
-        M('28', 'Gyroball'),  // REVIEW name
+        M('28', 'Gyro Ball'),  // REVIEW name
         M('30', 'Encore'),  // REVIEW name
         M('33', 'Flashstep'),  // REVIEW name
         M('37', 'Captivate'),  // REVIEW name
-        M('39', 'Tripleaxel'),  // REVIEW name
+        M('39', 'Triple Axel'),  // REVIEW name
         M('42', 'Moonlight'),
-        M('46', 'Victorydance'),  // REVIEW name
-        M('51', 'Steelroller'),  // REVIEW name
+        M('46', 'Victory Dance'),  // REVIEW name
+        M('51', 'Steel Roller'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Sing'),  // REVIEW name
@@ -3944,8 +3944,8 @@ window.VDEX = (function () {
         TM('04', 'Protect'),
         TM('05', 'Disarmingvoicethief'),  // REVIEW name
         TM('06', 'Rest'),
-        TM('07', 'Thunderwave'),  // REVIEW name
-        TM('08', 'Lowsweep'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
+        TM('08', 'Low Sweep'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { DEF: 1 }, baseFriendship: 70, baseExp: 152, growthRate: 'Eratic',
@@ -3997,15 +3997,15 @@ window.VDEX = (function () {
         M('1', 'Ember'),
         M('4', 'Smog'),  // REVIEW name
         M('8', 'Quash'),  // REVIEW name
-        M('13', 'Feintattack'),  // REVIEW name
+        M('13', 'Feint Attack'),  // REVIEW name
         M('17', 'Fire Spin'),
         M('21', 'Roar'),  // REVIEW name
         M('26', 'Snarl'),  // REVIEW name
-        M('30', 'Burningjealousy'),  // REVIEW name
+        M('30', 'Burning Jealousy'),  // REVIEW name
         M('34', 'Acupressure'),  // REVIEW name
-        M('39', 'Meanlook'),  // REVIEW name
+        M('39', 'Mean Look'),  // REVIEW name
         M('43', 'Punishment'),  // REVIEW name
-        M('47', 'Nobleroar'),  // REVIEW name
+        M('47', 'Noble Roar'),  // REVIEW name
       ],
       eggMoves: [
         EGG('Incinerate'),  // REVIEW name
@@ -4018,7 +4018,7 @@ window.VDEX = (function () {
         TM('04', 'Confuse Ray'),
         TM('05', 'Thief'),
         TM('06', 'Rest'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 1 }, baseFriendship: 50, baseExp: 52, growthRate: 'Medium',
@@ -4033,22 +4033,22 @@ window.VDEX = (function () {
       flavor: 'Gleeruption are very prideful creatures, usually getting into fights recklessly due to this; they\'re very prone to injuries.',
       evo: { from: '104', method: 'Positive Nature' },
       levelMoves: [
-        M('1', 'Healblock'),  // REVIEW name
+        M('1', 'Heal Block'),  // REVIEW name
         M('1', 'Return'),  // REVIEW name
         M('1', 'Charm'),  // REVIEW name
         M('1', 'Howl'),  // REVIEW name
         M('1', 'Ember'),
         M('1', 'Smog'),  // REVIEW name
         M('1', 'Quash'),  // REVIEW name
-        M('13', 'Feintattack'),  // REVIEW name
+        M('13', 'Feint Attack'),  // REVIEW name
         M('17', 'Fire Spin'),
         M('21', 'Roar'),  // REVIEW name
         M('27', 'Snarl'),  // REVIEW name
-        M('32', 'Burningjealousy'),  // REVIEW name
+        M('32', 'Burning Jealousy'),  // REVIEW name
         M('37', 'Acupressure'),  // REVIEW name
-        M('43', 'Meanlook'),  // REVIEW name
+        M('43', 'Mean Look'),  // REVIEW name
         M('48', 'Overheat'),  // REVIEW name
-        M('53', 'Nobleroar'),  // REVIEW name
+        M('53', 'Noble Roar'),  // REVIEW name
         M('58', 'Punishment'),  // REVIEW name
       ],
       eggMoves: [
@@ -4061,7 +4061,7 @@ window.VDEX = (function () {
         TM('04', 'Confuse Ray'),
         TM('05', 'Thief'),
         TM('06', 'Rest'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 1, SPE: 1 }, baseFriendship: 70, baseExp: 131, growthRate: 'Medium',
@@ -4078,20 +4078,20 @@ window.VDEX = (function () {
       levelMoves: [
         M('1', 'Embargo'),  // REVIEW name
         M('1', 'Frustration'),  // REVIEW name
-        M('1', 'Tearfullook'),  // REVIEW name
+        M('1', 'Tearful Look'),  // REVIEW name
         M('1', 'Howl'),  // REVIEW name
         M('1', 'Ember'),
         M('1', 'Smog'),  // REVIEW name
         M('1', 'Quash'),  // REVIEW name
-        M('13', 'Feintattack'),  // REVIEW name
+        M('13', 'Feint Attack'),  // REVIEW name
         M('17', 'Fire Spin'),
         M('21', 'Roar'),  // REVIEW name
         M('27', 'Snarl'),  // REVIEW name
-        M('32', 'Burningjealousy'),  // REVIEW name
+        M('32', 'Burning Jealousy'),  // REVIEW name
         M('37', 'Acupressure'),  // REVIEW name
-        M('43', 'Meanlook'),  // REVIEW name
+        M('43', 'Mean Look'),  // REVIEW name
         M('48', 'Inferno'),  // REVIEW name
-        M('53', 'Nobleroar'),  // REVIEW name
+        M('53', 'Noble Roar'),  // REVIEW name
         M('58', 'Punishment'),  // REVIEW name
       ],
       eggMoves: [
@@ -4104,7 +4104,7 @@ window.VDEX = (function () {
         TM('04', 'Confuse Ray'),
         TM('05', 'Thief'),
         TM('06', 'Rest'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 1, SPD: 1 }, baseFriendship: 30, baseExp: 131, growthRate: 'Medium',
@@ -4119,22 +4119,22 @@ window.VDEX = (function () {
       flavor: 'Legend says only the pure-hearted witness Cerbament, with tales of their Herculean trials echoing through the ages.',
       evo: { from: ['105', '106'], method: 'Fuse Gleeruption + Scorow (Lv 40) w/ Binding Flame' },
       levelMoves: [
-        M('1', 'Infernalparade'),  // REVIEW name
-        M('1', 'Doublehit'),  // REVIEW name
+        M('1', 'Infernal Parade'),  // REVIEW name
+        M('1', 'Double Hit'),  // REVIEW name
         M('1', 'Howl'),  // REVIEW name
         M('1', 'Ember'),
         M('1', 'Smog'),  // REVIEW name
         M('1', 'Quash'),  // REVIEW name
-        M('13', 'Feintattack'),  // REVIEW name
+        M('13', 'Feint Attack'),  // REVIEW name
         M('17', 'Fire Spin'),
         M('21', 'Roar'),  // REVIEW name
         M('27', 'Snarl'),  // REVIEW name
-        M('32', 'Burningjealousy'),  // REVIEW name
+        M('32', 'Burning Jealousy'),  // REVIEW name
         M('37', 'Acupressure'),  // REVIEW name
-        M('44', 'Meanlook'),  // REVIEW name
+        M('44', 'Mean Look'),  // REVIEW name
         M('50', 'Punishment'),  // REVIEW name
-        M('56', 'Nobleroar'),  // REVIEW name
-        M('63', 'Fierywrath'),  // REVIEW name
+        M('56', 'Noble Roar'),  // REVIEW name
+        M('63', 'Fiery Wrath'),  // REVIEW name
         M('71', 'Eruption'),  // REVIEW name
       ],
       eggMoves: [
@@ -4147,7 +4147,7 @@ window.VDEX = (function () {
         TM('04', 'Confuse Ray'),
         TM('05', 'Thief'),
         TM('06', 'Rest'),
-        TM('07', 'Thunderwave'),  // REVIEW name
+        TM('07', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 2, SPD: 1 }, baseFriendship: 50, baseExp: 245, growthRate: 'Medium',
@@ -4167,19 +4167,19 @@ window.VDEX = (function () {
         M('5', 'Supersonic'),  // REVIEW name
         M('8', 'Pursuit'),  // REVIEW name
         M('12', 'Disable'),  // REVIEW name
-        M('15', 'Aircutter'),  // REVIEW name
-        M('19', 'Ominouswind'),  // REVIEW name
+        M('15', 'Air Cutter'),  // REVIEW name
+        M('19', 'Ominous Wind'),  // REVIEW name
         M('22', 'Torment'),  // REVIEW name
         M('26', 'Fullmoonbind'),  // REVIEW name
-        M('29', 'Nightslash'),  // REVIEW name
-        M('33', 'Mindreader'),  // REVIEW name
-        M('37', 'Leechlife'),  // REVIEW name
-        M('40', 'Partingshot'),  // REVIEW name
-        M('44', 'Nastyplot'),  // REVIEW name
-        M('47', 'Razorwind'),  // REVIEW name
+        M('29', 'Night Slash'),  // REVIEW name
+        M('33', 'Mind Reader'),  // REVIEW name
+        M('37', 'Leech Life'),  // REVIEW name
+        M('40', 'Parting Shot'),  // REVIEW name
+        M('44', 'Nasty Plot'),  // REVIEW name
+        M('47', 'Razor Wind'),  // REVIEW name
       ],
       eggMoves: [
-        EGG('Airslash'),  // REVIEW name
+        EGG('Air Slash'),  // REVIEW name
         EGG('Twister'),  // REVIEW name
       ],
       tmMoves: [
@@ -4190,7 +4190,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 1 }, baseFriendship: 50, baseExp: 49, growthRate: 'Medium',
@@ -4205,23 +4205,23 @@ window.VDEX = (function () {
       flavor: 'Ocuclaw cloaks itself like a shadow, often resting but sometimes swooping to startle smaller Pokémon before they can react.',
       evo: { from: '108', to: '110', method: 'Lv 18' },
       levelMoves: [
-        M('1', 'Feintattack'),  // REVIEW name
-        M('1', 'Razorwind'),  // REVIEW name
+        M('1', 'Feint Attack'),  // REVIEW name
+        M('1', 'Razor Wind'),  // REVIEW name
         M('1', 'Leer'),  // REVIEW name
         M('1', 'Absorb'),  // REVIEW name
         M('1', 'Supersonic'),  // REVIEW name
         M('1', 'Pursuit'),  // REVIEW name
         M('12', 'Disable'),  // REVIEW name
-        M('15', 'Aircutter'),  // REVIEW name
-        M('20', 'Ominouswind'),  // REVIEW name
+        M('15', 'Air Cutter'),  // REVIEW name
+        M('20', 'Ominous Wind'),  // REVIEW name
         M('24', 'Torment'),  // REVIEW name
         M('29', 'Fullmoonbind'),  // REVIEW name
-        M('33', 'Nighslash'),  // REVIEW name
-        M('38', 'Mindreader'),  // REVIEW name
-        M('42', 'Leechlife'),  // REVIEW name
-        M('47', 'Partingshot'),  // REVIEW name
-        M('51', 'Nastyplot'),  // REVIEW name
-        M('55', 'Razorwind'),  // REVIEW name
+        M('33', 'Night Slash'),  // REVIEW name
+        M('38', 'Mind Reader'),  // REVIEW name
+        M('42', 'Leech Life'),  // REVIEW name
+        M('47', 'Parting Shot'),  // REVIEW name
+        M('51', 'Nasty Plot'),  // REVIEW name
+        M('55', 'Razor Wind'),  // REVIEW name
       ],
       eggMoves: [
 
@@ -4234,7 +4234,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPE: 1, SPA: 1 }, baseFriendship: 50, baseExp: 134, growthRate: 'Medium',
@@ -4249,23 +4249,23 @@ window.VDEX = (function () {
       flavor: 'Ocurage soars through the night, its vast wings casting shadows below. Spotting prey within, it dives at blinding speed to strike.',
       evo: { from: '109', method: 'Lv 37' },
       levelMoves: [
-        M('1', 'Oblivionwing'),  // REVIEW name
-        M('1', 'Razorwind'),  // REVIEW name
-        M('1', 'Feintattack'),  // REVIEW name
+        M('1', 'Oblivion Wing'),  // REVIEW name
+        M('1', 'Razor Wind'),  // REVIEW name
+        M('1', 'Feint Attack'),  // REVIEW name
         M('1', 'Leer'),  // REVIEW name
         M('1', 'Absorb'),  // REVIEW name
         M('1', 'Supersonic'),  // REVIEW name
         M('1', 'Pursuit'),  // REVIEW name
         M('12', 'Disable'),  // REVIEW name
-        M('15', 'Aircutter'),  // REVIEW name
-        M('20', 'Ominouswind'),  // REVIEW name
+        M('15', 'Air Cutter'),  // REVIEW name
+        M('20', 'Ominous Wind'),  // REVIEW name
         M('24', 'Torment'),  // REVIEW name
         M('29', 'Fullmoonbind'),  // REVIEW name
-        M('33', 'Nighslash'),  // REVIEW name
-        M('39', 'Mindreader'),  // REVIEW name
-        M('44', 'Leechlife'),  // REVIEW name
-        M('50', 'Partingshot'),  // REVIEW name
-        M('55', 'Nastyplot'),  // REVIEW name
+        M('33', 'Night Slash'),  // REVIEW name
+        M('39', 'Mind Reader'),  // REVIEW name
+        M('44', 'Leech Life'),  // REVIEW name
+        M('50', 'Parting Shot'),  // REVIEW name
+        M('55', 'Nasty Plot'),  // REVIEW name
         M('61', 'Hurricane'),  // REVIEW name
       ],
       eggMoves: [
@@ -4279,7 +4279,7 @@ window.VDEX = (function () {
         TM('05', 'Confuse Ray'),
         TM('06', 'Thief'),
         TM('07', 'Rest'),
-        TM('08', 'Thunderwave'),  // REVIEW name
+        TM('08', 'Thunder Wave'),  // REVIEW name
       ],
       anomaly: null,
       evYield: { SPA: 2, SPE: 1 }, baseFriendship: 50, baseExp: 238, growthRate: 'Medium',
