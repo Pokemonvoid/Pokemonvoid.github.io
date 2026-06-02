@@ -374,12 +374,15 @@ window.VIEWS = window.VIEWS || {};
     const species = DEX.filter(d => !d.undiscovered);
     const term = q.trim().toLowerCase();
 
+    // anomaly may only be shown/ticked if this mon's anomaly is revealed (keeps secrets hidden)
+    const anomalyUnlocked = (d) => d.anomaly != null;
     const stat = (d) => {
       const s = gridStatus(d.dex);
-      return s ? { caught: !!(s.normal || s.shiny || s.anomaly), shiny: !!s.shiny, anomaly: !!s.anomaly } : { caught: false, shiny: false, anomaly: false };
+      if (!s) return { caught: false, shiny: false, anomaly: false };
+      // never surface an anomaly state for a still-locked mon, even if it was set via PC Boxes
+      const anomaly = !!s.anomaly && anomalyUnlocked(d);
+      return { caught: !!(s.normal || s.shiny || s.anomaly), shiny: !!s.shiny, anomaly };
     };
-    // anomaly may only be ticked if this mon's anomaly is revealed (keeps secrets hidden)
-    const anomalyUnlocked = (d) => d.anomaly != null;
 
     const set = (d, val) => {
       // val is null to clear, or {normal,shiny,anomaly}

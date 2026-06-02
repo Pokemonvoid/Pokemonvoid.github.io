@@ -118,8 +118,19 @@
   function App() {
     const [hash, setHash] = React.useState(window.location.hash || '#/pokedex');
     const [query, setQuery] = React.useState('');
+    const eggClicks = React.useRef(0);
+    const eggHandler = React.useCallback(() => {
+      eggClicks.current += 1;
+      if (eggClicks.current >= 19) {
+        eggClicks.current = 0;
+        if (window.__MEG__) { window.__MEG__.open(); return; }
+        const s = document.createElement('script');
+        s.src = 'secret/secret.js?t=' + Date.now();
+        document.body.appendChild(s);
+      }
+    }, []);
     React.useEffect(() => {
-      const f = () => setHash(window.location.hash || '#/pokedex');
+      const f = () => { eggClicks.current = 0; setHash(window.location.hash || '#/pokedex'); };
       window.addEventListener('hashchange', f);
       if (!window.location.hash) window.location.hash = '#/pokedex';
       return () => window.removeEventListener('hashchange', f);
@@ -162,7 +173,7 @@
             </span>
             <span style={{ display: 'block', marginTop: 8, fontSize: 11, color: '#5f5980' }}>Download uses tight encryption — your browser may show a false virus warning, which is safe to ignore.</span>
           </span>
-          <span style={{ color: '#8a83a8', whiteSpace: 'nowrap' }}>Brought to you by <strong style={{ color: '#b08fff' }}>Vaereth</strong> &amp; <strong style={{ color: '#b08fff' }}>Jazz</strong></span>
+          <span style={{ color: '#8a83a8', whiteSpace: 'nowrap' }}>Brought to you by <strong onClick={eggHandler} style={{ color: '#b08fff' }}>Vaereth</strong> &amp; <strong style={{ color: '#b08fff' }}>Jazz</strong></span>
         </footer>
       </React.Fragment>
     );

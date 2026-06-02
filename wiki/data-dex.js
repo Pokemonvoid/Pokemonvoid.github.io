@@ -3684,7 +3684,7 @@ window.VDEX = (function () {
         TM('05', 'Rest'),
         TM('06', 'Lowsweep'),  // REVIEW name
       ],
-      anomaly: null,
+      anomaly: { discoverer: 'TheDragonMaster' },
       evYield: { SPD: 1 }, baseFriendship: 50, baseExp: 62, growthRate: 'Fast',
       eggGroups: ['Flying'], gender: { m: 50, f: 50 }, eggCycles: 2750,
     },
