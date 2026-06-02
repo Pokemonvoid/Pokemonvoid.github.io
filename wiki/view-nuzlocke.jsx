@@ -62,8 +62,8 @@ window.VIEWS = window.VIEWS || {};
         { t: 'Set Mode only — no free switching when the foe sends out a new Pokémon.', w: 1, tag: 'set' },
         { t: 'No items in battle (no potions, revives, or X-items mid-fight).', w: 2, tag: 'items' },
         { t: 'Held items are BANNED.', w: 1, tag: 'held' },
-        { t: 'Level Cap: no Pokémon may exceed the next gym leader\u2019s ace level.', w: 2, tag: 'cap' },
-        { t: 'No switching out a Pokémon for the rest of a battle once one of yours has been KO\u2019d.', w: 2, tag: 'noswitch' },
+        { t: 'Level Cap: no Pokémon may exceed the next gym leader’s ace level.', w: 2, tag: 'cap' },
+        { t: 'No switching out a Pokémon for the rest of a battle once one of yours has been KO’d.', w: 2, tag: 'noswitch' },
         { t: 'You must LEAD every battle with your lowest-level living Pokémon.', w: 2, tag: 'lead' },
       ],
     },
@@ -93,6 +93,31 @@ window.VIEWS = window.VIEWS || {};
     },
   };
 
+  // INSANITY-ONLY pool: extreme, chaotic, "stupid shit" rules. Never used by Standard.
+  // These are deliberately punishing/cursed; weights are high so runs land in the top tiers.
+  const INSANE = {
+    label: 'Insanity Clauses', color: '#ff3b6b',
+    addons: [
+      { t: 'Shiny-Locke: you may ONLY use shiny Pokémon. Non-shinies cannot be added to your team.', w: 4, tag: 'shinylock' },
+      { t: 'Anomaly-Locke: only Anomaly-form Pokémon may be used on your team.', w: 4, tag: 'anomalylock' },
+      { t: 'Nickname Curse: every Pokémon must be nicknamed by a random word a friend gives you — no take-backs.', w: 1, tag: 'nickcurse' },
+      { t: 'Color-Locke: pick one color at the start. Every Pokémon you use must visually match it.', w: 3, tag: 'colorlock' },
+      { t: 'Cataclysm Clause: if ANY Pokémon faints, the entire box loses one random member too.', w: 4, tag: 'cataclysm' },
+      { t: 'No Healing Items, EVER — survive on Centers and move PP alone.', w: 3, tag: 'noitemheal' },
+      { t: 'Level Floor: your team’s levels may never EXCEED the last gym leader’s ace. Stay underleveled the whole game.', w: 4, tag: 'underlevel' },
+      { t: 'One Type, One Life: choose a type; the run ENDS the moment a non-matching Pokémon touches your party.', w: 4, tag: 'typedeath' },
+      { t: 'Randomized Movesets: before each gym, replace every team member’s moves with 4 random ones.', w: 3, tag: 'randmove' },
+      { t: 'Solo Soul: you may only ever have ONE Pokémon alive at a time. Catch a new one only after it dies.', w: 5, tag: 'solo' },
+      { t: 'Nuzlocke Roulette: after every badge, spin — 1-in-6 chance to release a random living Pokémon.', w: 3, tag: 'roulette6' },
+      { t: 'Glass Cannon Clause: any Pokémon that takes a hit above 50% of its max HP dies, even if it survives.', w: 4, tag: 'glass' },
+      { t: 'No Evolutions AND no items AND set mode — the unholy trinity, all at once.', w: 5, tag: 'trinity' },
+      { t: 'Bank Error: you start with no money and may never sell anything. Marts are decoration.', w: 2, tag: 'broke' },
+      { t: 'Permadeath Lines: lose a Pokémon and its ENTIRE evolution family is banned for the rest of the run.', w: 3, tag: 'lineperma' },
+      { t: 'Timed Locke: you must defeat the next gym within {N} in-game hours or release your strongest Pokémon.', w: 3, tag: 'timed', dyn: () => ({ N: pick([3, 4, 5]) }) },
+    ],
+  };
+  const INSANE_THEMES = ['Insanity Locke', 'Oblivion Locke', 'Doom Locke', 'Cursed Locke', 'Void Locke', 'Apocalypse Locke', 'Suffering Locke'];
+
   const CORE = [
     'If a Pokémon faints, it is considered dead and must be boxed or released (per your Death Rules).',
     'You may only catch the first valid encounter in each route or area.',
@@ -119,6 +144,7 @@ window.VIEWS = window.VIEWS || {};
     { name: 'Hard',      min: 12,  color: '#ffb347' },
     { name: 'Brutal',    min: 17,  color: '#ff7f4f' },
     { name: 'Nightmare', min: 21,  color: '#ff4f6f' },
+    { name: 'INSANITY',  min: 30,  color: '#ff1f5a' },
   ];
 
   // resolve {N} placeholders and dynamic params
@@ -145,19 +171,19 @@ window.VIEWS = window.VIEWS || {};
     return chosen;
   }
 
-  function generate() {
+  function generate(mode) {
+    const insane = mode === 'insanity';
     const out = {};
     const all = [];
 
-    // Roll an INTENSITY first — this decides how many rules each category adds,
-    // so runs genuinely span Easy → Nightmare instead of always piling up.
-    // [team/battle/species min,max] and [modifier min,max] and [encounter/death addon max].
-    const INTENSITY = pick([
-      { core: [0, 1], mod: [0, 1], extra: 1 }, // light
-      { core: [1, 2], mod: [0, 2], extra: 2 }, // medium
-      { core: [1, 3], mod: [1, 3], extra: 3 }, // heavy
-      { core: [2, 3], mod: [2, 3], extra: 3 }, // insane
-    ]);
+    // Standard rolls a spread of light→heavy. Insanity always forges the most punishing tier.
+    const INTENSITY = insane
+      ? { core: [2, 3], mod: [2, 3], extra: 3 }
+      : pick([
+          { core: [0, 1], mod: [0, 1], extra: 1 }, // light
+          { core: [1, 2], mod: [0, 2], extra: 2 }, // medium
+          { core: [1, 2], mod: [1, 2], extra: 2 }, // medium-heavy
+        ]);
     const C = INTENSITY.core, MOD = INTENSITY.mod, EX = INTENSITY.extra;
 
     // Encounter: exactly one governing rule + addons
@@ -176,27 +202,33 @@ window.VIEWS = window.VIEWS || {};
     out.species = pickAddons(CATS.species.addons, C[0], C[1]);
     out.modifier = pickAddons(CATS.modifier.addons, MOD[0], MOD[1]);
 
-    ['encounter', 'death', 'team', 'battle', 'species', 'modifier'].forEach(k => out[k].forEach(r => all.push(r)));
+    // Insanity adds 2-4 extreme clauses from the dedicated pool
+    out.insane = insane ? pickAddons(INSANE.addons, 2, 4) : [];
 
-    // difficulty = sum of weights (mercy reduces it)
-    const score = all.reduce((s, r) => s + (r.w || 0), 0);
+    ['encounter', 'death', 'team', 'battle', 'species', 'modifier', 'insane'].forEach(k => out[k].forEach(r => all.push(r)));
+
+    // difficulty = sum of weights (mercy reduces it). Insanity floors at the top tier.
+    let score = all.reduce((s, r) => s + (r.w || 0), 0);
+    if (insane) score = Math.max(score, 30);
     const tier = [...TIERS].reverse().find(t => score >= t.min) || TIERS[0];
 
-    // theme: first matching rule, else fallback
-    const theme = THEMES.find(t => t.when(score, all)) || THEMES[THEMES.length - 1];
+    // theme
+    const theme = insane ? pick(INSANE_THEMES) : (THEMES.find(t => t.when(score, all)) || THEMES[THEMES.length - 1]).name;
 
     // win/loss conditions reflect chosen rules
     const wipeEnds = all.some(r => r.tag === 'wipe' && /ends the run/.test(r.t));
-    const loss = wipeEnds
+    const soloOrTypeDeath = all.some(r => r.tag === 'solo' || r.tag === 'typedeath');
+    let loss = wipeEnds
       ? 'You black out with no usable Pokémon, OR your entire team is wiped in a single battle.'
       : 'You black out / white out with no usable Pokémon remaining.';
+    if (soloOrTypeDeath) loss += ' Any Insanity Clause failure also ends the run instantly.';
 
-    return { theme: theme.name, tier, score, core: CORE, ...out, win: 'Defeat the Champion and complete the Drapalla League with at least one living Pokémon.', loss };
+    return { theme, tier, score, insane, core: CORE, ...out, win: 'Defeat the Champion and complete the Drapalla League with at least one living Pokémon.', loss };
   }
 
   window.VIEWS.Nuzlocke = function Nuzlocke() {
     const [run, setRun] = React.useState(null);
-    const roll = () => setRun(generate());
+    const roll = (mode) => setRun(generate(mode));
 
     const Section = ({ label, color, rules }) => (
       <div style={{ marginBottom: 18 }}>
@@ -214,17 +246,20 @@ window.VIEWS = window.VIEWS || {};
 
     return (
       <div>
-        <PageHead kicker="CHALLENGE FORGE" title="Nuzlocke Randomizer" sub="One press conjures a complete, hand-checked Nuzlocke ruleset for your next Void run — chaotic and replayable, but always actually beatable. No contradictions, no impossible combos." />
+        <PageHead kicker="CHALLENGE FORGE" title="Nuzlocke Randomizer" sub="One press conjures a complete, hand-checked Nuzlocke ruleset for your next Void run — chaotic and replayable, but always actually beatable. Standard rolls the classics; Insanity goes completely feral." />
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: run ? 28 : 60 }}>
-          <button onClick={roll} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 12, padding: '16px 34px', borderRadius: 14, background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 24, boxShadow: '0 0 34px #8a5cff66' }}>
-            <span style={{ fontSize: 22 }}>🎲</span> {run ? 'Reroll Challenge' : 'Randomize'}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginBottom: run ? 28 : 60 }}>
+          <button onClick={() => roll('standard')} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 12, padding: '16px 30px', borderRadius: 14, background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, boxShadow: '0 0 30px #8a5cff55' }}>
+            <span style={{ fontSize: 20 }}>🎲</span> Standard Randomizer
+          </button>
+          <button onClick={() => roll('insanity')} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 12, padding: '16px 30px', borderRadius: 14, background: 'linear-gradient(135deg, #b3001b, #ff3b6b)', border: '1px solid #ff6f8f', color: '#fff', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, boxShadow: '0 0 30px #ff1f5a66' }}>
+            <span style={{ fontSize: 20 }}>💀</span> Insanity Randomizer
           </button>
         </div>
 
         {!run ? (
           <div style={{ textAlign: 'center', fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#6a6388', maxWidth: 520, margin: '0 auto' }}>
-            Hit Randomize to forge a run. You\u2019ll get a themed challenge with a difficulty rating, full rules, and clear win &amp; loss conditions you can follow start to finish.
+            Hit Randomize to forge a run. You’ll get a themed challenge with a difficulty rating, full rules, and clear win &amp; loss conditions you can follow start to finish.
           </div>
         ) : (
           <div style={{ maxWidth: 820, margin: '0 auto' }}>
@@ -247,6 +282,7 @@ window.VIEWS = window.VIEWS || {};
             <Section label="Battle Rules" color={CATS.battle.color} rules={run.battle} />
             <Section label="Pokémon Restrictions" color={CATS.species.color} rules={run.species} />
             {run.modifier.length > 0 && <Section label="Extra Modifiers" color={CATS.modifier.color} rules={run.modifier} />}
+            {run.insane && run.insane.length > 0 && <Section label="☠ Insanity Clauses ☠" color={INSANE.color} rules={run.insane} />}
 
             {/* win / loss */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 6 }}>
