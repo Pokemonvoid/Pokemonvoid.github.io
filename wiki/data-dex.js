@@ -235,7 +235,7 @@ window.VDEX = (function () {
       abilities: ['Burning Novae', 'Blaze'],
       hidden: 'Competitive',
       stats: { HP: 75, ATK: 96, DEF: 72, SPA: 102, SPD: 72, SPE: 113 },
-      flavor: 'Unlike its previous stage, Galeliadea’s stars are dying. Asthey fade, they ripple across it\'s body in stunning colors',
+      flavor: 'Unlike its previous stage, Galeliadea’s stars are dying. As they fade, they ripple across it\'s body in stunning colors',
       evo: { from: '005', method: 'Lv 38' },
       levelMoves: [
         M('0', 'Cleansing Flames'),
@@ -556,7 +556,7 @@ window.VDEX = (function () {
       abilities: ['Mirror Armor', 'Battle Armor'],
       hidden: 'Heatproof',
       stats: { HP: 67, ATK: 80, DEF: 90, SPA: 42, SPD: 72, SPE: 64 },
-      flavor: 'Inspired by the hero "Might Knight", Raclank sheilds\' themselves with a trash can. No amount of heat or blunt force can put a dent into it.',
+      flavor: 'Inspired by the hero "Might Knight", Raclank shields themselves with a trash can. No amount of heat or blunt force can put a dent into it.',
       evo: { from: '013', method: 'Lv 20 (Near Trash Can)' },
       levelMoves: [
         M('0', 'Bulletpunch'),  // REVIEW name
@@ -927,7 +927,7 @@ window.VDEX = (function () {
       abilities: ['Fur Coat', 'Opportunist'],
       hidden: 'Hustle',
       stats: { HP: 50, ATK: 60, DEF: 50, SPA: 30, SPD: 45, SPE: 55 },
-      flavor: 'Despite its tiny size, Marmie brims with fighting spirit. Swing its tiny fists at foes ten times larger, though they land like soft and fluffy pats.',
+      flavor: 'Despite its tiny size, Marmie brims with fighting spirit. Swinging its tiny fists at foes ten times larger, though they land like soft and fluffy pats.',
       evo: { to: '024' },
       levelMoves: [
         M('1', 'Powertrip'),  // REVIEW name
@@ -1521,7 +1521,7 @@ window.VDEX = (function () {
       abilities: ['Anger Point', 'Poison Point'],
       hidden: 'Poison Rush',
       stats: { HP: 70, ATK: 50, DEF: 32, SPA: 29, SPD: 32, SPE: 27 },
-      flavor: 'Scalfling’s poison is undevelopped, so it battles by charging its horns around to gain momentum and striking at opponents’ blind spots.',
+      flavor: 'Scalfling’s poison is undeveloped, so it battles by charging its horns around to gain momentum and striking at opponents’ blind spots.',
       evo: { to: '039' },
       levelMoves: [
         M('1', 'Poisonsting'),  // REVIEW name
@@ -2001,7 +2001,7 @@ window.VDEX = (function () {
       abilities: ['Intimidate', 'Illuminate'],
       hidden: 'Defiant',
       stats: { HP: 70, ATK: 80, DEF: 50, SPA: 60, SPD: 50, SPE: 100 },
-      flavor: 'Twillycan are calm, endearing creatures who usually lead the pack. Indifferent to humans, they only seek help when needed.',
+      flavor: 'Twilycan are calm, endearing creatures who usually lead the pack. Indifferent to humans, they only seek help when needed.',
       evo: { from: '049', to: '051', method: 'Lv 32' },
       levelMoves: [
         M('1', 'Feint'),  // REVIEW name
@@ -2045,7 +2045,7 @@ window.VDEX = (function () {
       abilities: ['Intimidate', 'Illuminate'],
       hidden: 'Defiant',
       stats: { HP: 90, ATK: 115, DEF: 65, SPA: 85, SPD: 65, SPE: 110 },
-      flavor: 'Little is known about Equinine,though they are said to be the Grandmasters of all Twilikind, commanding multiple packs across their territories.',
+      flavor: 'Little is known about Equinine, though they are said to be the Grandmasters of all Twilikind, commanding multiple packs across their territories.',
       evo: { from: '050', method: 'Shiny Stone' },
       levelMoves: [
         M('0', 'Duality'),  // REVIEW name
@@ -3010,7 +3010,7 @@ window.VDEX = (function () {
       abilities: ['Sniper'],
       hidden: 'Super Luck',
       stats: { HP: 70, ATK: 90, DEF: 80, SPA: 110, SPD: 50, SPE: 130 },
-      flavor: 'when sedimite absorbs dawn energy it becomes the perfect hunter,its said this pokemon never misses its prey. some say this is a "fan favorite flying type pokemon".',
+      flavor: 'when sedimite absorbs dawn energy it becomes the perfect hunter, it’s said this pokemon never misses its prey. Some say this is a "fan favorite flying type pokemon".',
       evo: { from: '067', method: 'Dawn Stone' },
       levelMoves: [
         M('0', 'Gust'),  // REVIEW name
@@ -3061,7 +3061,7 @@ window.VDEX = (function () {
       abilities: ['Shadow Tag'],
       hidden: 'Wandering Spirit',
       stats: { HP: 70, ATK: 80, DEF: 50, SPA: 110, SPD: 130, SPE: 90 },
-      flavor: 'Sedimancer weaves ghostly energy into stone, raising walls that shift like living shadows. It is feared as the builder of haunted fortresses',
+      flavor: 'Sedimancer weaves ghostly energy into stone, raising walls that shift like living shadows. It is feared as the builder of haunted fortresses.',
       evo: { from: '067', method: 'Dusk Stone' },
       levelMoves: [
         M('0', 'Nightshade'),  // REVIEW name
@@ -3112,7 +3112,7 @@ window.VDEX = (function () {
       abilities: ['Triage'],
       hidden: 'Healer',
       stats: { HP: 130, ATK: 70, DEF: 110, SPA: 90, SPD: 80, SPE: 50 },
-      flavor: 'Sedric’s body glows with divine energy. It is known to restore vitality by bathing companions in radiant waves.',
+      flavor: 'Sediric’s body glows with divine energy. It is known to restore vitality by bathing companions in radiant waves.',
       evo: { from: '067', method: 'Shiny Stone' },
       levelMoves: [
         M('0', 'Divineslash'),  // REVIEW name
@@ -3314,7 +3314,7 @@ window.VDEX = (function () {
       abilities: ['Burning Hot', 'Drought'],
       hidden: 'Solar Power',
       stats: { HP: 200, ATK: 55, DEF: 70, SPA: 140, SPD: 15, SPE: 70 },
-      flavor: 'As they amass so much heat it collapses into itself resulting into a phenominon called a supernova becoming the unstable form that it is.',
+      flavor: 'As they amass so much heat, it collapses into itself, resulting in a phenomenon called a supernova, becoming the unstable form that it is.',
       evo: { from: '082', method: 'Lv 50' },
       levelMoves: [
         M('0', 'Brightcannon'),  // REVIEW name
@@ -4035,7 +4035,7 @@ window.VDEX = (function () {
       abilities: ['Flash Fire', 'Oblivious'],
       hidden: 'Moody',
       stats: { HP: 45, ATK: 30, DEF: 30, SPA: 55, SPD: 45, SPE: 55 },
-      flavor: 'Sensitive Scorow are often abandoned, but those raised with care form unwavering loyalty.',
+      flavor: 'Sensitive Pymood are often abandoned, but those raised with care form unwavering loyalty.',
       evo: { to: ['105', '106'] },
       levelMoves: [
         M('1', 'Howl'),  // REVIEW name
@@ -4075,7 +4075,7 @@ window.VDEX = (function () {
       abilities: ['Flash Fire', 'Oblivious'],
       hidden: 'Moody',
       stats: { HP: 60, ATK: 50, DEF: 45, SPA: 80, SPD: 60, SPE: 75 },
-      flavor: 'Are very Prideful creatures usually getting into fights recklessly due to this; they\'re very prone to injuries.',
+      flavor: 'Gleeruption are very prideful creatures, usually getting into fights recklessly due to this; they\'re very prone to injuries.',
       evo: { from: '104', method: 'Positive Nature' },
       levelMoves: [
         M('0', 'Healblock'),  // REVIEW name
@@ -4207,7 +4207,7 @@ window.VDEX = (function () {
       abilities: ['Stakeout', 'Unnerve'],
       hidden: 'Triage',
       stats: { HP: 34, ATK: 50, DEF: 34, SPA: 60, SPD: 42, SPE: 74 },
-      flavor: 'It maybbe small but Ocubitten watches in the shadows with its red glowing eyes and it liked to play tricks on passerby\'s to comes too close.',
+      flavor: 'It maybe small but Ocubitten watches in the shadows with its red glowing eyes and it likes to play tricks on passerby\'s to comes too close.',
       evo: { to: '109' },
       levelMoves: [
         M('1', 'Leer'),  // REVIEW name
