@@ -390,6 +390,9 @@ window.VIEWS = window.VIEWS || {};
     add('Sharpen', 'self', [['ATK', 1]]);
     add('Double Team', 'self', [['EVA', 1]]);
     add('Minimize', 'self', [['EVA', 2]]);
+    // damaging moves that also raise a stat (the stat handler runs after damage)
+    add('Trailblaze', 'self', [['SPE', 1]]);   // GRASS 50 — boosts user Speed
+    add('Flame Charge', 'self', [['SPE', 1]]);  // FIRE 50 — boosts user Speed
     add('Nasty Plot', 'self', [['SPA', 2]]);
     add('Hone Claws', 'self', [['ATK', 1], ['ACC', 1]]);
     add('Coil', 'self', [['ATK', 1], ['DEF', 1], ['ACC', 1]]);
@@ -428,6 +431,42 @@ window.VIEWS = window.VIEWS || {};
     return t;
   })();
   function healMoveInfo(move) { return HEAL_MOVES[normName(move.name)] || null; }
+
+  // Variable-power moves: their data `pow` is a placeholder (often 1). Compute the
+  // real base power from battle state so BOTH the damage engine and the AI agree.
+  // Falls back to the move's listed pow for everything else.
+  function effectivePower(move, attacker, defender) {
+    const n = normName(move.name);
+    const speedRatio = (atk, def) => {
+      const a = STAGES ? STAGES.effStat(atk, 'SPE') : atk.stats.SPE;
+      const d = Math.max(1, STAGES ? STAGES.effStat(def, 'SPE') : def.stats.SPE);
+      return a / d;
+    };
+    // Electro Ball: faster user = stronger (canon tiers by speed ratio).
+    if (n === normName('Electro Ball')) {
+      const r = speedRatio(attacker, defender);
+      return r >= 4 ? 150 : r >= 3 ? 120 : r >= 2 ? 80 : r > 1 ? 60 : 40;
+    }
+    // Gyro Ball: SLOWER user = stronger. 25 * targetSpe / userSpe, capped 150.
+    if (n === normName('Gyro Ball')) {
+      const a = Math.max(1, STAGES ? STAGES.effStat(attacker, 'SPE') : attacker.stats.SPE);
+      const d = STAGES ? STAGES.effStat(defender, 'SPE') : defender.stats.SPE;
+      return Math.max(1, Math.min(150, Math.floor(25 * d / a)));
+    }
+    // Heavy Slam / Heat Crash: heavier user vs target → more power (we lack weights,
+    // approximate by HP-stat bulk as a proxy so it isn't a flat 1).
+    if (n === normName('Heavy Slam') || n === normName('Heat Crash')) {
+      const ratio = (attacker.stats.HP || 1) / Math.max(1, defender.stats.HP || 1);
+      return ratio >= 2 ? 120 : ratio >= 1.5 ? 100 : ratio >= 1.25 ? 80 : ratio >= 1 ? 60 : 40;
+    }
+    // Reversal / Flail: weaker (lower current HP%) user = stronger.
+    if (n === normName('Reversal') || n === normName('Flail')) {
+      const hpFrac = attacker.hp / attacker.maxHP;
+      return hpFrac <= 0.04 ? 200 : hpFrac <= 0.10 ? 150 : hpFrac <= 0.20 ? 100 : hpFrac <= 0.35 ? 80 : hpFrac <= 0.68 ? 40 : 20;
+    }
+    // a listed power of <=1 is almost certainly a placeholder; treat as a modest hit
+    return (typeof move.pow === 'number' && move.pow > 1) ? move.pow : (move.pow === 1 ? 50 : move.pow);
+  }
 
   // moves that make the user faint after dealing damage (canonical self-KO).
   const SELF_KO = new Set(['explosion', 'selfdestruct', 'mistyexplosion'].map(normName));
@@ -925,7 +964,8 @@ window.VIEWS = window.VIEWS || {};
     const atkStat = move.cls === 'Physical' ? rawStat(attacker, 'ATK', atkIgnore) : rawStat(attacker, 'SPA', atkIgnore);
     const defStat = move.cls === 'Physical' ? rawStat(defender, 'DEF', defIgnore) : rawStat(defender, 'SPD', defIgnore);
     const L = attacker.level;
-    let base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
+    const effPow = effectivePower(move, attacker, defender);
+    let base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * effPow * atkStat / defStat) / 50) + 2;
     // STAB uses the EFFECTIVE type (Protean already set attacker's types to match; -ate changes type)
     const stab = attacker.types.includes(effType) ? ((ABIL.has(attacker, 'Adaptability') || ABIL.has(attacker, 'Adaptablility')) ? 2 : 1.5) : 1;
     let te = typeMult(effType, defender.types);
@@ -1104,7 +1144,7 @@ window.VIEWS = window.VIEWS || {};
         const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
         const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
         // expected damage proxy
-        const exp = move.pow * stab * te * (atkStat / defStat) * ((move.acc || 100) / 100);
+        const exp = effectivePower(move, attacker, defender) * stab * te * (atkStat / defStat) * ((move.acc || 100) / 100);
         score = exp;
         if (te === 0) { score = 0.1; }  // immune (type or ability) — almost never pick
         else {
@@ -1154,7 +1194,7 @@ window.VIEWS = window.VIEWS || {};
     const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
     const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
     const L = attacker.level;
-    const base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
+    const base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * effectivePower(move, attacker, defender) * atkStat / defStat) / 50) + 2;
     const stab = attacker.types.includes(effType) ? 1.5 : 1;
     const te = typeMult(effType, defender.types);
     const ateMult = ate ? ate.mult : 1;
