@@ -170,6 +170,7 @@
     ['Damage Calculator', '#/damage'], ['Nuzlocke Randomizer', '#/nuzlocke'],
     ['Battle Sim', '#/battle'],
     ['★ Vote', '#/vote'],
+    ['🏆 Leaderboard', '#/leaderboard'],
     // ['Trainers', '#/trainers'],
   ];
   function NavBar({ route, query, setQuery }) {

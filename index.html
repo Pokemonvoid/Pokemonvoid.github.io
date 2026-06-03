@@ -107,6 +107,7 @@
 <script type="text/babel" src="wiki/view-riddles.jsx"></script>
 <script type="text/babel" src="wiki/view-battle.jsx"></script>
 <script type="text/babel" src="wiki/view-vote.jsx"></script>
+<script type="text/babel" src="wiki/view-leaderboard.jsx"></script>
 <script type="text/babel" src="wiki/view-damage.jsx"></script>
 
 <script type="text/babel">
@@ -161,6 +162,7 @@
       case 'riddles': content = <V.Riddles />; break;
       case 'battle': content = <V.Battle />; break;
       case 'vote': content = <V.Vote />; break;
+      case 'leaderboard': content = <V.Leaderboard />; break;
       case 'pokedex':
       default: content = <V.Pokedex query={query} />;
     }

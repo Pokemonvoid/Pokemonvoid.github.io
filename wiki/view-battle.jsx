@@ -2077,6 +2077,20 @@ window.VIEWS = window.VIEWS || {};
     // persisted across sessions. key = sorted dex numbers. ---
     const certTeamKey = (team) => (team || []).map(m => m.dex).slice().sort((a, b) => a - b).join('-');
     const certStoreKey = (tier) => 'voidmon_fillers_certs_' + tier;
+
+    // --- one-time go-live reset: when this version ships, wipe any previously
+    // stored certificate data so everyone starts fresh alongside the new
+    // leaderboard. Bump LEADERBOARD_EPOCH to force another fresh start later. ---
+    const LEADERBOARD_EPOCH = 'lb_v1';
+    (function resetCertsOnGoLive() {
+      try {
+        if (localStorage.getItem('voidmon_lb_epoch') === LEADERBOARD_EPOCH) return;
+        localStorage.removeItem('voidmon_fillers_certs_normal');
+        localStorage.removeItem('voidmon_fillers_certs_hard');
+        localStorage.setItem('voidmon_lb_epoch', LEADERBOARD_EPOCH);
+      } catch (e) { /* storage unavailable — nothing to reset */ }
+    })();
+
     const certAlreadyEarned = (tier, key) => {
       try { const raw = localStorage.getItem(certStoreKey(tier)); const set = raw ? JSON.parse(raw) : []; return Array.isArray(set) && set.includes(key); }
       catch (e) { return false; }
@@ -2084,6 +2098,34 @@ window.VIEWS = window.VIEWS || {};
     const certRecord = (tier, key) => {
       try { const raw = localStorage.getItem(certStoreKey(tier)); const set = raw ? JSON.parse(raw) : []; if (!set.includes(key)) { set.push(key); localStorage.setItem(certStoreKey(tier), JSON.stringify(set)); } }
       catch (e) { /* storage unavailable — cert still shows once this session */ }
+    };
+
+    // per-browser id (shared with the vote board's scheme)
+    const lbVoterId = () => {
+      try { let id = localStorage.getItem('voidmon_voter_id'); if (!id) { id = 'v_' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('voidmon_voter_id', id); } return id; }
+      catch (e) { return 'v_anon'; }
+    };
+    // submit a fresh-team boss win to the leaderboard (fire-and-forget; the DB's
+    // unique index quietly rejects a duplicate team, so this is safe to call once
+    // per earned certificate). Reads the same Supabase config as the vote board.
+    const LB_URL = 'https://mzrwajvztpcncthstzcq.supabase.co';
+    const LB_KEY = 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'; // sb_publishable_... — keep on ONE line (same key as vote board)
+    const submitWin = (tier, team, name) => {
+      if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return; // not configured
+      const payload = {
+        player_name: (name && name.trim()) ? name.trim().slice(0, 24) : 'Anonymous',
+        difficulty: tier,
+        team_key: certTeamKey(team),
+        team: team,
+        voter_id: lbVoterId(),
+      };
+      try {
+        fetch(LB_URL.replace(/\/$/, '') + '/rest/v1/boss_wins', {
+          method: 'POST',
+          headers: { 'apikey': LB_KEY, 'Authorization': 'Bearer ' + LB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify(payload),
+        }).catch(() => { /* offline / duplicate — ignore */ });
+      } catch (e) { /* ignore */ }
     };
 
     // current display state derived from events up to `step`
@@ -2401,7 +2443,7 @@ window.VIEWS = window.VIEWS || {};
 
         {/* victory certificate — shows once playback reaches the end of a winning boss battle */}
         {cert && (!result || skip || step >= result.events.length - 1) && (
-          <CertModal tier={cert.tier} team={cert.team} name={certName} setName={setCertName} onClose={() => setCert(null)} />
+          <CertModal tier={cert.tier} team={cert.team} name={certName} setName={setCertName} onClose={() => { submitWin(cert.tier, cert.team, certName); setCert(null); }} />
         )}
 
         {/* playback scrubber */}
