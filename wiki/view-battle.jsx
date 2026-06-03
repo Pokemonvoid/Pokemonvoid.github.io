@@ -372,13 +372,36 @@ window.VIEWS = window.VIEWS || {};
   })();
   const moveFieldEffect = (move) => MOVE_FIELD[normName(move.name)] || null;
 
+  // move base priority bracket (canonical). Most moves are 0.
+  const MOVE_PRIORITY = (() => {
+    const t = {}; const p = (n, v) => { t[normName(n)] = v; };
+    p('Fake Out', 3); p('First Impression', 2); p('Extreme Speed', 2); p('Feint', 2);
+    p('Quick Attack', 1); p('Aqua Jet', 1); p('Bullet Punch', 1); p('Mach Punch', 1);
+    p('Ice Shard', 1); p('Shadow Sneak', 1); p('Sucker Punch', 1); p('Vacuum Wave', 1);
+    p('Water Shuriken', 1); p('Accelerock', 1); p('Jet Punch', 1); p('Flashstep', 1);
+    p('Extreme Speed', 2);
+    return t;
+  })();
+  // effective priority for a move used by `mon`, including ability modifiers.
+  function movePriority(move, mon) {
+    let pr = MOVE_PRIORITY[normName(move.name)] || 0;
+    const isStatus = move.cls === 'Status' || !move.pow;
+    const isHeal = /recover|roost|heal|rest|synthesis|moonlight|morning sun|milk drink|slack off|soft.?boiled|wish|draining kiss|drain|leech/i.test(move.name);
+    if (mon) {
+      if (ABIL.has(mon, 'Prankster') && isStatus) pr += 1;
+      if (ABIL.has(mon, 'Gale Wings') && move.type === 'FLYING' && mon.hp >= mon.maxHP) pr += 1;
+      if (ABIL.has(mon, 'Triage') && isHeal) pr += 3;
+    }
+    return pr;
+  }
+
   // ---------- abilities (this increment: stat-stage family) ----------
   // Only abilities fully expressible with current systems are active; others
   // are recognized by name but no-op until their systems exist.
   const ABIL = {
     has(mon, name) { return mon.ability && normName(mon.ability) === normName(name); },
     // is `name` one we actively simulate?
-    active: new Set(['intimidate', 'moxie', 'defiant', 'overgrow', 'blaze', 'torrent', 'swarm', 'adaptability', 'technician', 'tintedlens', 'reckless', 'sniper', 'solarpower', 'burninghot', 'steelyspirit', 'thickfat', 'heatproof', 'furcoat', 'fluffy', 'solidrock', 'flashfire', 'voltabsorb', 'waterabsorb', 'stormdrain', 'sapsipper', 'levitate', 'insomnia', 'vitalspirit', 'limber', 'immunity', 'magmaarmor', 'waterveil', 'purifyingsalt', 'static', 'flamebody', 'poisonpoint', 'roughskin', 'ironbarbs', 'stamina', 'weakarmor', 'angershell', 'berserk', 'angerpoint', 'rattled', 'aftermath', 'speedboost', 'moody', 'shedskin', 'hydration', 'regenerator', 'naturalcure', 'drought', 'drizzle', 'sandstream', 'sandspit', 'snowwarning', 'electricsurge', 'mistysurge', 'grassysurge', 'psychicsurge', 'chlorophyll', 'swiftswim', 'sandrush', 'slushrush', 'cloudnine', 'airlock'].map(normName)),
+    active: new Set(['intimidate', 'moxie', 'defiant', 'overgrow', 'blaze', 'torrent', 'swarm', 'adaptability', 'technician', 'tintedlens', 'reckless', 'sniper', 'solarpower', 'burninghot', 'steelyspirit', 'thickfat', 'heatproof', 'furcoat', 'fluffy', 'solidrock', 'flashfire', 'voltabsorb', 'waterabsorb', 'stormdrain', 'sapsipper', 'levitate', 'insomnia', 'vitalspirit', 'limber', 'immunity', 'magmaarmor', 'waterveil', 'purifyingsalt', 'static', 'flamebody', 'poisonpoint', 'roughskin', 'ironbarbs', 'stamina', 'weakarmor', 'angershell', 'berserk', 'angerpoint', 'rattled', 'aftermath', 'speedboost', 'moody', 'shedskin', 'hydration', 'regenerator', 'naturalcure', 'drought', 'drizzle', 'sandstream', 'sandspit', 'snowwarning', 'electricsurge', 'mistysurge', 'grassysurge', 'psychicsurge', 'chlorophyll', 'swiftswim', 'sandrush', 'slushrush', 'cloudnine', 'airlock', 'protean', 'libero', 'pixilate', 'refrigerate', 'aerilate', 'galvanize', 'liquidvoice', 'prankster', 'galewings', 'triage', 'gaiaguardian', 'sharpness', 'strongjaw', 'hustle', 'superluck', 'merciless', 'battlearmor', 'shellarmor', 'compoundeyes', 'unaware', 'sturdy', 'clearbody', 'whitesmoke', 'fullmetalbody', 'bigpecks', 'hypercutter', 'keeneye', 'soundproof', 'scrappy', 'earlybird', 'competitive'].map(normName)),
     isActive(name) { return name && ABIL.active.has(normName(name)); },
     // the abilities this mon can switch between via Sync Band (listed + hidden, deduped)
     pool(mon) { return (mon.abilityPool && mon.abilityPool.length) ? mon.abilityPool : (mon.ability ? [mon.ability] : []); },
@@ -417,6 +440,11 @@ window.VIEWS = window.VIEWS || {};
       if (te > 1 && (ABIL.has(attacker, 'Tinted Lens') || ABIL.has(attacker, 'Tinted Lense'))) m *= 1; // tinted lens boosts NOT-very-effective; handled below
       if (te > 0 && te < 1 && (ABIL.has(attacker, 'Tinted Lens') || ABIL.has(attacker, 'Tinted Lense'))) m *= 2;
       if (ABIL.has(attacker, 'Reckless') && /recoil|take down|double edge|head smash|brave bird|flare blitz|wood hammer|submission/i.test(move.name)) m *= 1.2;
+      // slicing / biting boosters
+      if (ABIL.has(attacker, 'Sharpness') && /cut|slash|slice|aerial ace|air slash|psycho cut|night slash|leaf blade|sacred sword|x-scissor|cross poison|kowtow|stone axe|ceaseless/i.test(move.name)) m *= 1.5;
+      if (ABIL.has(attacker, 'Strong Jaw') && /bite|crunch|fang|jaw|chomp|hyper fang|psychic fangs/i.test(move.name)) m *= 1.5;
+      // Hustle: +50% physical power (accuracy cut handled in computeDamage)
+      if (ABIL.has(attacker, 'Hustle') && move.cls === 'Physical') m *= 1.5;
       return m;
     },
     // STAB multiplier override: Adaptability makes STAB ×2 instead of ×1.5
@@ -439,6 +467,23 @@ window.VIEWS = window.VIEWS || {};
     },
     // crit multiplier override: Sniper makes crits hit harder
     critMultFor(attacker, isCrit) { if (!isCrit) return 1; return ABIL.has(attacker, 'Sniper') ? 2.25 : 1.5; },
+    // crit chance: Super Luck / high-crit; Battle Armor / Shell Armor prevent crits against
+    critChance(attacker, defender, base) {
+      if (ABIL.has(defender, 'Battle Armor') || ABIL.has(defender, 'Shell Armor')) return 0;
+      let c = base;
+      if (ABIL.has(attacker, 'Super Luck')) c *= 2;
+      if (ABIL.has(attacker, 'Merciless') && (defender.status === 'PSN' || defender.status === 'TOX')) c = 1; // always crit poisoned
+      return c;
+    },
+    // accuracy modifiers: Compound Eyes (+30%), Hustle (-20% on physical)
+    accMultFor(attacker, move) {
+      let a = 1;
+      if (ABIL.has(attacker, 'Compound Eyes')) a *= 1.3;
+      if (ABIL.has(attacker, 'Hustle') && move.cls === 'Physical') a *= 0.8;
+      return a;
+    },
+    // Unaware: ignore the foe's stat stages (both directions). Used in damage stat reads.
+    unaware(mon) { return ABIL.has(mon, 'Unaware'); },
     // ---- type immunity / absorption (checked before damage) ----
     // returns null (no immunity) or {heal: bool, line: string}
     immune(defender, move) {
@@ -451,6 +496,21 @@ window.VIEWS = window.VIEWS || {};
       if (t === 'GROUND' && ABIL.has(defender, 'Levitate')) return { heal: false, line: `${defender.name} is unaffected — it's floating with Levitate!` };
       return null;
     },
+    // -ate abilities: a Normal-type move becomes another type (and gains ×1.2).
+    // returns {type, mult} or null. Liquid Voice converts sound moves to Water.
+    ateType(attacker, move) {
+      if (move.cls === 'Status' || !move.pow) return null;
+      const soundMove = /voice|sound|screech|hyper voice|boomburst|snarl|chatter|round|echoed|overdrive|sing|growl|roar|noble roar|disarming/i.test(move.name);
+      if (ABIL.has(attacker, 'Liquid voice') && soundMove) return { type: 'WATER', mult: 1 };
+      if (move.type !== 'NORMAL') return null;
+      if (ABIL.has(attacker, 'Pixilate')) return { type: 'FAIRY', mult: 1.2 };
+      if (ABIL.has(attacker, 'Refrigerate')) return { type: 'ICE', mult: 1.2 };
+      if (ABIL.has(attacker, 'Aerilate')) return { type: 'FLYING', mult: 1.2 };
+      if (ABIL.has(attacker, 'Galvanize')) return { type: 'ELECTRIC', mult: 1.2 };
+      return null;
+    },
+    // Protean/Libero: the user's type becomes the move's (effective) type before attacking.
+    protean(attacker) { return ABIL.has(attacker, 'Protean') || ABIL.has(attacker, 'Libero'); },
     // status-immunity passives: can this status be applied given the mon's ability?
     blocksStatus(mon, code) {
       if ((code === 'SLP') && (ABIL.has(mon, 'Insomnia') || ABIL.has(mon, 'Vital Spirit') || ABIL.has(mon, 'Sweet Veil'))) return true;
@@ -461,6 +521,25 @@ window.VIEWS = window.VIEWS || {};
       if (ABIL.has(mon, 'Purifying Salt')) return true; // immune to all status
       return false;
     },
+    // can the opponent lower this stat on `mon`? (Clear Body / Big Pecks / Hyper Cutter / White Smoke)
+    blocksStatDrop(mon, stat) {
+      if (ABIL.has(mon, 'Clear Body') || ABIL.has(mon, 'White Smoke') || ABIL.has(mon, 'Full Metal Body')) return true;
+      if (stat === 'DEF' && ABIL.has(mon, 'Big Pecks')) return true;
+      if (stat === 'ATK' && ABIL.has(mon, 'Hyper Cutter')) return true;
+      if (stat === 'ACC' && ABIL.has(mon, 'Keen Eye')) return true;
+      return false;
+    },
+    // immune to a move entirely by ability (sound / etc.) — extends the type immune() check
+    blocksMove(defender, move) {
+      const sound = /voice|sound|screech|hyper voice|boomburst|snarl|chatter|round|echoed|overdrive|sing|roar|noble roar|disarming|bug buzz|uproar|clanging|metal sound|growl/i.test(move.name);
+      if (sound && ABIL.has(defender, 'Soundproof')) return `It doesn't affect ${defender.name} — Soundproof!`;
+      if (move.cls !== 'Status' && move.pow && /punch|pound|thunder punch|fire punch|ice punch|mach punch|bullet punch|sucker|drain punch|focus punch|hammer/i.test(move.name) && ABIL.has(defender, 'Bulletproof')) return null;
+      return null;
+    },
+    // Scrappy: Normal/Fighting moves can hit Ghost (ignore immunity)
+    scrappy(attacker) { return ABIL.has(attacker, 'Scrappy'); },
+    // sleep wakes faster with Early Bird (counts down 2)
+    earlyBird(mon) { return ABIL.has(mon, 'Early Bird'); },
     // is a move "contact" (physical, roughly)? used by contact-trigger abilities.
     isContact(move) { return move && move.cls === 'Physical'; },
     // ---- HOOK: after a damaging hit connects ----
@@ -512,6 +591,8 @@ window.VIEWS = window.VIEWS || {};
       }
       if (mon.status && (ABIL.has(mon, 'Shed Skin')) && rng() < (1 / 3)) out.push({ type: 'cure', ability: 'Shed Skin' });
       if (mon.status && ABIL.has(mon, 'Hydration')) out.push({ type: 'cureIfRain', ability: 'Hydration' });
+      // Gaia Guardian: in Grassy Terrain, terraform to add the LIGHT type (Guardian Form)
+      if (ABIL.has(mon, 'Gaia Guardian')) out.push({ type: 'formGrassy', ability: 'Gaia Guardian' });
       return out;
     },
     // ---- HOOK: on switch-out ----
@@ -563,9 +644,10 @@ window.VIEWS = window.VIEWS || {};
 
   // build a full team (array of battlers) from share-code members:
   //   [ { dex:'006', moves:['Flamethrower', ...] }, ... ]
-  function buildFromMembers(members) {
+  function buildFromMembers(members, level) {
+    const L = (typeof level === 'number' && Number.isFinite(level)) ? level : 50;
     return (members || [])
-      .map(m => buildMon(m.dex, 50, m.moves))
+      .map(m => buildMon(m.dex, L, m.moves))
       .filter(Boolean)
       .slice(0, 6);
   }
@@ -625,31 +707,79 @@ window.VIEWS = window.VIEWS || {};
     return chosen;
   }
 
+  // BOSS team "Pokedex Fillers": an openly-labeled, maximally-hard opponent named
+  // as a tribute to the project's backer. Not hidden — the UI announces it and the
+  // boss is visibly buffed. Strongest legal roster at level 100 with a flat stat
+  // multiplier and hand-picked optimal moves.
+  const BOSS_NAME = 'Pokedex Fillers';
+  const VAERETH_ROSTER = [
+    { dex: '069', moves: ['Rock Wrecker', 'Self-Destruct', 'Liquidation', 'Brine'] },        // Sedimonk [ROCK/WATER]
+    { dex: '073', moves: ['Rock Wrecker', 'Self-Destruct', 'Kowtow Cleave', 'Night Slash'] }, // Sedirogue [ROCK/DARK]
+    { dex: '074', moves: ['Rock Wrecker', 'Self-Destruct', 'Icicle Crash', 'Stone Axe'] },    // Sediserker [ROCK/ICE]
+    { dex: '006', moves: ['Burn Up', 'Supernova', 'Slam', 'Ember'] },                          // Galeliadea [FIRE/COSMIC]
+    { dex: '071', moves: ['Rock Wrecker', 'Self-Destruct', 'Electro Shot', 'Crystalize'] },    // Sedificer [ROCK/ELECTRIC]
+    { dex: '099', moves: ['Water Spout', 'Fly', 'Steel Wing', 'Water Gun'] },                  // Writrout [WATER/FLYING]
+  ];
+  const VAERETH_LEVEL = 100;
+  const VAERETH_STAT_MULT = 1.25; // boss stat boost on top of max level
+  function buildVaerethBoss() {
+    const team = VAERETH_ROSTER.map(r => {
+      const m = buildMon(r.dex, VAERETH_LEVEL, r.moves);
+      if (!m) return null;
+      // flat stat buff (visible in inspector) — the boss is openly stronger
+      STAT_KEYS.forEach(k => { m.stats[k] = Math.floor(m.stats[k] * VAERETH_STAT_MULT); });
+      m.maxHP = m.stats.HP; m.hp = m.maxHP;
+      m.boss = true;
+      return m;
+    }).filter(Boolean);
+    return team;
+  }
+
   // ---------- damage calc ----------
   function typeMult(moveType, defTypes) {
     return defTypes.reduce((m, t) => m * eff(moveType, t), 1);
   }
   function computeDamage(attacker, defender, move, rng, fieldCtx) {
     if (move.cls === 'Status' || !move.pow) return { dmg: 0, eff: 1, crit: false, missed: false };
+    // -ate abilities can change the move's effective type (and add ×1.2)
+    const ate = ABIL.ateType(attacker, move);
+    const effType = ate ? ate.type : move.type;
+    const ateMult = ate ? ate.mult : 1;
+    const emove = (effType === move.type) ? move : { ...move, type: effType };
     // ability-based type immunity / absorption (before accuracy/damage)
-    const imm = ABIL.immune(defender, move);
+    const imm = ABIL.immune(defender, emove);
     if (imm) return { dmg: 0, eff: 0, crit: false, missed: false, immune: true, immuneInfo: imm };
+    // ability-based full move immunity (Soundproof vs sound moves)
+    const bm = ABIL.blocksMove(defender, move);
+    if (bm) return { dmg: 0, eff: 0, crit: false, missed: false, immune: true, immuneInfo: { heal: false, line: bm } };
     // accuracy — modified by the attacker's ACC and defender's EVA stages
     {
       const accStage = ((attacker.boosts && attacker.boosts.ACC) || 0) - ((defender.boosts && defender.boosts.EVA) || 0);
       const baseAcc = (typeof move.acc === 'number' && move.acc > 0) ? move.acc : 100;
-      if (baseAcc < 100 || accStage !== 0) {
-        const effAcc = baseAcc * STAGES.accMult(accStage);
+      const abilAcc = ABIL.accMultFor(attacker, move);
+      if (baseAcc < 100 || accStage !== 0 || abilAcc !== 1) {
+        const effAcc = baseAcc * STAGES.accMult(accStage) * abilAcc;
         if (rng() * 100 >= effAcc) return { dmg: 0, eff: 1, crit: false, missed: true };
       }
     }
-    const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
-    const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
+    // Unaware ignores the foe's stat stages: attacker ignores defender's DEF/SPD boosts;
+    // defender ignores attacker's ATK/SPA boosts.
+    const atkIgnore = ABIL.unaware(defender); // defender unaware → ignore attacker's offense boosts
+    const defIgnore = ABIL.unaware(attacker); // attacker unaware → ignore defender's defense boosts
+    const rawStat = (mon, key, ignore) => ignore ? Math.max(1, mon.stats[key]) : STAGES.effStat(mon, key);
+    const atkStat = move.cls === 'Physical' ? rawStat(attacker, 'ATK', atkIgnore) : rawStat(attacker, 'SPA', atkIgnore);
+    const defStat = move.cls === 'Physical' ? rawStat(defender, 'DEF', defIgnore) : rawStat(defender, 'SPD', defIgnore);
     const L = attacker.level;
     let base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
-    const stab = ABIL.stabFor(attacker, move);
-    const te = typeMult(move.type, defender.types);
-    const crit = rng() < (1 / 16);
+    // STAB uses the EFFECTIVE type (Protean already set attacker's types to match; -ate changes type)
+    const stab = attacker.types.includes(effType) ? ((ABIL.has(attacker, 'Adaptability') || ABIL.has(attacker, 'Adaptablility')) ? 2 : 1.5) : 1;
+    let te = typeMult(effType, defender.types);
+    // Scrappy: Normal/Fighting moves ignore Ghost-type immunity
+    if (te === 0 && ABIL.scrappy(attacker) && (effType === 'NORMAL' || effType === 'FIGHTING') && defender.types.includes('GHOST')) {
+      const nonGhost = defender.types.filter(t => t !== 'GHOST');
+      te = nonGhost.length ? nonGhost.reduce((m, t) => m * eff(effType, t), 1) : 1;
+    }
+    const crit = rng() < ABIL.critChance(attacker, defender, 1 / 16);
     const critMult = ABIL.critMultFor(attacker, crit);
     const roll = 0.85 + rng() * 0.15; // 0.85–1.00
     // Phase 1 uses no EV/IV investment, which makes frail mons extremely glassy.
@@ -659,13 +789,18 @@ window.VIEWS = window.VIEWS || {};
     // weather + terrain multipliers (fieldCtx = {weather, terrain})
     let wmult = 1, tmult = 1;
     if (fieldCtx) {
-      if (fieldCtx.weather) wmult = FIELD.weatherDamage(fieldCtx.weather, move.type);
-      if (fieldCtx.terrain) tmult = FIELD.terrainDamage(fieldCtx.terrain, move.type, FIELD.grounded(attacker));
+      if (fieldCtx.weather) wmult = FIELD.weatherDamage(fieldCtx.weather, effType);
+      if (fieldCtx.terrain) tmult = FIELD.terrainDamage(fieldCtx.terrain, effType, FIELD.grounded(attacker));
     }
-    const aMult = ABIL.attackMult(attacker, defender, move, te);
-    const dMult = ABIL.defendMult(defender, move, te);
-    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn * wmult * tmult * aMult * dMult);
+    const aMult = ABIL.attackMult(attacker, defender, emove, te);
+    const dMult = ABIL.defendMult(defender, emove, te);
+    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn * wmult * tmult * aMult * dMult * ateMult);
     if (te > 0) dmg = Math.max(1, dmg);
+    // Sturdy: survive a would-be OHKO from full HP at 1 HP (no Magic Guard interaction)
+    if (dmg >= defender.hp && defender.hp === defender.maxHP && ABIL.has(defender, 'Sturdy')) {
+      dmg = defender.maxHP - 1;
+      return { dmg, eff: te, crit, missed: false, sturdy: true };
+    }
     return { dmg, eff: te, crit, missed: false };
   }
 
@@ -818,6 +953,12 @@ window.VIEWS = window.VIEWS || {};
     const applyStatChanges = (mon, side, changes, byOpp) => {
       let anyDrop = false;
       changes.forEach(([k, d]) => {
+        // opponent-caused drops can be blocked by Clear Body / Big Pecks / Hyper Cutter / Keen Eye
+        if (d < 0 && byOpp && ABIL.blocksStatDrop(mon, k)) {
+          events.push({ t: 'ability', side, name: mon.name, ability: 'Clear Body', boostsOf: snapshotBoosts(A, B) });
+          log.push(`${mon.name}'s stats can't be lowered!`);
+          return;
+        }
         const applied = STAGES.apply(mon, k, d);
         if (applied !== 0) {
           events.push({ t: 'stat', side, name: mon.name, stat: k, delta: applied, boostsOf: snapshotBoosts(A, B) });
@@ -825,13 +966,21 @@ window.VIEWS = window.VIEWS || {};
           if (d < 0 && byOpp) anyDrop = true;
         }
       });
-      // Defiant: a stat lowered by the opponent → +2 Attack
+      // Defiant: a stat lowered by the opponent → +2 Attack; Competitive → +2 Sp. Atk
       if (anyDrop && ABIL.has(mon, 'Defiant')) {
         const a = STAGES.apply(mon, 'ATK', 2);
         if (a !== 0) {
           events.push({ t: 'ability', side, name: mon.name, ability: 'Defiant', boostsOf: snapshotBoosts(A, B) });
           events.push({ t: 'stat', side, name: mon.name, stat: 'ATK', delta: a, boostsOf: snapshotBoosts(A, B) });
           log.push(`${mon.name}'s Defiant sharply raised its Attack!`);
+        }
+      }
+      if (anyDrop && ABIL.has(mon, 'Competitive')) {
+        const a = STAGES.apply(mon, 'SPA', 2);
+        if (a !== 0) {
+          events.push({ t: 'ability', side, name: mon.name, ability: 'Competitive', boostsOf: snapshotBoosts(A, B) });
+          events.push({ t: 'stat', side, name: mon.name, stat: 'SPA', delta: a, boostsOf: snapshotBoosts(A, B) });
+          log.push(`${mon.name}'s Competitive sharply raised its Sp. Atk!`);
         }
       }
     };
@@ -934,7 +1083,11 @@ window.VIEWS = window.VIEWS || {};
         return 1;
       };
       const spdA = Math.floor(STATUS.speed(mA) * wspeed(mA)), spdB = Math.floor(STATUS.speed(mB) * wspeed(mB));
-      const aFirst = spdA > spdB || (spdA === spdB && rng() < 0.5);
+      // turn order: higher move priority goes first; within the same bracket, faster goes first (ties random)
+      const prA = movePriority(moveA, mA), prB = movePriority(moveB, mB);
+      let aFirst;
+      if (prA !== prB) aFirst = prA > prB;
+      else aFirst = spdA > spdB || (spdA === spdB && rng() < 0.5);
       const order = aFirst ? [['A', mA, mB, moveA], ['B', mB, mA, moveB]] : [['B', mB, mA, moveB], ['A', mA, mB, moveA]];
 
       for (const [side, atk, def, mv] of order) {
@@ -942,22 +1095,32 @@ window.VIEWS = window.VIEWS || {};
         // a side that switched this turn has used its action — it doesn't attack
         if ((side === 'A' && aSwitched) || (side === 'B' && bSwitched)) continue;
 
-        // ---- Sync Band: swap active ability (once per turn) ----
-        if (normName(atk.item || '') === normName('Sync Band') && atk.syncUsedTurn !== turn) {
+        // ---- Sync Ability (player mechanic): swap active ability once per turn ----
+        // Available to every Pokémon — no held item required. Swaps to any ability
+        // in the mon's natural pool (listed + hidden).
+        if (atk.syncUsedTurn !== turn) {
           const pick = ABIL.syncChoice(atk, def);
           if (pick && normName(pick) !== normName(atk.ability)) {
             const from = atk.ability;
             atk.ability = pick;
             atk.syncUsedTurn = turn;
             events.push({ t: 'sync', side, name: atk.name, from, to: pick });
-            log.push(`${atk.name}'s Sync Band switched its Ability to ${pick}!`);
+            log.push(`${atk.name} synced its Ability to ${pick}!`);
           }
+        }
+
+        // ---- flinch (King's Rock): lose the turn if flinched this turn ----
+        if (atk.flinched) {
+          atk.flinched = false;
+          events.push({ t: 'cantmove', side, name: atk.name, reason: `${atk.name} flinched and couldn't move!`, statusOf: snapshotStatus(A, B) });
+          log.push(`${atk.name} flinched and couldn't move!`);
+          continue;
         }
 
         // ---- pre-move status gate (sleep / freeze / full paralysis) ----
         let cantAct = false, gateLine = '';
         if (atk.status === 'SLP') {
-          if (atk.statusTurns > 0) atk.statusTurns--;
+          if (atk.statusTurns > 0) atk.statusTurns -= (ABIL.earlyBird(atk) ? 2 : 1);
           if (atk.statusTurns <= 0) { STATUS.clear(atk); gateLine = `${atk.name} woke up!`; }
           else { cantAct = true; gateLine = `${atk.name} is fast asleep.`; }
         } else if (atk.status === 'FRZ') {
@@ -968,6 +1131,17 @@ window.VIEWS = window.VIEWS || {};
         }
         if (gateLine) { events.push({ t: 'cantmove', side, name: atk.name, reason: gateLine, statusOf: snapshotStatus(A, B) }); log.push(gateLine); }
         if (cantAct) continue;
+
+        // Protean / Libero: before attacking, the user's type becomes the move's type
+        if (ABIL.protean(atk) && mv.cls !== 'Status' && mv.pow) {
+          const ate = ABIL.ateType(atk, mv);
+          const newType = ate ? ate.type : mv.type;
+          if (!(atk.types.length === 1 && atk.types[0] === newType)) {
+            atk.types = [newType];
+            events.push({ t: 'ability', side, name: atk.name, ability: 'Protean', boostsOf: snapshotBoosts(A, B) });
+            log.push(`${atk.name} transformed into the ${newType} type!`);
+          }
+        }
 
         const res = computeDamage(atk, def, mv, rng, { weather: curWeather(), terrain: field.terrain.kind });
         if (res.immune) {
@@ -1001,8 +1175,15 @@ window.VIEWS = window.VIEWS || {};
           else if (res.eff === 0) line += ` It doesn't affect ${def.name}…`;
         }
         log.push(line);
+        if (res.sturdy) { events.push({ t: 'ability', side: side === 'A' ? 'B' : 'A', name: def.name, ability: 'Sturdy', boostsOf: snapshotBoosts(A, B) }); log.push(`${def.name} endured the hit with Sturdy!`); }
 
         // ---- reactive defender abilities on a connecting damaging hit ----
+        if (res.dmg > 0 && res.eff !== 0 && def.hp > 0) {
+          // King's Rock: 10% chance the target flinches (only matters if it hasn't acted yet)
+          if (normName(atk.item || '') === normName("King's Rock") && rng() < 0.10) {
+            def.flinched = true;
+          }
+        }
         if (res.dmg > 0 && res.eff !== 0) {
           const defSide = side === 'A' ? 'B' : 'A';
           // Anger Point: a critical hit maxes the defender's Attack
@@ -1195,6 +1376,18 @@ window.VIEWS = window.VIEWS || {};
         }
       }
 
+      // ---- end-of-turn held items (Leftovers) ----
+      for (const side of eotOrder) {
+        const mon = side === 'A' ? A[ai] : B[bi];
+        if (!mon || mon.fainted) continue;
+        if (normName(mon.item || '') === normName('Leftovers') && mon.hp > 0 && mon.hp < mon.maxHP) {
+          const h = Math.max(1, Math.floor(mon.maxHP / 16));
+          mon.hp = Math.min(mon.maxHP, mon.hp + h);
+          events.push({ t: 'heal', side, name: mon.name, hp: mon.hp, maxHP: mon.maxHP });
+          log.push(`${mon.name} restored a little HP with its Leftovers!`);
+        }
+      }
+
       // ---- end-of-turn self abilities (Speed Boost, Moody, Shed Skin, Hydration) ----
       for (const side of eotOrder) {
         const mon = side === 'A' ? A[ai] : B[bi];
@@ -1214,6 +1407,10 @@ window.VIEWS = window.VIEWS || {};
             log.push(`${mon.name}'s Hydration cured its status!`);
             STATUS.clear(mon);
             events.push({ t: 'status', side, name: mon.name, code: null, statusOf: snapshotStatus(A, B) });
+          } else if (h.type === 'formGrassy') {
+            const inGrass = field.terrain.kind === 'GRASSY';
+            const hasLight = mon.types.includes('LIGHT');
+            if (inGrass && !hasLight) { mon.types = [...mon.types, 'LIGHT']; events.push({ t: 'ability', side, name: mon.name, ability: 'Gaia Guardian', boostsOf: snapshotBoosts(A, B) }); log.push(`${mon.name} terraformed into its Guardian Form!`); }
           }
         }
       }
@@ -1221,6 +1418,8 @@ window.VIEWS = window.VIEWS || {};
       if (field.weather.kind) { field.weather.turns--; if (field.weather.turns <= 0) { log.push(`The ${FIELD.WEATHER[field.weather.kind]} subsided.`); events.push({ t: 'weatherend' }); field.weather.kind = null; } }
       if (field.terrain.kind) { field.terrain.turns--; if (field.terrain.turns <= 0) { log.push(`The ${FIELD.TERRAIN[field.terrain.kind]} faded.`); events.push({ t: 'terrainend' }); field.terrain.kind = null; } }
 
+      if (A[ai]) A[ai].flinched = false;
+      if (B[bi]) B[bi].flinched = false;
       events.push({ t: 'endturn', turn, aHP: A[ai] ? A[ai].hp : 0, bHP: B[bi] ? B[bi].hp : 0, weather: field.weather.kind, terrain: field.terrain.kind });
 
       // dynamic stall detector: if neither team's total HP has changed for many
@@ -1401,10 +1600,13 @@ window.VIEWS = window.VIEWS || {};
     const [level, setLevel] = React.useState(50);   // avg level for RANDOM teams (1–100)
     const [inspect, setInspect] = React.useState(null); // null | 'A' | 'B'
     const [buildMsg, setBuildMsg] = React.useState('');
+    const [vaereth, setVaereth] = React.useState(false); // VAERETH boss mode (Team B becomes a cranked boss)
     const timer = React.useRef(null);
 
     // current display state derived from events up to `step`
     const view = React.useRef({ a: null, b: null, aHP: {}, bHP: {}, anim: null });
+    // the Vaereth boss roster for display (deterministic); built once.
+    const bossDisplay = React.useMemo(() => buildVaerethBoss(), []);
 
     const rollTeams = (lvl) => {
       // guard: only a finite number is a real level; a click event etc. → use state
@@ -1436,12 +1638,14 @@ window.VIEWS = window.VIEWS || {};
       let A, B, msg = '';
       if (srcA === 'manual') {
         if (manualA.length === 0) { setBuildMsg('Team A is empty — add Pokémon or switch it to Random.'); return false; }
-        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })));
+        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })), level);
       } else { A = (teamA && teamA.length) ? teamA : randomTeam(6, mulberry32((Math.random() * 1e9) | 0), level); }
       if (srcB === 'manual') {
         if (manualB.length === 0) { setBuildMsg('Team B is empty — add Pokémon or switch it to Random.'); return false; }
-        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })));
+        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })), level);
       } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level); }
+      // VAERETH boss mode overrides Team B entirely with the cranked boss roster.
+      if (vaereth) { B = buildVaerethBoss(); }
       setTeamA(A); setTeamB(B); setBuildMsg(msg);
       return { A, B };
     };
@@ -1564,7 +1768,7 @@ window.VIEWS = window.VIEWS || {};
 
     const copyLog = () => { try { navigator.clipboard.writeText(result.log.join('\n')); } catch (e) {} };
 
-    if (!teamA || !teamB) return <Empty label="Loading battle…" />;
+    if (!teamA || (!teamB && !vaereth)) return <Empty label="Loading battle…" />;
 
     return (
       <div>
@@ -1582,7 +1786,19 @@ window.VIEWS = window.VIEWS || {};
               <button key={s} onClick={() => setSpeed(s)} style={{ cursor: 'pointer', padding: '8px 12px', background: speed === s ? '#322663' : '#100c24', border: 'none', borderRight: s !== 20 ? '1px solid #2a2545' : 'none', color: speed === s ? '#fff' : '#9a93bb', fontFamily: "'Space Mono', monospace", fontSize: 13 }}>{s}x</button>
             ))}
           </div>
+          <button onClick={() => { setVaereth(v => !v); setResult(null); setStep(0); setPlaying(false); }}
+            title={`${BOSS_NAME}: a maximally-hard boss replaces Team B. Level 100, boosted stats, optimal team.`}
+            style={{ cursor: 'pointer', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
+            {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
+          </button>
         </div>
+
+        {vaereth && (
+          <div style={{ marginBottom: 14, padding: '10px 14px', background: 'linear-gradient(90deg, rgba(179,18,46,0.18), rgba(255,90,60,0.06))', border: '1px solid #5a2230', borderRadius: 10, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb3a0' }}>
+            <strong style={{ color: '#ff7a5c', fontFamily: "'Pixelify Sans', sans-serif", letterSpacing: 1 }}>☠ BOSS ENCOUNTER — {BOSS_NAME.toUpperCase()}</strong><br />
+            Team B is now <strong>{BOSS_NAME}</strong>: a fixed top-tier roster at <strong>Level {VAERETH_LEVEL}</strong> with <strong>+{Math.round((VAERETH_STAT_MULT - 1) * 100)}% stats</strong> and optimized movesets. This is a deliberately overpowered fight — beating it is meant to be very hard. Build Team A to take it on.
+          </div>
+        )}
 
         {/* team source: per-side Random / Manual / Import */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 14 }}>
@@ -1602,17 +1818,15 @@ window.VIEWS = window.VIEWS || {};
           ))}
         </div>
 
-        {/* level slider — governs the average level of RANDOM teams */}
-        {(srcA === 'random' || srcB === 'random') && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14, padding: '10px 14px', borderRadius: 10, background: '#0c0a1c', border: '1px solid #221d3a', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#b08fff', whiteSpace: 'nowrap' }}>RANDOM TEAM LEVEL</span>
-            <input type="range" min={1} max={100} value={level}
-              onChange={e => { const v = +e.target.value; setLevel(v); relevelTeams(v); }}
-              style={{ flex: '1 1 220px', accentColor: '#8a5cff', cursor: 'pointer' }} />
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: '#fff', minWidth: 56, textAlign: 'right' }}>Lv. {level}</span>
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to whichever side is set to Random. Manual and imported teams battle at Lv. 50.</span>
-          </div>
-        )}
+        {/* level slider — governs the level of ALL teams (random, manual, imported), up to 100 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14, padding: '10px 14px', borderRadius: 10, background: '#0c0a1c', border: '1px solid #221d3a', flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#b08fff', whiteSpace: 'nowrap' }}>TEAM LEVEL</span>
+          <input type="range" min={1} max={100} value={level}
+            onChange={e => { const v = +e.target.value; setLevel(v); relevelTeams(v); }}
+            style={{ flex: '1 1 220px', accentColor: '#8a5cff', cursor: 'pointer' }} />
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: '#fff', minWidth: 56, textAlign: 'right' }}>Lv. {level}</span>
+          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to all teams — random, manual, and imported — from Lv. 1 to 100.{vaereth ? ` (${BOSS_NAME} ignores this; the boss is always Lv. 100 +25%.)` : ''}</span>
+        </div>
         {buildMsg && <div style={{ marginBottom: 14, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb37a' }}>{buildMsg}</div>}
 
         {/* manual roster editors (only when a side is set to manual) */}
@@ -1694,12 +1908,12 @@ window.VIEWS = window.VIEWS || {};
         {/* team rosters */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 18 }}>
           <Roster team={teamA} label="Team A" color="#33d6ff" live={playback ? playback.A : null} onInspect={() => setInspect('A')} />
-          <Roster team={teamB} label="Team B" color="#ff7fe0" live={playback ? playback.B : null} onInspect={() => setInspect('B')} />
+          <Roster team={vaereth ? bossDisplay : teamB} label={vaereth ? `☠ ${BOSS_NAME}` : 'Team B'} color="#ff7fe0" live={playback ? playback.B : null} onInspect={() => setInspect('B')} />
         </div>
 
         {inspect && (
           <InspectModal
-            team={inspect === 'A' ? teamA : teamB}
+            team={inspect === 'A' ? teamA : (vaereth ? bossDisplay : teamB)}
             label={'Team ' + inspect}
             color={inspect === 'A' ? '#33d6ff' : '#ff7fe0'}
             onClose={() => setInspect(null)}
@@ -1877,7 +2091,8 @@ window.VIEWS = window.VIEWS || {};
                       })}
                       <div style={{ marginTop: 9, fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388' }}>
                         <div><span style={{ color: '#9a93bb' }}>Ability:</span> {abilities.length ? abilities.map((a, ai2) => <span key={ai2}>{ai2 ? ', ' : ''}{a}{ai2 === 0 && ABIL.active.has(normName(a)) ? <span style={{ color: '#5fd13c', fontSize: 9 }}> ●active</span> : ''}</span>) : '—'}{hidden ? ` (hidden: ${hidden})` : ''}</div>
-                        <div style={{ marginTop: 3 }}><span style={{ color: '#9a93bb' }}>Item:</span> {m.item || '—'}{normName(m.item || '') === normName('Sync Band') ? <span style={{ color: '#5fd13c', fontSize: 9 }}> ●swaps ability 1×/turn</span> : ''}</div>
+                        <div style={{ marginTop: 3 }}><span style={{ color: '#9a93bb' }}>Item:</span> {m.item || '—'}</div>
+                        <div style={{ marginTop: 3, color: '#5fd13c', fontSize: 9 }}>Sync: can swap to any of its abilities once per turn</div>
                         <div style={{ marginTop: 3, color: '#5f5980' }}>IV / EV / Nature — not simulated yet</div>
                       </div>
                     </div>
