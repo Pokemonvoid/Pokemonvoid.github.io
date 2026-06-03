@@ -197,6 +197,13 @@
           .vnav-vote { border-color: #6a5a1f; background: linear-gradient(135deg, #2a2410, #1c1808); color: #ffe08a; }
           .vnav-vote:hover { border-color: #d4af37; color: #fff; background: linear-gradient(135deg, #4a3d12, #2a2410); box-shadow: 0 0 16px #d4af3755, inset 0 0 10px #d4af3722; }
           .vnav-vote::after { background: linear-gradient(90deg, #ffd54a, #ffae00); }
+          @keyframes vnavSheen { 0% { background-position: -160% 0; } 60%,100% { background-position: 260% 0; } }
+          @keyframes vnavTrophyGlow { 0%,100% { box-shadow: 0 0 6px #ffd54a33, inset 0 0 8px #ffd54a14; } 50% { box-shadow: 0 0 16px #ffd54a66, inset 0 0 12px #ffd54a2a; } }
+          .vnav-lb { position: relative; border-color: #7a6320; color: #ffe9a8; background: linear-gradient(135deg, #2c2510, #18130a); animation: vnavTrophyGlow 3.2s ease-in-out infinite; }
+          /* moving prismatic sheen sweeping across the button */
+          .vnav-lb::before { content: ''; position: absolute; inset: 0; border-radius: 9px; background: linear-gradient(115deg, transparent 30%, rgba(255,221,128,0.35) 48%, rgba(255,255,255,0.5) 50%, rgba(255,221,128,0.35) 52%, transparent 70%); background-size: 220% 100%; animation: vnavSheen 4.5s ease-in-out infinite; pointer-events: none; opacity: .7; top: 0; right: auto; }
+          .vnav-lb:hover { border-color: #ffd54a; color: #fff; background: linear-gradient(135deg, #514012, #2c2510); box-shadow: 0 0 22px #ffd54a77, inset 0 0 12px #ffd54a33; transform: translateY(-1px); }
+          .vnav-lb::after { background: linear-gradient(90deg, #ffd54a, #fff1b8, #ffae00); }
           .v-navtop { display: flex; align-items: center; gap: 16px; }
           .v-navlinks { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 10px 0 2px; }
         `}</style>
@@ -228,7 +235,7 @@
           </div>
           <nav className="v-navlinks">
             {NAV.map(([n, h]) => (
-              <a key={h} href={h} className={'vnav-link' + (h === '#/vote' ? ' vnav-vote' : '') + (active(h) ? ' vnav-active' : '')}>{n}</a>
+              <a key={h} href={h} className={'vnav-link' + (h === '#/vote' ? ' vnav-vote' : '') + (h === '#/leaderboard' ? ' vnav-lb' : '') + (active(h) ? ' vnav-active' : '')}>{n}</a>
             ))}
           </nav>
         </div>

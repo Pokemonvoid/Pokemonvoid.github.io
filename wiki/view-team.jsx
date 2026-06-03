@@ -385,6 +385,13 @@ window.VIEWS = window.VIEWS || {};
     const clear = () => { if (window.confirm('Clear all Pokémon from "' + active.name + '"?')) setMembers(() => []); };
     const setMoves = (i, moves) => setMembers(ms => ms.map((m, idx) => idx === i ? { ...m, moves } : m));
     const setSpec = (i, spec) => setMembers(ms => ms.map((m, idx) => idx === i ? { ...m, ...spec } : m));
+    // drag-to-reorder: move the member at `from` to position `to`
+    const reorder = (from, to) => {
+      if (from === to || from == null || to == null) return;
+      setMembers(ms => { const next = ms.slice(); const [moved] = next.splice(from, 1); next.splice(to, 0, moved); return next; });
+    };
+    const [dragIdx, setDragIdx] = React.useState(null);   // index currently being dragged
+    const [overIdx, setOverIdx] = React.useState(null);   // index being hovered as a drop target
 
     // loadout management
     const switchTo = (i) => setData(d => ({ ...d, active: i }));
@@ -530,7 +537,15 @@ window.VIEWS = window.VIEWS || {};
             const accent = TYPES[m.types[0]].glow;
             const mv = members[i] ? members[i].moves : [];
             return (
-              <div key={i} style={{ position: 'relative', minHeight: 180, borderRadius: 14, background: `radial-gradient(ellipse at 50% 0%, ${TYPES[m.types[0]].bg}44, #0c0a1c 75%)`, border: `1px solid ${accent}55`, padding: 12, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div key={i}
+                draggable
+                onDragStart={(e) => { setDragIdx(i); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', String(i)); } catch (err) {} }}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (overIdx !== i) setOverIdx(i); }}
+                onDragLeave={() => { if (overIdx === i) setOverIdx(null); }}
+                onDrop={(e) => { e.preventDefault(); reorder(dragIdx, i); setDragIdx(null); setOverIdx(null); }}
+                onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                style={{ position: 'relative', minHeight: 180, borderRadius: 14, background: `radial-gradient(ellipse at 50% 0%, ${TYPES[m.types[0]].bg}44, #0c0a1c 75%)`, border: overIdx === i && dragIdx !== null && dragIdx !== i ? `2px dashed ${accent}` : `1px solid ${accent}55`, padding: 12, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'grab', opacity: dragIdx === i ? 0.4 : 1, transition: 'opacity .15s ease, border-color .15s ease' }}>
+                <span title="Drag to reorder" style={{ position: 'absolute', top: 7, left: 8, color: '#5f5980', fontSize: 13, lineHeight: 1, letterSpacing: -1, userSelect: 'none' }}>⠿</span>
                 <button onClick={() => remove(i)} title="Remove" style={{ position: 'absolute', top: 6, right: 6, cursor: 'pointer', width: 22, height: 22, borderRadius: '50%', background: '#1a1238', border: '1px solid #3a2f6e', color: '#cdbfff', fontSize: 13, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                 <button onClick={() => go('#/pokemon/' + m.dex)} style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}>
                   <SpriteSlot dex={m.dex} name={m.name} size={84} accent={accent} />
