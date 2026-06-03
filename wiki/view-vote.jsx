@@ -256,15 +256,17 @@
           {rows && tally.length === 0 && <div style={{ color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", textAlign: 'center', padding: 24 }}>No votes yet this week. Be the first!</div>}
 
           {tally.map((t, i) => (
-            <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderBottom: i < tally.length - 1 ? '1px solid #1d1838' : 'none' }}>
-              <div style={{ width: 38, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 18, color: i < 3 ? '#ffd54a' : '#6a6388' }}>{medal(i)}</div>
-              <SpriteSlot dex={t.dex} name={t.mon} size={64} accent="#8a5cff" />
+            <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < tally.length - 1 ? '1px solid #1d1838' : 'none' }}>
+              <div style={{ width: 32, flexShrink: 0, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 18, color: i < 3 ? '#ffd54a' : '#6a6388' }}>{medal(i)}</div>
+              <div style={{ width: 80, height: 80, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, background: '#100c20', border: '1px solid #221c40' }}>
+                <SpriteSlot dex={t.dex} name={t.mon} size={72} accent="#8a5cff" />
+              </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 16, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
-                  <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 14 }}>{t.n}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
+                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 17, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 15, fontWeight: 600 }}>{t.n}</span>
                 </div>
-                <div style={{ height: 9, borderRadius: 5, background: '#1a1533', overflow: 'hidden' }}>
+                <div style={{ height: 10, borderRadius: 5, background: '#1a1533', overflow: 'hidden' }}>
                   <div style={{ width: (maxN ? Math.round((t.n / maxN) * 100) : 0) + '%', height: '100%', background: i === 0 ? 'linear-gradient(90deg,#8a5cff,#ffd54a)' : 'linear-gradient(90deg,#5a2db3,#8a5cff)', transition: 'width 0.4s ease' }} />
                 </div>
               </div>
@@ -273,7 +275,7 @@
         </div>
 
         {/* hall of fame */}
-        <div style={{ flex: '1 1 300px', minWidth: 260, borderRadius: 16, border: '1px solid #2a2350', background: 'linear-gradient(180deg, #14102b 0%, #0d0a1e 100%)', padding: '20px 22px' }}>
+        <div style={{ flex: '1 1 300px', minWidth: 260, alignSelf: 'flex-start', borderRadius: 16, border: '1px solid #2a2350', background: 'linear-gradient(180deg, #14102b 0%, #0d0a1e 100%)', padding: '20px 22px' }}>
           <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 12, color: '#ffd54a', letterSpacing: 2, marginBottom: 4 }}>★ HALL OF FAME</div>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', marginBottom: 14 }}>Past weeks' top 3. Click a week to expand.</div>
           {nDone === 0 && (
@@ -302,7 +304,9 @@
                     {Array.isArray(data) && data.map((t, i) => (
                       <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0' }}>
                         <span style={{ width: 24, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 15, color: '#ffd54a' }}>{medal(i)}</span>
-                        <SpriteSlot dex={t.dex} name={t.mon} size={44} accent="#8a5cff" />
+                        <div style={{ width: 52, height: 52, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: '#100c20', border: '1px solid #221c40' }}>
+                          <SpriteSlot dex={t.dex} name={t.mon} size={46} accent="#8a5cff" />
+                        </div>
                         <span style={{ flex: 1, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 14, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
                         <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 13 }}>{t.n}</span>
                       </div>
