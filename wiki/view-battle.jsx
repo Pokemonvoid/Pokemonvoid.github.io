@@ -914,10 +914,12 @@ window.VIEWS = window.VIEWS || {};
   // HARD mode uses a completely different, far stronger team (Normal's roster is a
   // placeholder for the owner's favourites; Hard is the real gauntlet). These six
   // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
-  // them. A smaller stat multiplier is used because the species alone are brutal;
-  // 1.05x keeps it ~99.7% vs optimized random teams while a near-perfect team can
-  // still squeak a win, matching "impossible for most, a dedicated few might win."
-  const VAERETH_HARD_MULT = 1.05;
+  // them. The species alone are brutal; the multiplier is a fine-tune on top.
+  // 1.15x keeps it ~99.9% vs optimized random teams. Paired with the Hard AI tweak
+  // below (a paralyzed boss stops setting up and keeps attacking), this pushes the
+  // best counter back toward the "dedicated few" target after the community found a
+  // strong paralysis strategy and 10 players cleared it.
+  const VAERETH_HARD_MULT = 1.15;
   const VAERETH_HARD_ROSTER = [
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
@@ -1122,6 +1124,10 @@ window.VIEWS = window.VIEWS || {};
                 if (cx.foeBestDmg >= attacker.hp) score *= 0.25;       // would be KO'd mid-setup
                 else if (cx.foeBestDmg < attacker.hp * 0.35) score *= 1.4; // free setup window
               }
+              // paralysis counter-play: when crippled (slow + 25% to lose the turn),
+              // burning turns on setup is exactly what a stall/paralysis team wants.
+              // Drop setup hard so the boss applies pressure instead of feeding the grind.
+              if (attacker.status === 'PAR') score *= 0.2;
             }
           } else {
             // lowering the foe: mild value, more if it isn't already dropped
@@ -1976,11 +1982,13 @@ window.VIEWS = window.VIEWS || {};
   // (gold/prismatic, ornate — the real flex). `team` is [{dex,name}].
   function CertModal({ tier, team, name, setName, onClose }) {
     const hard = tier === 'hard';
+    const hasName = !!(name && name.trim());
+    const tryClose = () => { if (hasName) onClose(); };
     const C = hard
       ? { edge: '#ffd54a', edge2: '#ff9d3c', glow: '#ffd54a', ink: '#fff6dc', sub: '#e9cf86', bg: 'radial-gradient(ellipse at 50% 0%, #2a210a 0%, #14102b 45%, #0a0816 100%)', seal: '#ffd54a' }
       : { edge: '#b9c4e6', edge2: '#8a5cff', glow: '#9fb0e8', ink: '#eef1ff', sub: '#aeb6d8', bg: 'radial-gradient(ellipse at 50% 0%, #161a33 0%, #100c24 50%, #0a0816 100%)', seal: '#b9c4e6' };
     return (
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,2,10,0.9)', backdropFilter: 'blur(7px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '36px 14px', overflowY: 'auto' }}>
+      <div onClick={tryClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,2,10,0.9)', backdropFilter: 'blur(7px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '36px 14px', overflowY: 'auto' }}>
         <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 600 }}>
           {/* the certificate card — this is the screenshot target */}
           <div style={{ position: 'relative', borderRadius: 10, padding: '34px 30px 28px', background: C.bg, border: `2px solid ${C.edge}`, boxShadow: `0 0 0 1px #0a0816, 0 0 40px ${C.glow}55, inset 0 0 60px ${hard ? '#ffd54a14' : '#8a5cff12'}`, overflow: 'hidden' }}>
@@ -2038,8 +2046,11 @@ window.VIEWS = window.VIEWS || {};
 
           {/* actions (outside the screenshot frame) */}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 16 }}>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#8a83a8', textAlign: 'center', alignSelf: 'center' }}>Screenshot your certificate to share it!</div>
-            <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '8px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 14 }}>Close</button>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#8a83a8', textAlign: 'center', alignSelf: 'center' }}>
+              {hasName ? 'Screenshot your certificate to share it!' : 'Enter your name to claim your spot on the leaderboard.'}
+            </div>
+            <button onClick={tryClose} disabled={!hasName} title={hasName ? '' : 'Enter a name first'}
+              style={{ cursor: hasName ? 'pointer' : 'not-allowed', background: hasName ? '#15112a' : '#100c1e', border: `1px solid ${hasName ? '#2a2545' : '#1d1838'}`, color: hasName ? '#cdbfff' : '#5f5980', borderRadius: 8, padding: '8px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 14, opacity: hasName ? 1 : 0.7 }}>Close</button>
           </div>
         </div>
       </div>
@@ -2111,9 +2122,11 @@ window.VIEWS = window.VIEWS || {};
     const LB_URL = 'https://fzwxxvmzjkepfibjjyza.supabase.co';
     const LB_KEY = 'sb_publishable_mK-sym5D-ue5JoRGODx4iw_FM3X3EDK'; // sb_publishable_... — keep on ONE line
     const submitWin = (tier, team, name) => {
-      if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return; // not configured
+      if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return false; // not configured
+      const clean = (name || '').trim();
+      if (!clean) return false; // require a name — never submit "Anonymous"
       const payload = {
-        player_name: (name && name.trim()) ? name.trim().slice(0, 24) : 'Anonymous',
+        player_name: clean.slice(0, 24),
         difficulty: tier,
         team_key: certTeamKey(team),
         team: team,
@@ -2126,6 +2139,7 @@ window.VIEWS = window.VIEWS || {};
           body: JSON.stringify(payload),
         }).catch(() => { /* offline / duplicate — ignore */ });
       } catch (e) { /* ignore */ }
+      return true;
     };
 
     // current display state derived from events up to `step`
