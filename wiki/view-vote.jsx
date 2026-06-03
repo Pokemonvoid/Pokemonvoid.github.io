@@ -13,7 +13,7 @@
   // The anon key is designed to be public; row-level security on the table
   // is what keeps votes safe. Leaving these blank shows a friendly notice.
   const SUPABASE_URL = 'https://mzrwajvztpcncthstzcq.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_NzYqNoJ376FgIGdiedosqA_6T88qB9n'; // sb_publishable_... — keep on ONE line
+  const SUPABASE_ANON_KEY = 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'; // sb_publishable_... — keep on ONE line
   // ====================================================================
 
   const CONFIGURED = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -78,6 +78,48 @@
     return next.toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' EST';
   }
 
+  // ---- season / week numbering for the Hall of Fame ----
+  // Week 1 is anchored to the Monday of the week voting launched. Past weeks are
+  // computed live from the vote rows (no snapshots needed). The current week is
+  // shown by the live board above, so the Hall of Fame lists only COMPLETED weeks.
+  const SEASON_ANCHOR_ISO = '2026-06-01T04:00:00.000Z'; // Monday of launch week (NY)
+  const WEEK_MS = 7 * 86400000;
+
+  // how many completed weeks have elapsed since the anchor (0 during week 1)
+  function completedWeeks() {
+    const anchor = Date.parse(SEASON_ANCHOR_ISO);
+    const curStart = Date.parse(weekStartISO());
+    const n = Math.round((curStart - anchor) / WEEK_MS);
+    return Math.max(0, n);
+  }
+  // [startISO, endISO] for week number w (1-based)
+  function weekRange(w) {
+    const anchor = Date.parse(SEASON_ANCHOR_ISO);
+    const start = anchor + (w - 1) * WEEK_MS;
+    return [new Date(start).toISOString(), new Date(start + WEEK_MS).toISOString()];
+  }
+  function weekLabel(w) {
+    const [s] = weekRange(w);
+    const start = new Date(Date.parse(s));
+    const end = new Date(Date.parse(s) + WEEK_MS - 86400000);
+    const fmt = (d) => d.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' });
+    return `${fmt(start)} – ${fmt(end)}`;
+  }
+
+  async function fetchWeekTop3(w) {
+    const [since, until] = weekRange(w);
+    const url = REST + '?select=mon&created_at=gte.' + encodeURIComponent(since) + '&created_at=lt.' + encodeURIComponent(until);
+    const res = await fetch(url, { headers: HEADERS });
+    if (!res.ok) throw new Error('history read failed: ' + res.status);
+    const rows = await res.json();
+    const counts = {};
+    rows.forEach(r => { counts[r.mon] = (counts[r.mon] || 0) + 1; });
+    return Object.entries(counts)
+      .map(([mon, n]) => ({ mon, n, dex: (VDEX.DEX.find(d => d.name === mon) || {}).dex }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 3);
+  }
+
   // ---- data calls ----
   async function fetchWeekVotes() {
     const since = weekStartISO();
@@ -101,6 +143,20 @@
     const [picking, setPicking] = React.useState('');
     const [busy, setBusy] = React.useState(false);
     const [q, setQ] = React.useState('');
+    const [openWeek, setOpenWeek] = React.useState(null);   // expanded week number
+    const [weekData, setWeekData] = React.useState({});      // { weekNum: [{mon,n,dex}] | 'loading' | 'error' }
+
+    const nDone = completedWeeks();
+    const toggleWeek = (w) => {
+      if (openWeek === w) { setOpenWeek(null); return; }
+      setOpenWeek(w);
+      if (!weekData[w] && CONFIGURED) {
+        setWeekData(prev => ({ ...prev, [w]: 'loading' }));
+        fetchWeekTop3(w)
+          .then(top => setWeekData(prev => ({ ...prev, [w]: top })))
+          .catch(() => setWeekData(prev => ({ ...prev, [w]: 'error' })));
+      }
+    };
 
     const myId = voterId();
     const myVote = React.useMemo(() => {
@@ -185,10 +241,12 @@
           )}
         </div>
 
-        {err && <div style={{ maxWidth: 760, margin: '0 auto 16px', color: '#ff8fa6', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, textAlign: 'center' }}>{err}</div>}
+        {err && <div style={{ maxWidth: 1080, margin: '0 auto 16px', color: '#ff8fa6', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, textAlign: 'center' }}>{err}</div>}
 
+        {/* live board + hall of fame side panel (stacks on narrow screens) */}
+        <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {/* leaderboard */}
-        <div style={{ maxWidth: 760, margin: '0 auto', borderRadius: 16, border: '1px solid #2a2350', background: 'linear-gradient(180deg, #14102b 0%, #0d0a1e 100%)', padding: '20px 22px' }}>
+        <div style={{ flex: '1 1 460px', minWidth: 300, borderRadius: 16, border: '1px solid #2a2350', background: 'linear-gradient(180deg, #14102b 0%, #0d0a1e 100%)', padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
             <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 12, color: '#b08fff', letterSpacing: 2 }}>THIS WEEK'S LEADERBOARD</div>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#6a6388' }}>{totalVotes} vote{totalVotes === 1 ? '' : 's'}</div>
@@ -198,20 +256,63 @@
           {rows && tally.length === 0 && <div style={{ color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", textAlign: 'center', padding: 24 }}>No votes yet this week. Be the first!</div>}
 
           {tally.map((t, i) => (
-            <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: i < tally.length - 1 ? '1px solid #1d1838' : 'none' }}>
-              <div style={{ width: 34, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, color: i < 3 ? '#ffd54a' : '#6a6388' }}>{medal(i)}</div>
-              <SpriteSlot dex={t.dex} name={t.mon} size={40} accent="#8a5cff" />
+            <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderBottom: i < tally.length - 1 ? '1px solid #1d1838' : 'none' }}>
+              <div style={{ width: 38, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 18, color: i < 3 ? '#ffd54a' : '#6a6388' }}>{medal(i)}</div>
+              <SpriteSlot dex={t.dex} name={t.mon} size={64} accent="#8a5cff" />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 14, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
-                  <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 13 }}>{t.n}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 16, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 14 }}>{t.n}</span>
                 </div>
-                <div style={{ height: 8, borderRadius: 4, background: '#1a1533', overflow: 'hidden' }}>
+                <div style={{ height: 9, borderRadius: 5, background: '#1a1533', overflow: 'hidden' }}>
                   <div style={{ width: (maxN ? Math.round((t.n / maxN) * 100) : 0) + '%', height: '100%', background: i === 0 ? 'linear-gradient(90deg,#8a5cff,#ffd54a)' : 'linear-gradient(90deg,#5a2db3,#8a5cff)', transition: 'width 0.4s ease' }} />
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* hall of fame */}
+        <div style={{ flex: '1 1 300px', minWidth: 260, borderRadius: 16, border: '1px solid #2a2350', background: 'linear-gradient(180deg, #14102b 0%, #0d0a1e 100%)', padding: '20px 22px' }}>
+          <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 12, color: '#ffd54a', letterSpacing: 2, marginBottom: 4 }}>★ HALL OF FAME</div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', marginBottom: 14 }}>Past weeks' top 3. Click a week to expand.</div>
+          {nDone === 0 && (
+            <div style={{ color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, padding: '12px 0', lineHeight: 1.6 }}>
+              No past weeks yet — this is Week 1! After the first reset, each completed week's top 3 will appear here.
+            </div>
+          )}
+          {Array.from({ length: nDone }, (_, k) => nDone - k).map(w => {
+            const open = openWeek === w;
+            const data = weekData[w];
+            return (
+              <div key={w} style={{ borderBottom: '1px solid #1d1838' }}>
+                <button onClick={() => toggleWeek(w)}
+                  style={{ width: '100%', cursor: 'pointer', background: 'none', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', textAlign: 'left' }}>
+                  <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontSize: 15, color: '#fff' }}>Week {w}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#6a6388' }}>{weekLabel(w)}</span>
+                    <span style={{ color: '#b08fff', fontSize: 12, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>▶</span>
+                  </span>
+                </button>
+                {open && (
+                  <div style={{ padding: '4px 0 14px' }}>
+                    {data === 'loading' && <div style={{ color: '#6a6388', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, padding: 8 }}>Loading…</div>}
+                    {data === 'error' && <div style={{ color: '#ff8fa6', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, padding: 8 }}>Couldn't load this week.</div>}
+                    {Array.isArray(data) && data.length === 0 && <div style={{ color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, padding: 8 }}>No votes were cast this week.</div>}
+                    {Array.isArray(data) && data.map((t, i) => (
+                      <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0' }}>
+                        <span style={{ width: 24, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 15, color: '#ffd54a' }}>{medal(i)}</span>
+                        <SpriteSlot dex={t.dex} name={t.mon} size={44} accent="#8a5cff" />
+                        <span style={{ flex: 1, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 14, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
+                        <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 13 }}>{t.n}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
         </div>
 
         {/* vote picker modal */}
@@ -224,12 +325,12 @@
               </div>
               <input value={q} autoFocus onChange={e => setQ(e.target.value)} placeholder="Search by name or dex #"
                 style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, background: '#100c24', border: '1px solid #2a2545', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, marginBottom: 12 }} />
-              <div style={{ overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))', gap: 8 }}>
+              <div style={{ overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 8 }}>
                 {filtered.map(d => (
                   <button key={d.dex} onClick={() => doVote(d.name)} disabled={busy}
-                    style={{ cursor: busy ? 'default' : 'pointer', background: '#15112a', border: '1px solid #2a2545', borderRadius: 10, padding: '8px 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <SpriteSlot dex={d.dex} name={d.name} size={48} accent="#8a5cff" />
-                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#cdbfff', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{d.name}</span>
+                    style={{ cursor: busy ? 'default' : 'pointer', background: '#15112a', border: '1px solid #2a2545', borderRadius: 10, padding: '10px 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <SpriteSlot dex={d.dex} name={d.name} size={64} accent="#8a5cff" />
+                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#cdbfff', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{d.name}</span>
                   </button>
                 ))}
                 {filtered.length === 0 && <div style={{ gridColumn: '1/-1', color: '#6a6388', textAlign: 'center', padding: 20, fontFamily: "'Space Grotesk', sans-serif" }}>No matches.</div>}

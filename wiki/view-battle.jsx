@@ -1905,27 +1905,32 @@ window.VIEWS = window.VIEWS || {};
       <div>
         <PageHead kicker="BATTLE ENGINE" title="Auto-Battle Simulator" sub="Build two teams — pick them by hand from the Void dex, import a Team Builder share code, or roll them at random — then let the AI fight it out. 6v6 with switching, real Void stats and type chart, animated on a 2D plane." />
 
-        {/* controls */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18 }}>
+        {/* controls — run row (play & watch) */}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 10 }}>
           <button onClick={run} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', borderRadius: 12, padding: '12px 24px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20 }}>⚔ Simulate Battle</button>
-          <button onClick={() => rollTeams()} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600 }}>🎲 Random Teams</button>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#9a93bb' }}>
-            <input type="checkbox" checked={skip} onChange={e => setSkip(e.target.checked)} /> Skip animation
-          </label>
           <div style={{ display: 'inline-flex', borderRadius: 8, overflow: 'hidden', border: '1px solid #2a2545' }}>
             {[1, 2, 5, 10, 20].map(s => (
               <button key={s} onClick={() => setSpeed(s)} style={{ cursor: 'pointer', padding: '8px 12px', background: speed === s ? '#322663' : '#100c24', border: 'none', borderRight: s !== 20 ? '1px solid #2a2545' : 'none', color: speed === s ? '#fff' : '#9a93bb', fontFamily: "'Space Mono', monospace", fontSize: 13 }}>{s}x</button>
             ))}
           </div>
-          <button onClick={() => { setVaereth(v => { const nv = !v; if (nv) setAiMode('hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
-            title={`${BOSS_NAME}: a brutally hard boss replaces Team B. Beating it is meant to be very tough.`}
-            style={{ cursor: 'pointer', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
-            {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
-          </button>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#9a93bb' }}>
+            <input type="checkbox" checked={skip} onChange={e => setSkip(e.target.checked)} /> Skip animation
+          </label>
+        </div>
+
+        {/* controls — setup row (configure the match) */}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18, paddingTop: 10, borderTop: '1px solid #1a1638' }}>
+          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#6a6388', letterSpacing: 1, marginRight: 2 }}>SETUP</span>
+          <button onClick={() => rollTeams()} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600 }}>🎲 Random Teams</button>
           <button onClick={() => { setAiMode(m => m === 'hard' ? 'normal' : 'hard'); setResult(null); setStep(0); setPlaying(false); }}
             title={'AI difficulty. Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly (hazard- and immunity-aware). Toggle anytime.'}
             style={{ cursor: 'pointer', background: aiMode === 'hard' ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26', border: aiMode === 'hard' ? '1px solid #b89bff' : '1px solid #3a3168', color: aiMode === 'hard' ? '#fff' : '#9a93bb', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
             {aiMode === 'hard' ? '🧠 AI: Hard' : '🧠 AI: Normal'}
+          </button>
+          <button onClick={() => { setVaereth(v => { const nv = !v; if (nv) setAiMode('hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
+            title={`${BOSS_NAME}: a brutally hard boss replaces Team B. Beating it is meant to be very tough.`}
+            style={{ cursor: 'pointer', marginLeft: 'auto', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
+            {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
           </button>
         </div>
 

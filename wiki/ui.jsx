@@ -193,36 +193,43 @@
           .vsocial.discord:hover { color: #fff; background: #5865F2; border-color: #5865F2; box-shadow: 0 0 14px #5865F277; }
           .vsocial.youtube:hover { color: #fff; background: #FF0000; border-color: #FF0000; box-shadow: 0 0 14px #ff000066; }
           .vsocial.download:hover { color: #fff; background: #8a5cff; border-color: #8a5cff; box-shadow: 0 0 14px #8a5cff77; }
+          .vnav-vote { border-color: #6a5a1f; background: linear-gradient(135deg, #2a2410, #1c1808); color: #ffe08a; }
+          .vnav-vote:hover { border-color: #d4af37; color: #fff; background: linear-gradient(135deg, #4a3d12, #2a2410); box-shadow: 0 0 16px #d4af3755, inset 0 0 10px #d4af3722; }
+          .vnav-vote::after { background: linear-gradient(90deg, #ffd54a, #ffae00); }
+          .v-navtop { display: flex; align-items: center; gap: 16px; }
+          .v-navlinks { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 10px 0 2px; }
         `}</style>
-        <div className="v-navbar-inner" style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, padding: '13px 24px' }}>
-          <a href="#/pokedex" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
-            <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'radial-gradient(circle at 38% 32%, #1a1640, #05030c)', border: '1px solid #8a5cff', boxShadow: '0 0 12px #8a5cff77' }} />
-            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20, color: '#fff' }}>VOID<span style={{ color: '#8a5cff' }}>DEX</span></span>
-          </a>
-          <nav className="v-navlinks" style={{ display: 'flex', gap: 3, marginLeft: 8, flexWrap: 'wrap' }}>
-            {NAV.map(([n, h]) => (
-              <a key={h} href={h} className={'vnav-link' + (active(h) ? ' vnav-active' : '')}>{n}</a>
-            ))}
-          </nav>
-          <div className="v-navright" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <a className="vsocial discord" href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" title="Official Discord">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.198.352-.43.83-.59 1.207a18.27 18.27 0 0 0-5.93 0A12.6 12.6 0 0 0 9.44 3 19.74 19.74 0 0 0 5.677 4.37C2.79 8.62 2.01 12.75 2.4 16.82a19.95 19.95 0 0 0 5.99 3.03c.48-.66.91-1.36 1.28-2.1-.7-.26-1.37-.59-2-.98.17-.12.33-.25.49-.38 3.86 1.8 8.03 1.8 11.84 0 .16.13.32.26.49.38-.64.39-1.31.72-2.01.98.37.74.8 1.44 1.28 2.1a19.9 19.9 0 0 0 5.99-3.03c.46-4.71-.78-8.8-3.3-12.45ZM9.68 14.32c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Zm4.64 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.94 2.41-2.15 2.41Z"/></svg>
-              </a>
-              <a className="vsocial youtube" href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" title="Pokédex Fillers on YouTube">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>
-              </a>
-              <a className="vsocial download" href="https://www.mediafire.com/file/qiirj25m8s2fu78/Pokemon+Void+0.1.5+(encryptionfix).zip/file" target="_blank" rel="noopener noreferrer" title="Download Pokémon Void (latest)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              </a>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 13px', borderRadius: 8, background: '#15112a', border: '1px solid #2a2545', minWidth: 180 }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6a6388" strokeWidth="1.6"><circle cx="6" cy="6" r="4.2" /><path d="M9.5 9.5L13 13" strokeLinecap="round" /></svg>
-              <input value={query} onChange={(e) => { setQuery(e.target.value); if (!route.startsWith('/pokedex')) go('#/pokedex'); }}
-                placeholder="Search the void…" spellCheck={false}
-                style={{ border: 'none', outline: 'none', background: 'transparent', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, width: '100%' }} />
+        <div className="v-navbar-inner" style={{ maxWidth: 1240, margin: '0 auto', padding: '13px 24px 6px' }}>
+          <div className="v-navtop">
+            <a href="#/pokedex" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
+              <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'radial-gradient(circle at 38% 32%, #1a1640, #05030c)', border: '1px solid #8a5cff', boxShadow: '0 0 12px #8a5cff77' }} />
+              <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20, color: '#fff' }}>VOID<span style={{ color: '#8a5cff' }}>DEX</span></span>
+            </a>
+            <div className="v-navright" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <a className="vsocial discord" href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" title="Official Discord">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.198.352-.43.83-.59 1.207a18.27 18.27 0 0 0-5.93 0A12.6 12.6 0 0 0 9.44 3 19.74 19.74 0 0 0 5.677 4.37C2.79 8.62 2.01 12.75 2.4 16.82a19.95 19.95 0 0 0 5.99 3.03c.48-.66.91-1.36 1.28-2.1-.7-.26-1.37-.59-2-.98.17-.12.33-.25.49-.38 3.86 1.8 8.03 1.8 11.84 0 .16.13.32.26.49.38-.64.39-1.31.72-2.01.98.37.74.8 1.44 1.28 2.1a19.9 19.9 0 0 0 5.99-3.03c.46-4.71-.78-8.8-3.3-12.45ZM9.68 14.32c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Zm4.64 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.94 2.41-2.15 2.41Z"/></svg>
+                </a>
+                <a className="vsocial youtube" href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" title="Pokédex Fillers on YouTube">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>
+                </a>
+                <a className="vsocial download" href="https://www.mediafire.com/file/qiirj25m8s2fu78/Pokemon+Void+0.1.5+(encryptionfix).zip/file" target="_blank" rel="noopener noreferrer" title="Download Pokémon Void (latest)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </a>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 13px', borderRadius: 8, background: '#15112a', border: '1px solid #2a2545', minWidth: 180 }}>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6a6388" strokeWidth="1.6"><circle cx="6" cy="6" r="4.2" /><path d="M9.5 9.5L13 13" strokeLinecap="round" /></svg>
+                <input value={query} onChange={(e) => { setQuery(e.target.value); if (!route.startsWith('/pokedex')) go('#/pokedex'); }}
+                  placeholder="Search the void…" spellCheck={false}
+                  style={{ border: 'none', outline: 'none', background: 'transparent', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, width: '100%' }} />
+              </div>
             </div>
           </div>
+          <nav className="v-navlinks">
+            {NAV.map(([n, h]) => (
+              <a key={h} href={h} className={'vnav-link' + (h === '#/vote' ? ' vnav-vote' : '') + (active(h) ? ' vnav-active' : '')}>{n}</a>
+            ))}
+          </nav>
         </div>
       </header>
     );
