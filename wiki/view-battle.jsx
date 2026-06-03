@@ -1913,6 +1913,82 @@ window.VIEWS = window.VIEWS || {};
     );
   }
 
+  // ============================ certificate ============================
+  // A screenshottable victory certificate shown on a first-time win vs the boss.
+  // Two visually distinct tiers: 'normal' (silver/violet, clean) and 'hard'
+  // (gold/prismatic, ornate — the real flex). `team` is [{dex,name}].
+  function CertModal({ tier, team, name, setName, onClose }) {
+    const hard = tier === 'hard';
+    const C = hard
+      ? { edge: '#ffd54a', edge2: '#ff9d3c', glow: '#ffd54a', ink: '#fff6dc', sub: '#e9cf86', bg: 'radial-gradient(ellipse at 50% 0%, #2a210a 0%, #14102b 45%, #0a0816 100%)', seal: '#ffd54a' }
+      : { edge: '#b9c4e6', edge2: '#8a5cff', glow: '#9fb0e8', ink: '#eef1ff', sub: '#aeb6d8', bg: 'radial-gradient(ellipse at 50% 0%, #161a33 0%, #100c24 50%, #0a0816 100%)', seal: '#b9c4e6' };
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,2,10,0.9)', backdropFilter: 'blur(7px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '36px 14px', overflowY: 'auto' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 600 }}>
+          {/* the certificate card — this is the screenshot target */}
+          <div style={{ position: 'relative', borderRadius: 10, padding: '34px 30px 28px', background: C.bg, border: `2px solid ${C.edge}`, boxShadow: `0 0 0 1px #0a0816, 0 0 40px ${C.glow}55, inset 0 0 60px ${hard ? '#ffd54a14' : '#8a5cff12'}`, overflow: 'hidden' }}>
+            {/* corner flourishes */}
+            {[['top', 'left'], ['top', 'right'], ['bottom', 'left'], ['bottom', 'right']].map(([v, h], i) => (
+              <div key={i} style={{ position: 'absolute', [v]: 10, [h]: 10, width: 26, height: 26, [`border${v[0].toUpperCase()}${v.slice(1)}`]: `2px solid ${C.edge2}`, [`border${h[0].toUpperCase()}${h.slice(1)}`]: `2px solid ${C.edge2}`, opacity: 0.8 }} />
+            ))}
+            {hard && <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,213,74,0.04) 18px 19px)' }} />}
+
+            <div style={{ textAlign: 'center', position: 'relative' }}>
+              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 3, color: C.sub, marginBottom: 4 }}>POKÉMON VOID</div>
+              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: C.sub, marginBottom: 14 }}>{hard ? 'CERTIFICATE OF LEGEND' : 'CERTIFICATE OF VICTORY'}</div>
+
+              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: hard ? 42 : 34, lineHeight: 1.05, color: C.ink, textShadow: `0 0 26px ${C.glow}aa`, marginBottom: 6 }}>
+                {hard ? 'CONQUEROR OF' : 'VICTOR OVER'}
+              </div>
+              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: hard ? 30 : 24, color: C.edge, marginBottom: hard ? 16 : 14 }}>
+                PŌKEDEX FILLERS
+              </div>
+
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: C.sub, lineHeight: 1.55, maxWidth: 420, margin: '0 auto 18px' }}>
+                {hard
+                  ? 'On this day, against the cruelest team in all of Drapalla — at its sharpest and most merciless — one trainer did what nearly none can. Let it be known across the region:'
+                  : 'This trainer faced the region\u2019s most stubborn gauntlet and walked away the winner. A feat worth remembering:'}
+              </div>
+
+              {/* name field */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 2, color: C.sub, marginBottom: 6 }}>AWARDED TO</div>
+                <input value={name} onChange={e => setName(e.target.value.slice(0, 24))} placeholder="enter your name"
+                  style={{ width: 'min(360px, 90%)', boxSizing: 'border-box', textAlign: 'center', background: 'transparent', border: 'none', borderBottom: `2px solid ${C.edge}88`, color: C.ink, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 28, padding: '2px 6px 6px', outline: 'none' }} />
+              </div>
+
+              {/* winning team showcase */}
+              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 2, color: C.sub, marginBottom: 8 }}>WITH THE TEAM</div>
+              <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                {(team || []).map((m, i) => (
+                  <div key={i} style={{ width: 64, height: 64, borderRadius: 10, background: '#0c091c', border: `1px solid ${C.edge}55`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: `inset 0 0 14px ${hard ? '#ffd54a14' : '#8a5cff12'}` }}>
+                    <SpriteSlot dex={m.dex} name={m.name} size={50} accent={C.edge} />
+                  </div>
+                ))}
+              </div>
+
+              {/* seal / footer */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 4 }}>
+                <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${C.edge}66)` }} />
+                <div style={{ width: 54, height: 54, borderRadius: '50%', border: `2px solid ${C.seal}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, boxShadow: `0 0 18px ${C.glow}66` }}>{hard ? '👑' : '⭐'}</div>
+                <div style={{ flex: 1, height: 1, background: `linear-gradient(270deg, transparent, ${C.edge}66)` }} />
+              </div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: C.sub, marginTop: 12 }}>
+                {hard ? 'HARD DIFFICULTY' : 'NORMAL DIFFICULTY'} · pokemonvoid.github.io
+              </div>
+            </div>
+          </div>
+
+          {/* actions (outside the screenshot frame) */}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 16 }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#8a83a8', textAlign: 'center', alignSelf: 'center' }}>Screenshot your certificate to share it!</div>
+            <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '8px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 14 }}>Close</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ============================ UI ============================
   const BattleSim = function Battle() {
     const [teamA, setTeamA] = React.useState(null);
@@ -1936,7 +2012,22 @@ window.VIEWS = window.VIEWS || {};
     const [buildMsg, setBuildMsg] = React.useState('');
     const [vaereth, setVaereth] = React.useState(false); // VAERETH boss mode (Team B becomes a cranked boss)
     const [aiMode, setAiMode] = React.useState('normal'); // 'normal' | 'hard' AI difficulty
+    const [cert, setCert] = React.useState(null); // {tier:'normal'|'hard', team:[{dex,name}]} when a fresh boss win earns a certificate
+    const [certName, setCertName] = React.useState(''); // player-entered name for the certificate
     const timer = React.useRef(null);
+
+    // --- certificate de-dupe: one cert per unique 6-species set, per difficulty,
+    // persisted across sessions. key = sorted dex numbers. ---
+    const certTeamKey = (team) => (team || []).map(m => m.dex).slice().sort((a, b) => a - b).join('-');
+    const certStoreKey = (tier) => 'voidmon_fillers_certs_' + tier;
+    const certAlreadyEarned = (tier, key) => {
+      try { const raw = localStorage.getItem(certStoreKey(tier)); const set = raw ? JSON.parse(raw) : []; return Array.isArray(set) && set.includes(key); }
+      catch (e) { return false; }
+    };
+    const certRecord = (tier, key) => {
+      try { const raw = localStorage.getItem(certStoreKey(tier)); const set = raw ? JSON.parse(raw) : []; if (!set.includes(key)) { set.push(key); localStorage.setItem(certStoreKey(tier), JSON.stringify(set)); } }
+      catch (e) { /* storage unavailable — cert still shows once this session */ }
+    };
 
     // current display state derived from events up to `step`
     const view = React.useRef({ a: null, b: null, aHP: {}, bHP: {}, anim: null });
@@ -2027,6 +2118,17 @@ window.VIEWS = window.VIEWS || {};
       // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
       const r = simulate(built.A, built.B, undefined, aiMode);
       setResult(r);
+      // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
+      // 6-species team, tracked separately for Normal vs Hard, persisted across sessions.
+      if (vaereth && r.winner === 'A') {
+        const tier = aiMode === 'hard' ? 'hard' : 'normal';
+        const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
+        const key = certTeamKey(team);
+        if (!certAlreadyEarned(tier, key)) {
+          certRecord(tier, key);
+          setCert({ tier, team });
+        }
+      }
       if (skip) { setStep(r.events.length - 1); setPlaying(false); }
       else { setStep(0); setPlaying(true); }
     };
@@ -2238,6 +2340,11 @@ window.VIEWS = window.VIEWS || {};
               </div>
             )}
           </div>
+        )}
+
+        {/* victory certificate — shows once playback reaches the end of a winning boss battle */}
+        {cert && (!result || skip || step >= result.events.length - 1) && (
+          <CertModal tier={cert.tier} team={cert.team} name={certName} setName={setCertName} onClose={() => setCert(null)} />
         )}
 
         {/* playback scrubber */}
