@@ -109,7 +109,6 @@ window.VIEWS = window.VIEWS || {};
     const [guess, setGuess] = React.useState('');
     const [status, setStatus] = React.useState(null); // null | 'right' | 'wrong'
     const [showHint, setShowHint] = React.useState(false);
-    const [revealed, setRevealed] = React.useState(false);
     const [wrongCount, setWrongCount] = React.useState(0);
     const [solved, setSolved] = React.useState(loadSolved); // Set of "Tier#idx" keys
     const [reward, setReward] = React.useState(false);       // show the 50/50 popup
@@ -129,7 +128,7 @@ window.VIEWS = window.VIEWS || {};
       if (next.size >= TOTAL) setReward(true);
     };
 
-    const reset = () => { setGuess(''); setStatus(null); setShowHint(false); setRevealed(false); setWrongCount(0); };
+    const reset = () => { setGuess(''); setStatus(null); setShowHint(false); setWrongCount(0); };
     const openTier = (name) => { setTier(name); setIdx(0); reset(); };
     const nextRiddle = () => { setIdx(i => (i + 1) % pool.length); reset(); };
 
@@ -144,7 +143,7 @@ window.VIEWS = window.VIEWS || {};
       return (
         <div>
           {reward && <RewardPopup onClose={() => setReward(false)} />}
-          <PageHead kicker="THE HIDDEN CHAMBER" title="Riddle Chamber" sub="Sedilock tests trainers with riddles — now so does the VOIDDEX. Every answer is a Pokémon of Void, hidden in its lore, evolutions, and moves. Choose your trial." />
+          <PageHead kicker="THE RIDDLER'S LAIR" title="The Riddler's Lair" sub="Sedilock tests trainers with riddles — now so does the VOIDDEX. Every answer is a Pokémon of Void, hidden in its lore, evolutions, and moves. Choose your trial." />
 
           {/* overall progress */}
           <div style={{ maxWidth: 820, margin: '0 auto 18px', padding: '14px 18px', borderRadius: 12, background: '#0e0b1f', border: '1px solid #221d3a', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
@@ -153,7 +152,6 @@ window.VIEWS = window.VIEWS || {};
               <div style={{ width: (solvedCount / TOTAL * 100) + '%', height: '100%', background: solvedCount >= TOTAL ? 'linear-gradient(90deg,#ffd54a,#ff8f00)' : 'linear-gradient(90deg,#6a3df0,#b08fff)' }} />
             </div>
             <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 15, fontWeight: 700, color: solvedCount >= TOTAL ? '#ffd54a' : '#cdbfff' }}>{solvedCount} / {TOTAL}</span>
-            {solvedCount >= TOTAL && <button onClick={() => setReward(true)} style={{ cursor: 'pointer', background: 'linear-gradient(135deg,#ffb300,#ff7a00)', border: '1px solid #ffd54a', color: '#2a1800', borderRadius: 8, padding: '7px 14px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700 }}>★ View Reward</button>}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 14, maxWidth: 820, margin: '10px auto 0' }}>
@@ -170,14 +168,14 @@ window.VIEWS = window.VIEWS || {};
             })}
           </div>
           <p style={{ textAlign: 'center', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#5f5980', marginTop: 28 }}>
-            Solve all {TOTAL} unique riddles to unlock a reward. Progress saves on this device.
+            Every answer is a Pokémon of Void. Progress saves on this device. Nightmare shows no mercy.
           </p>
         </div>
       );
     }
 
     // ---- riddle screen ----
-    const answerMon = revealed || status === 'right' ? findMon(riddle.a) : null;
+    const answerMon = status === 'right' ? findMon(riddle.a) : null;
     const alreadySolved = solved.has(key);
     return (
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -219,17 +217,14 @@ window.VIEWS = window.VIEWS || {};
 
             {status === 'wrong' && (
               <div style={{ marginTop: 12, fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: '#ff8fa6' }}>
-                Not quite{wrongCount >= 2 ? ' — keep thinking, or use the options below.' : '. Try again.'}
+                Not quite. Try again.{tierObj.hints && riddle.hint && wrongCount < 3 ? ' (A hint unlocks after 3 wrong guesses.)' : ''}
               </div>
             )}
 
-            {/* hint / reveal controls */}
+            {/* hint (Easy/Medium only) — unlocks after 3 wrong answers */}
             <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-              {tierObj.hints && riddle.hint && !showHint && (
+              {tierObj.hints && riddle.hint && wrongCount >= 3 && !showHint && (
                 <button onClick={() => setShowHint(true)} style={{ cursor: 'pointer', background: '#1a1533', border: '1px solid #3a2f6e', color: '#cdbfff', borderRadius: 8, padding: '9px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>💡 Hint</button>
-              )}
-              {!revealed && (
-                <button onClick={() => setRevealed(true)} style={{ cursor: 'pointer', background: '#1a1020', border: '1px solid #ff5f7e44', color: '#ff8fa6', borderRadius: 8, padding: '9px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>Give Up / Reveal</button>
               )}
               <button onClick={nextRiddle} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#9a93bb', borderRadius: 8, padding: '9px 16px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Skip →</button>
             </div>
@@ -238,19 +233,6 @@ window.VIEWS = window.VIEWS || {};
               <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 10, background: '#15112a', border: '1px solid #3a2f6e' }}>
                 <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#b08fff', marginRight: 8 }}>HINT</span>
                 <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: '#cdc6e6' }}>{riddle.hint}</span>
-              </div>
-            )}
-
-            {revealed && (
-              <div style={{ marginTop: 14, padding: 18, borderRadius: 12, background: '#15112a', border: '1px solid #2a2545', textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a83a8', marginBottom: 10 }}>THE ANSWER WAS</div>
-                {answerMon && (
-                  <button onClick={() => go('#/pokemon/' + answerMon.dex)} style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}>
-                    <SpriteSlot dex={answerMon.dex} name={answerMon.name} size={84} accent={tierObj.color} />
-                  </button>
-                )}
-                <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 24, color: '#fff' }}>{riddle.a}</div>
-                <button onClick={nextRiddle} style={{ cursor: 'pointer', marginTop: 12, background: '#1a1238', border: '1px solid #6a52c0', color: '#cdbfff', borderRadius: 8, padding: '9px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>Next Riddle →</button>
               </div>
             )}
           </div>
