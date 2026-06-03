@@ -104,6 +104,7 @@
 <script type="text/babel" src="wiki/view-living.jsx"></script>
 <script type="text/babel" src="wiki/view-catch.jsx"></script>
 <script type="text/babel" src="wiki/view-nuzlocke.jsx"></script>
+<script type="text/babel" src="wiki/view-riddles.jsx"></script>
 <script type="text/babel" src="wiki/view-damage.jsx"></script>
 
 <script type="text/babel">
@@ -155,6 +156,7 @@
       case 'living': content = <V.Living />; break;
       case 'catch': content = <V.Catch />; break;
       case 'nuzlocke': content = <V.Nuzlocke />; break;
+      case 'riddles': content = <V.Riddles />; break;
       case 'pokedex':
       default: content = <V.Pokedex query={query} />;
     }
@@ -165,7 +167,7 @@
         <main className="v-main" style={{ maxWidth: 1240, margin: '0 auto', padding: '32px 24px 80px' }}>{content}</main>
         <footer style={{ maxWidth: 1240, margin: '0 auto', padding: '24px', borderTop: '1px solid #1d1838', color: '#5f5980', fontFamily: "'Space Mono', monospace", fontSize: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
           <span style={{ maxWidth: 720, lineHeight: 1.6 }}>
-            <strong style={{ color: '#8a5cff', letterSpacing: 0.5 }}>VOIDDEX</strong> — an official wiki for <em>Pokémon Void</em>.
+            <strong onClick={() => { window.location.hash = '#/riddles'; }} style={{ color: '#8a5cff', letterSpacing: 0.5, cursor: 'pointer' }}>VOIDDEX</strong> — an official wiki for <em>Pokémon Void</em>.
             <span style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
               <a href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#c7d0ff', background: '#5865F21a', border: '1px solid #5865F255', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>💬 Official Discord</a>
               <a href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#ffc7c7', background: '#ff00001a', border: '1px solid #ff000055', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>▶ Pokédex Fillers</a>
