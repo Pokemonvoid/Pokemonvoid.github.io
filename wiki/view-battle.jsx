@@ -297,6 +297,13 @@ window.VIEWS = window.VIEWS || {};
   const SELF_KO = new Set(['explosion', 'selfdestruct', 'mistyexplosion'].map(normName));
   const isSelfKO = (move) => SELF_KO.has(normName(move.name));
 
+  // recharge moves: after using one, the user must rest (lose its action) next turn.
+  const RECHARGE = new Set([
+    'hyperbeam', 'gigaimpact', 'rockwrecker', 'roaroftime', 'hydrocannon',
+    'blastburn', 'frenzyplant', 'prismaticlaser',
+  ].map(normName));
+  const isRecharge = (move) => RECHARGE.has(normName(move.name));
+
   // ---------- FIELD: weather / terrain / hazards (canonical) ----------
   // Field state lives on the battle: { weather:{kind,turns}, terrain:{kind,turns},
   // hazards:{A:{...},B:{...}} }. All durations are 5 turns (no item extension yet).
@@ -950,6 +957,12 @@ window.VIEWS = window.VIEWS || {};
           const nearlyDead = attacker.hp <= attacker.maxHP * 0.25;
           score = (securesKO || nearlyDead) ? score * 0.9 : 0.2;
         }
+        // recharge moves waste the following turn — discount them unless they
+        // secure a KO right now (then the rest turn matters less).
+        if (isRecharge(move) && te > 0) {
+          const approx = computeDamageAvg(attacker, defender, move);
+          if (approx < defender.hp) score *= 0.6;
+        }
       }
       if (score > bestScore) { bestScore = score; best = move; }
     });
@@ -1035,8 +1048,8 @@ window.VIEWS = window.VIEWS || {};
     aiMode = aiMode || 'normal';
     const rng = mulberry32(seedNum || (Math.random() * 1e9) | 0);
     // deep-clone teams so the originals aren't mutated (fresh boosts per battle)
-    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, abilityPool: (m.abilityPool || []).slice() }));
-    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, abilityPool: (m.abilityPool || []).slice() }));
+    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
+    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
     let ai = 0, bi = 0; // active indices
     const events = [];
     const log = [];
@@ -1150,6 +1163,7 @@ window.VIEWS = window.VIEWS || {};
       // switch-out abilities (Regenerator heal, Natural Cure) on the OUTGOING mon
       const doSwitchOut = (side, outIdx) => {
         const mon = side === 'A' ? A[outIdx] : B[outIdx];
+        mon.mustRecharge = false; // recharge state doesn't persist across a switch
         const so = ABIL.onSwitchOut(mon);
         if (so.heal && mon.hp > 0 && mon.hp < mon.maxHP) { mon.hp = Math.min(mon.maxHP, mon.hp + so.heal); }
         if (so.cure && mon.status) { STATUS.clear(mon); }
@@ -1227,7 +1241,12 @@ window.VIEWS = window.VIEWS || {};
 
         // ---- pre-move status gate (sleep / freeze / full paralysis) ----
         let cantAct = false, gateLine = '';
-        if (atk.status === 'SLP') {
+        // recharge: if this mon used a recharge move last turn, it rests now
+        if (atk.mustRecharge) {
+          atk.mustRecharge = false;
+          cantAct = true;
+          gateLine = `${atk.name} must recharge!`;
+        } else if (atk.status === 'SLP') {
           if (atk.statusTurns > 0) atk.statusTurns -= (ABIL.earlyBird(atk) ? 2 : 1);
           if (atk.statusTurns <= 0) { STATUS.clear(atk); gateLine = `${atk.name} woke up!`; }
           else { cantAct = true; gateLine = `${atk.name} is fast asleep.`; }
@@ -1283,6 +1302,8 @@ window.VIEWS = window.VIEWS || {};
           else if (res.eff === 0) line += ` It doesn't affect ${def.name}…`;
         }
         log.push(line);
+        // recharge moves (Hyper Beam, Rock Wrecker, etc.): user rests next turn
+        if (isRecharge(mv)) { atk.mustRecharge = true; }
         if (res.sturdy) { events.push({ t: 'ability', side: side === 'A' ? 'B' : 'A', name: def.name, ability: 'Sturdy', boostsOf: snapshotBoosts(A, B) }); log.push(`${def.name} endured the hit with Sturdy!`); }
 
         // ---- reactive defender abilities on a connecting damaging hit ----
