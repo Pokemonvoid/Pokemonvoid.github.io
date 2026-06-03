@@ -84,17 +84,53 @@ window.VIEWS = window.VIEWS || {};
   }
 
   // auto-pick the 4 strongest damaging moves a mon can learn by `level`.
-  function autoMoves(dex, level) {
-    const resolved = resolveMoves(learnableMovesFor(dex, level));
-    const dmg = resolved.filter(mv => mv.cls !== 'Status' && mv.pow > 0).sort((a, b) => b.pow - a.pow);
-    let moves = dmg.slice(0, 4);
-    if (moves.length === 0) {
-      // nothing damaging learnable yet at this level — fall back to whatever it
-      // can learn, else Struggle, so very low levels still have an action.
-      const any = resolveMoves(learnableMovesFor(dex, level)).slice(0, 4);
-      moves = any.length ? any : [{ name: 'Struggle', type: 'NORMAL', cls: 'Physical', pow: 50, acc: 100, pp: 1 }];
+  // Build a moveset from the mon's FULL legal learnset (attacks, status, field,
+  // and stat moves), weighted so the mix is sensible: damaging moves are favored
+  // and at least ~2 are guaranteed so the mon can fight, but status/field/stat
+  // moves get a real chance to appear — like a varied competitive movepool.
+  // `rng` makes it reproducible from a seed; falls back to Math.random.
+  function autoMoves(dex, level, rng) {
+    const R = (typeof rng === 'function') ? rng : Math.random;
+    const all = resolveMoves(learnableMovesFor(dex, level));
+    if (all.length === 0) return [{ name: 'Struggle', type: 'NORMAL', cls: 'Physical', pow: 50, acc: 100, pp: 1 }];
+
+    const isDamaging = (mv) => mv.cls !== 'Status' && typeof mv.pow === 'number' && mv.pow > 0;
+    const dmg = all.filter(isDamaging);
+    const util = all.filter(mv => !isDamaging(mv)); // status / field / stat moves
+
+    // weight each move: damaging by power (so strong attacks are likelier),
+    // utility a flat-but-meaningful weight so it shows up without dominating.
+    const weightOf = (mv) => {
+      if (isDamaging(mv)) {
+        const stab = byDex(dex) && byDex(dex).types.includes(mv.type) ? 1.4 : 1;
+        return Math.max(8, mv.pow) * stab; // ~40–200 range
+      }
+      return 45; // utility move: competes with a mid-power attack
+    };
+    // weighted sampling without replacement
+    const pickWeighted = (poolArr) => {
+      const total = poolArr.reduce((s, m) => s + weightOf(m), 0);
+      let r = R() * total;
+      for (const m of poolArr) { r -= weightOf(m); if (r <= 0) return m; }
+      return poolArr[poolArr.length - 1];
+    };
+
+    const chosen = [];
+    const remaining = all.slice();
+    // guarantee up to 2 damaging moves first (so it can always attack), if available
+    let guaranteed = Math.min(2, dmg.length);
+    while (guaranteed-- > 0) {
+      const damPool = remaining.filter(isDamaging);
+      if (!damPool.length) break;
+      const pick = pickWeighted(damPool);
+      chosen.push(pick); remaining.splice(remaining.indexOf(pick), 1);
     }
-    return moves;
+    // fill the rest by weighted random across EVERYTHING still available
+    while (chosen.length < 4 && remaining.length) {
+      const pick = pickWeighted(remaining);
+      chosen.push(pick); remaining.splice(remaining.indexOf(pick), 1);
+    }
+    return chosen.slice(0, 4);
   }
 
   // ---------- status conditions (canonical mechanics) ----------
@@ -260,6 +296,81 @@ window.VIEWS = window.VIEWS || {};
   const SELF_KO = new Set(['explosion', 'selfdestruct', 'mistyexplosion'].map(normName));
   const isSelfKO = (move) => SELF_KO.has(normName(move.name));
 
+  // ---------- FIELD: weather / terrain / hazards (canonical) ----------
+  // Field state lives on the battle: { weather:{kind,turns}, terrain:{kind,turns},
+  // hazards:{A:{...},B:{...}} }. All durations are 5 turns (no item extension yet).
+  const FIELD = {
+    // ---- weather ----
+    WEATHER: { SUN: 'harsh sunlight', RAIN: 'rain', SAND: 'a sandstorm', HAIL: 'hail/snow' },
+    // damage multiplier on a move from current weather (Fire/Water under sun/rain)
+    weatherDamage(weatherKind, moveType) {
+      if (weatherKind === 'SUN') { if (moveType === 'FIRE') return 1.5; if (moveType === 'WATER') return 0.5; }
+      if (weatherKind === 'RAIN') { if (moveType === 'WATER') return 1.5; if (moveType === 'FIRE') return 0.5; }
+      return 1;
+    },
+    // a type immune to sandstorm chip
+    sandImmuneType(types) { return types.some(t => t === 'ROCK' || t === 'GROUND' || t === 'STEEL'); },
+    // weather is suppressed if any active mon has Cloud Nine / Air Lock
+    weatherActive(battle, A, B, ai, bi) {
+      if (!battle.weather.kind) return null;
+      const negate = (m) => m && (ABIL.has(m, 'Cloud Nine') || ABIL.has(m, 'Air lock') || ABIL.has(m, 'Air Lock'));
+      if (negate(A[ai]) || negate(B[bi])) return null;
+      return battle.weather.kind;
+    },
+    // ---- terrain ----
+    TERRAIN: { GRASSY: 'Grassy Terrain', ELECTRIC: 'Electric Terrain', MISTY: 'Misty Terrain', PSYCHIC: 'Psychic Terrain' },
+    // terrain boosts a grounded user's matching-type move (×1.3); Misty halves Dragon
+    terrainDamage(terrainKind, moveType, grounded) {
+      if (!grounded) return 1;
+      if (terrainKind === 'GRASSY' && moveType === 'GRASS') return 1.3;
+      if (terrainKind === 'ELECTRIC' && moveType === 'ELECTRIC') return 1.3;
+      if (terrainKind === 'PSYCHIC' && moveType === 'PSYCHIC') return 1.3;
+      if (terrainKind === 'MISTY' && moveType === 'DRAGON') return 0.5;
+      return 1;
+    },
+    grounded(mon) { return !mon.types.includes('FLYING') && !ABIL.has(mon, 'Levitate'); },
+    // ---- hazards (per receiving side) ----
+    freshHazards() { return { rock: false, spikes: 0, toxic: 0, web: false }; },
+    // damage + effects to a mon switching in onto `hz`; returns {dmg, lines, statusApply, speedDrop}
+    hazardEntry(mon, hz) {
+      const out = { dmg: 0, lines: [], status: null, speedDrop: false };
+      if (ABIL.has(mon, 'Aerobatics')) return out; // immune to hazards (custom)
+      const g = FIELD.grounded(mon);
+      if (hz.rock) {
+        // Stealth Rock: damage scaled by Rock effectiveness vs the mon's types
+        const mult = mon.types.reduce((m, t) => m * eff('ROCK', t), 1);
+        const frac = (1 / 8) * mult;
+        out.dmg += Math.max(1, Math.floor(mon.maxHP * frac));
+        out.lines.push(`Pointed stones dug into ${mon.name}!`);
+      }
+      if (g && hz.spikes > 0) {
+        const frac = [0, 1 / 8, 1 / 6, 1 / 4][Math.min(3, hz.spikes)];
+        out.dmg += Math.max(1, Math.floor(mon.maxHP * frac));
+        out.lines.push(`${mon.name} was hurt by spikes!`);
+      }
+      if (g && hz.toxic > 0 && !mon.status) {
+        // grounded Poison-types absorb toxic spikes (canonical); Steel/immune skip
+        if (mon.types.includes('POISON')) { hz.toxic = 0; out.lines.push(`The poison spikes dissolved!`); }
+        else if (STATUS.canApply(mon, hz.toxic >= 2 ? 'TOX' : 'PSN')) { out.status = hz.toxic >= 2 ? 'TOX' : 'PSN'; }
+      }
+      if (g && hz.web) { out.speedDrop = true; out.lines.push(`${mon.name} was caught in a sticky web!`); }
+      return out;
+    },
+  };
+
+  // move → field effect it sets. target: 'weather'|'terrain'|'hazardFoe'
+  const MOVE_FIELD = (() => {
+    const t = {};
+    const w = (n, k) => { t[normName(n)] = { kind: 'weather', val: k }; };
+    const tr = (n, k) => { t[normName(n)] = { kind: 'terrain', val: k }; };
+    const hz = (n, k) => { t[normName(n)] = { kind: 'hazard', val: k }; };
+    w('Sunny Day', 'SUN'); w('Rain Dance', 'RAIN'); w('Sandstorm', 'SAND'); w('Hail', 'HAIL'); w('Snowscape', 'HAIL');
+    tr('Grassy Terrain', 'GRASSY'); tr('Electric Terrain', 'ELECTRIC'); tr('Misty Terrain', 'MISTY'); tr('Psychic Terrain', 'PSYCHIC');
+    hz('Stealth Rock', 'rock'); hz('Spikes', 'spikes'); hz('Toxic Spikes', 'toxic'); hz('Sticky Web', 'web');
+    return t;
+  })();
+  const moveFieldEffect = (move) => MOVE_FIELD[normName(move.name)] || null;
+
   // ---------- abilities (this increment: stat-stage family) ----------
   // Only abilities fully expressible with current systems are active; others
   // are recognized by name but no-op until their systems exist.
@@ -292,7 +403,7 @@ window.VIEWS = window.VIEWS || {};
   // Level 50, neutral nature, no EV/IV in Phase 1.
   // moveNames (optional): explicit moveset (manual pick or imported share code).
   //   When omitted/empty, auto-pick the 4 strongest damaging moves (random teams).
-  function buildMon(dex, level, moveNames) {
+  function buildMon(dex, level, moveNames, rng) {
     const d = byDex(dex);
     if (!d) return null;
     // coerce level defensively: only a finite 1–100 number is valid, else 50.
@@ -308,9 +419,9 @@ window.VIEWS = window.VIEWS || {};
     if (moveNames && moveNames.length) {
       // explicit moveset (manual pick / import) is respected as-is, no level cap
       moves = resolveMoves(moveNames).slice(0, 4);
-      if (moves.length === 0) moves = autoMoves(dex, L); // import had only unknown moves
+      if (moves.length === 0) moves = autoMoves(dex, L, rng); // import had only unknown moves
     } else {
-      moves = autoMoves(dex, L); // random/auto path: moves limited to what's learned by L
+      moves = autoMoves(dex, L, rng); // random/auto path: moves limited to what's learned by L
     }
     return {
       dex: d.dex, name: d.name, types: d.types.slice(), level: L,
@@ -384,7 +495,7 @@ window.VIEWS = window.VIEWS || {};
       const d = pool[Math.floor(rng() * pool.length)];
       if (used.has(d.dex)) continue;
       used.add(d.dex);
-      chosen.push(buildMon(d.dex, level || 50));
+      chosen.push(buildMon(d.dex, level || 50, null, rng));
     }
     return chosen;
   }
@@ -393,7 +504,7 @@ window.VIEWS = window.VIEWS || {};
   function typeMult(moveType, defTypes) {
     return defTypes.reduce((m, t) => m * eff(moveType, t), 1);
   }
-  function computeDamage(attacker, defender, move, rng) {
+  function computeDamage(attacker, defender, move, rng, fieldCtx) {
     if (move.cls === 'Status' || !move.pow) return { dmg: 0, eff: 1, crit: false, missed: false };
     // accuracy — modified by the attacker's ACC and defender's EVA stages
     {
@@ -417,13 +528,20 @@ window.VIEWS = window.VIEWS || {};
     // A modest scalar lengthens battles so switching and matchups actually matter.
     const SCALE = 0.6;
     const burn = STATUS.burnFactor(attacker, move); // burned attacker: physical ×0.5
-    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn);
+    // weather + terrain multipliers (fieldCtx = {weather, terrain})
+    let wmult = 1, tmult = 1;
+    if (fieldCtx) {
+      if (fieldCtx.weather) wmult = FIELD.weatherDamage(fieldCtx.weather, move.type);
+      if (fieldCtx.terrain) tmult = FIELD.terrainDamage(fieldCtx.terrain, move.type, FIELD.grounded(attacker));
+    }
+    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn * wmult * tmult);
     if (te > 0) dmg = Math.max(1, dmg);
     return { dmg, eff: te, crit, missed: false };
   }
 
   // ---------- AI: score each move by expected value ----------
-  function bestMove(attacker, defender, level) {
+  function bestMove(attacker, defender, ctx) {
+    const cx = ctx || {};
     let best = null, bestScore = -1;
     attacker.moves.forEach(move => {
       let score;
@@ -437,8 +555,15 @@ window.VIEWS = window.VIEWS || {};
           const weight = { SLP: 30, PAR: 26, TOX: 24, BRN: 20, FRZ: 22, PSN: 14 }[eff2.code] || 12;
           score = weight * eff2.chance;
         } else if (stat2) {
-          // setup / debuff valuation
-          if (stat2.target === 'self') {
+          // if every stat this move changes is already capped in the intended
+          // direction, the move does nothing — never loop on it.
+          const capped = stat2.changes.every(([k, d]) => {
+            const who = stat2.target === 'self' ? attacker : defender;
+            const cur = (who.boosts && who.boosts[k]) || 0;
+            return d > 0 ? cur >= 6 : cur <= -6;
+          });
+          if (capped) { score = 0.3; }
+          else if (stat2.target === 'self') {
             // worth more when healthy and not already heavily boosted; near-useless at low HP
             const hpFrac = attacker.hp / attacker.maxHP;
             const boostSum = STAGES.KEYS.reduce((s, k) => s + Math.max(0, (attacker.boosts && attacker.boosts[k]) || 0), 0);
@@ -454,8 +579,30 @@ window.VIEWS = window.VIEWS || {};
             score = cur < 4 ? 11 : 3;
           }
           score *= (stat2.chance == null ? 1 : stat2.chance);
+        } else if (moveFieldEffect(move)) {
+          const fld = moveFieldEffect(move);
+          const hpFrac = attacker.hp / attacker.maxHP;
+          // base tempo value; only worth it while healthy
+          if (hpFrac <= 0.5) { score = 4; }
+          else if (fld.kind === 'hazard') {
+            // hazards pay off across the foe's remaining bench; near-useless if already set or foe nearly out of mons
+            const already = cx.hazardsOnFoe && (
+              (fld.val === 'rock' && cx.hazardsOnFoe.rock) ||
+              (fld.val === 'spikes' && cx.hazardsOnFoe.spikes >= 3) ||
+              (fld.val === 'toxic' && cx.hazardsOnFoe.toxic >= 2) ||
+              (fld.val === 'web' && cx.hazardsOnFoe.web));
+            const bench = cx.foeBench == null ? 5 : cx.foeBench;
+            score = already ? 0.5 : (bench >= 3 ? 95 : bench >= 1 ? 45 : 6);
+          } else if (fld.kind === 'weather') {
+            // setting weather is strong if not already that weather (esp. if we benefit)
+            score = (cx.weather === fld.val) ? 0.5 : 70;
+          } else { // terrain
+            score = (cx.terrain === fld.val) ? 0.5 : 60;
+          }
         } else {
-          score = 8; // generic status / setup baseline; a damaging move usually wins
+          // a Status move with no effect the engine actually models (e.g. confusion,
+          // Acupressure once capped) does nothing — never prefer it over attacking.
+          score = 0.3;
         }
       } else {
         const te = typeMult(move.type, defender.types);
@@ -567,15 +714,51 @@ window.VIEWS = window.VIEWS || {};
       applyStatChanges(foe, foeSide, [['ATK', -1]], true); // byOpp → triggers foe's Defiant
     };
 
+    let turn = 0, guard = 0;
+    let lastTotHP = -1, noProgress = 0; // dynamic stall detection
+    const lastSwitchTurn = { A: -5, B: -5 }; // for anti-pivot-loop guard
+    const field = { weather: { kind: null, turns: 0 }, terrain: { kind: null, turns: 0 }, hazards: { A: FIELD.freshHazards(), B: FIELD.freshHazards() } };
+    // weather currently in effect (null if suppressed by Cloud Nine/Air Lock)
+    const curWeather = () => FIELD.weatherActive(field, A, B, ai, bi);
+    // apply a mon's weather/terrain-setting ability on entry
+    const weatherAbility = (mon, side) => {
+      const set = (k) => { if (field.weather.kind !== k) { field.weather = { kind: k, turns: 5 }; events.push({ t: 'weather', kind: k, by: mon.name, side }); log.push(`${mon.name} whipped up ${FIELD.WEATHER[k]}!`); } };
+      if (ABIL.has(mon, 'Drought')) set('SUN');
+      else if (ABIL.has(mon, 'Drizzle')) set('RAIN');
+      else if (ABIL.has(mon, 'Sand Stream') || ABIL.has(mon, 'Sand Spit')) set('SAND');
+      else if (ABIL.has(mon, 'Snow Warning')) set('HAIL');
+      const setT = (k) => { if (field.terrain.kind !== k) { field.terrain = { kind: k, turns: 5 }; events.push({ t: 'terrain', kind: k, by: mon.name, side }); log.push(`${mon.name} set ${FIELD.TERRAIN[k]}!`); } };
+      if (ABIL.has(mon, 'Electric Surge')) setT('ELECTRIC');
+      else if (ABIL.has(mon, 'Misty Surge')) setT('MISTY');
+      else if (ABIL.has(mon, 'Grassy Surge')) setT('GRASSY');
+      else if (ABIL.has(mon, 'Psychic Surge')) setT('PSYCHIC');
+    };
+    // on-entry: hazards damage/effects, then weather/terrain abilities + Intimidate.
+    const onEntry = (side, idx, skipHazards) => {
+      const team = side === 'A' ? A : B;
+      const mon = team[idx];
+      if (!mon || mon.fainted) return;
+      if (!skipHazards) {
+        const hz = field.hazards[side];
+        const e = FIELD.hazardEntry(mon, hz);
+        if (e.dmg > 0) mon.hp = Math.max(0, mon.hp - e.dmg);
+        if (e.lines.length || e.dmg) { events.push({ t: 'hazard', side, name: mon.name, dmg: e.dmg, hp: mon.hp, maxHP: mon.maxHP }); log.push(e.lines.join(' ') || `${mon.name} was hurt by hazards!`); }
+        if (e.status && STATUS.canApply(mon, e.status)) { STATUS.apply(mon, e.status, rng); events.push({ t: 'status', side, name: mon.name, code: e.status, statusOf: snapshotStatus(A, B) }); log.push(`${mon.name} was ${STATUS.label[e.status]} by the poison spikes!`); }
+        if (e.speedDrop) { STAGES.apply(mon, 'SPE', -1); events.push({ t: 'stat', side, name: mon.name, stat: 'SPE', delta: -1, boostsOf: snapshotBoosts(A, B) }); }
+        if (mon.hp <= 0) { mon.fainted = true; STATUS.clear(mon); events.push({ t: 'faint', name: mon.name, side }); log.push(`${mon.name} fainted!`); return; }
+      }
+      weatherAbility(mon, side);
+      const foe = side === 'A' ? B[bi] : A[ai];
+      doIntimidate(mon, side, foe, side === 'A' ? 'B' : 'A');
+    };
+
     events.push({ t: 'start', a: snapshot(A), b: snapshot(B), aiIdx: ai, biIdx: bi });
     log.push(`Team A sent out ${A[ai].name}!  Team B sent out ${B[bi].name}!`);
-    // lead Intimidate (order: A then B, matching send-out order)
-    doIntimidate(A[ai], 'A', B[bi], 'B');
-    doIntimidate(B[bi], 'B', A[ai], 'A');
+    // leads enter: weather/terrain abilities + Intimidate (no hazards on lead)
+    onEntry('A', ai, true);
+    onEntry('B', bi, true);
 
-    let turn = 0, guard = 0;
-    const lastSwitchTurn = { A: -5, B: -5 }; // for anti-pivot-loop guard
-    while (alive(A) && alive(B) && guard++ < 400) {
+    while (alive(A) && alive(B) && guard++ < 300) {
       turn++;
       // ---- switch phase: a switch IS the side's action this turn ----
       // All switches resolve before any attack; a side that switches does not
@@ -586,13 +769,25 @@ window.VIEWS = window.VIEWS || {};
       const bSwitch = shouldSwitch(B, bi, A[ai], rng, lastSwitchTurn.B === turn - 1);
       if (bSwitch >= 0) { events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; bSwitched = true; lastSwitchTurn.B = turn; }
       // Intimidate fires on entry, after both switches are placed
-      if (aSwitched) doIntimidate(A[ai], 'A', B[bi], 'B');
-      if (bSwitched) doIntimidate(B[bi], 'B', A[ai], 'A');
+      if (aSwitched) onEntry('A', ai);
+      if (bSwitched) onEntry('B', bi);
 
       const mA = A[ai], mB = B[bi];
-      const moveA = bestMove(mA, mB), moveB = bestMove(mB, mA);
+      const benchCount = (team, idx) => team.reduce((n, m, i) => n + ((i !== idx && !m.fainted) ? 1 : 0), 0);
+      const wxNow = curWeather(), txNow = field.terrain.kind;
+      const ctxA = { weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.B, foeBench: benchCount(B, bi) };
+      const ctxB = { weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.A, foeBench: benchCount(A, ai) };
+      const moveA = bestMove(mA, mB, ctxA), moveB = bestMove(mB, mA, ctxB);
       // turn order by speed (paralysis halves speed; ties random)
-      const spdA = STATUS.speed(mA), spdB = STATUS.speed(mB);
+      const wx = curWeather();
+      const wspeed = (m) => {
+        if (wx === 'SUN' && ABIL.has(m, 'Chlorophyll')) return 2;
+        if (wx === 'RAIN' && (ABIL.has(m, 'Swift Swim'))) return 2;
+        if (wx === 'SAND' && ABIL.has(m, 'Sand Rush')) return 2;
+        if (wx === 'HAIL' && ABIL.has(m, 'Slush Rush')) return 2;
+        return 1;
+      };
+      const spdA = Math.floor(STATUS.speed(mA) * wspeed(mA)), spdB = Math.floor(STATUS.speed(mB) * wspeed(mB));
       const aFirst = spdA > spdB || (spdA === spdB && rng() < 0.5);
       const order = aFirst ? [['A', mA, mB, moveA], ['B', mB, mA, moveB]] : [['B', mB, mA, moveB], ['A', mA, mB, moveA]];
 
@@ -628,7 +823,7 @@ window.VIEWS = window.VIEWS || {};
         if (gateLine) { events.push({ t: 'cantmove', side, name: atk.name, reason: gateLine, statusOf: snapshotStatus(A, B) }); log.push(gateLine); }
         if (cantAct) continue;
 
-        const res = computeDamage(atk, def, mv, rng);
+        const res = computeDamage(atk, def, mv, rng, { weather: curWeather(), terrain: field.terrain.kind });
         if (res.missed) {
           events.push({ t: 'move', side, move: mv.name, missed: true, attacker: atk.name, target: def.name });
           log.push(`${atk.name} used ${mv.name} — but it missed!`);
@@ -648,7 +843,25 @@ window.VIEWS = window.VIEWS || {};
         }
         log.push(line);
 
-        // ---- status application (only if the move connected and target lives) ----
+        // ---- field-setting moves (weather / terrain / hazards) ----
+        const fld = moveFieldEffect(mv);
+        if (fld) {
+          if (fld.kind === 'weather') {
+            if (field.weather.kind !== fld.val) { field.weather = { kind: fld.val, turns: 5 }; events.push({ t: 'weather', kind: fld.val, by: atk.name, side }); log.push(`${atk.name} whipped up ${FIELD.WEATHER[fld.val]}!`); }
+          } else if (fld.kind === 'terrain') {
+            if (field.terrain.kind !== fld.val) { field.terrain = { kind: fld.val, turns: 5 }; events.push({ t: 'terrain', kind: fld.val, by: atk.name, side }); log.push(`${atk.name} set ${FIELD.TERRAIN[fld.val]}!`); }
+          } else if (fld.kind === 'hazard') {
+            const foeSide = side === 'A' ? 'B' : 'A';
+            const hz = field.hazards[foeSide];
+            let set = true;
+            if (fld.val === 'rock') { if (hz.rock) set = false; else hz.rock = true; }
+            else if (fld.val === 'spikes') { if (hz.spikes >= 3) set = false; else hz.spikes++; }
+            else if (fld.val === 'toxic') { if (hz.toxic >= 2) set = false; else hz.toxic++; }
+            else if (fld.val === 'web') { if (hz.web) set = false; else hz.web = true; }
+            if (set) { events.push({ t: 'hazardset', side: foeSide, val: fld.val }); log.push(`Hazards were set around Team ${foeSide}!`); }
+          }
+        }
+
         if (def.hp > 0 && res.eff !== 0) {
           const seff = moveStatusEffect(mv);
           if (seff && rng() < seff.chance) {
@@ -685,12 +898,12 @@ window.VIEWS = window.VIEWS || {};
           log.push(`${atk.name} fainted from the recoil of ${mv.name}!`);
           // replace the defender if it fainted
           if (def.fainted) {
-            if (defSideTag === 'B') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
-            else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
+            if (defSideTag === 'B') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
+            else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
           }
           // replace the attacker (the self-KO user)
-          if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
-          else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
+          if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
+          else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
           break; // turn ends after a self-KO
         }
 
@@ -709,8 +922,8 @@ window.VIEWS = window.VIEWS || {};
             }
           }
           // send out replacement
-          if (side === 'A') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
-          else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
+          if (side === 'A') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
+          else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
           break; // end this turn's action exchange after a faint
         }
       }
@@ -729,12 +942,46 @@ window.VIEWS = window.VIEWS || {};
             mon.fainted = true; STATUS.clear(mon);
             events.push({ t: 'faint', name: mon.name, side });
             log.push(`${mon.name} fainted!`);
-            if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
-            else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
+            if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
+            else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
           }
         }
       }
-      events.push({ t: 'endturn', turn, aHP: A[ai] ? A[ai].hp : 0, bHP: B[bi] ? B[bi].hp : 0 });
+
+      // ---- end-of-turn weather: chip damage + duration ----
+      const wk = curWeather();
+      if (wk === 'SAND' || wk === 'HAIL') {
+        for (const [side, mon] of [['A', A[ai]], ['B', B[bi]]]) {
+          if (!mon || mon.fainted) continue;
+          // Sand: Rock/Ground/Steel immune. Hail/Snow: Ice immune. Magic Guard / Overcoat immune. Weather Shell / Sand Bath skip.
+          const immune = (wk === 'SAND' ? FIELD.sandImmuneType(mon.types) : mon.types.includes('ICE'))
+            || ABIL.has(mon, 'Magic Guard') || ABIL.has(mon, 'Overcoat') || ABIL.has(mon, 'Weather Shell') || ABIL.has(mon, 'Sand Bath') || ABIL.has(mon, 'Ice Body') || ABIL.has(mon, 'Snow Cloak');
+          if (immune) continue;
+          const chip = Math.max(1, Math.floor(mon.maxHP / 16));
+          mon.hp = Math.max(0, mon.hp - chip);
+          events.push({ t: 'weatherdmg', side, name: mon.name, kind: wk, hp: mon.hp, maxHP: mon.maxHP, dmg: chip });
+          log.push(`${mon.name} is buffeted by ${FIELD.WEATHER[wk]}! (-${Math.round(chip / mon.maxHP * 100)}%)`);
+          if (mon.hp <= 0) {
+            mon.fainted = true; STATUS.clear(mon);
+            events.push({ t: 'faint', name: mon.name, side });
+            log.push(`${mon.name} fainted!`);
+            if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
+            else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
+          }
+        }
+      }
+      // decrement field durations
+      if (field.weather.kind) { field.weather.turns--; if (field.weather.turns <= 0) { log.push(`The ${FIELD.WEATHER[field.weather.kind]} subsided.`); events.push({ t: 'weatherend' }); field.weather.kind = null; } }
+      if (field.terrain.kind) { field.terrain.turns--; if (field.terrain.turns <= 0) { log.push(`The ${FIELD.TERRAIN[field.terrain.kind]} faded.`); events.push({ t: 'terrainend' }); field.terrain.kind = null; } }
+
+      events.push({ t: 'endturn', turn, aHP: A[ai] ? A[ai].hp : 0, bHP: B[bi] ? B[bi].hp : 0, weather: field.weather.kind, terrain: field.terrain.kind });
+
+      // dynamic stall detector: if neither team's total HP has changed for many
+      // turns, the battle is deadlocked (e.g. both sides stuck on inert moves).
+      // Resolve immediately rather than grinding to the turn guard.
+      const totHP = A.reduce((s, m) => s + (m.fainted ? 0 : m.hp), 0) + B.reduce((s, m) => s + (m.fainted ? 0 : m.hp), 0);
+      if (totHP === lastTotHP) { noProgress++; } else { noProgress = 0; lastTotHP = totHP; }
+      if (noProgress >= 12) break; // ~12 turns of zero net HP change = deadlock
     }
 
     const bothAlive = alive(A) && alive(B);
@@ -1013,7 +1260,7 @@ window.VIEWS = window.VIEWS || {};
       const B = result.teamB.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null, boosts: null }));
       const applyStatusSnap = (snap) => { if (!snap) return; snap.A.forEach((s, i) => { if (A[i]) A[i].status = s; }); snap.B.forEach((s, i) => { if (B[i]) B[i].status = s; }); };
       const applyBoostSnap = (snap) => { if (!snap) return; snap.A.forEach((b, i) => { if (A[i]) A[i].boosts = b; }); snap.B.forEach((b, i) => { if (B[i]) B[i].boosts = b; }); };
-      let ai = 0, bi = 0, lastAnim = null, turn = 0;
+      let ai = 0, bi = 0, lastAnim = null, turn = 0, weather = null, terrain = null;
       for (let i = 0; i <= step && i < result.events.length; i++) {
         const e = result.events[i];
         if (e.t === 'switch') { if (e.side === 'A') ai = e.to; else bi = e.to; }
@@ -1033,10 +1280,19 @@ window.VIEWS = window.VIEWS || {};
           applyStatusSnap(e.statusOf);
           if (i === step) lastAnim = e;
         }
+        else if (e.t === 'hazard' || e.t === 'weatherdmg') {
+          const s = e.side === 'A' ? A : B; const idx = e.side === 'A' ? ai : bi;
+          if (s[idx] && e.hp != null) s[idx].hp = e.hp;
+          if (i === step) lastAnim = e;
+        }
+        else if (e.t === 'weather') weather = e.kind;
+        else if (e.t === 'weatherend') weather = null;
+        else if (e.t === 'terrain') terrain = e.kind;
+        else if (e.t === 'terrainend') terrain = null;
         else if (e.t === 'faint') { const s = e.side === 'A' ? A : B; const idx = e.side === 'A' ? ai : bi; if (s[idx]) { s[idx].fainted = true; s[idx].hp = 0; s[idx].status = null; } }
         else if (e.t === 'endturn') turn = e.turn;
       }
-      return { A, B, ai, bi, anim: lastAnim, turn };
+      return { A, B, ai, bi, anim: lastAnim, turn, weather, terrain };
     }, [result, step]);
 
     // visible log up to current step
@@ -1045,6 +1301,14 @@ window.VIEWS = window.VIEWS || {};
       // map events to log lines roughly by counting log-producing events
       return result.log.slice(0, logCountUpTo(result.events, step) );
     }, [result, step]);
+
+    // auto-scroll the log to the newest line as the battle plays
+    const logRef = React.useRef(null);
+    const shownLogLen = skip ? (result ? result.log.length : 0) : visibleLog.length;
+    React.useEffect(() => {
+      const el = logRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }, [shownLogLen]);
 
     const copyLog = () => { try { navigator.clipboard.writeText(result.log.join('\n')); } catch (e) {} };
 
@@ -1197,7 +1461,7 @@ window.VIEWS = window.VIEWS || {};
               <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a83a8' }}>BATTLE LOG</span>
               <button onClick={copyLog} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 7, padding: '5px 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12 }}>Copy</button>
             </div>
-            <div style={{ maxHeight: 260, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div ref={logRef} style={{ maxHeight: 260, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
               {(skip ? result.log : visibleLog).map((line, i) => (
                 <div key={i} style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13.5, color: line.includes('fainted') ? '#ff8fa6' : line.includes('Wins') || line.includes('wins') ? '#ffd54a' : '#cdc6e6', lineHeight: 1.5 }}>{line}</div>
               ))}
@@ -1221,6 +1485,7 @@ window.VIEWS = window.VIEWS || {};
       else if (t === 'cantmove' || t === 'status' || t === 'statusdmg') n += 1;
       else if (t === 'stat' || t === 'ability') n += 1;
       else if (t === 'sync') n += 1;
+      else if (t === 'weather' || t === 'terrain' || t === 'hazard' || t === 'hazardset' || t === 'weatherdmg' || t === 'weatherend' || t === 'terrainend') n += 1;
     }
     return n;
   }
