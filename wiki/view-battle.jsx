@@ -123,7 +123,7 @@ window.VIEWS = window.VIEWS || {};
     },
     clear(target) { target.status = null; target.statusTurns = 0; target.toxicN = 0; },
     // speed after paralysis
-    speed(mon) { return mon.status === 'PAR' ? Math.floor(mon.stats.SPE * 0.5) : mon.stats.SPE; },
+    speed(mon) { const s = STAGES.effStat(mon, 'SPE'); return mon.status === 'PAR' ? Math.floor(s * 0.5) : s; },
     // residual end-of-turn damage; returns {dmg, frac} (0 if none)
     residual(mon) {
       if (!mon || mon.fainted) return 0;
@@ -133,6 +133,39 @@ window.VIEWS = window.VIEWS || {};
     },
     // burn cuts PHYSICAL damage in half
     burnFactor(mon, move) { return (mon.status === 'BRN' && move.cls === 'Physical') ? 0.5 : 1; },
+  };
+
+  // ---------- stat stages (canonical -6..+6) ----------
+  // Boosts live on mon.boosts {ATK,DEF,SPA,SPD,SPE,ACC,EVA}. Effective stat =
+  // base stat × stage multiplier. ATK/DEF/SPA/SPD/SPE use ×(2+n)/2 for n>=0 and
+  // ×2/(2-n) for n<0 (so +1=1.5×, +2=2×, -1=0.667×, -2=0.5×, ... ±6 caps).
+  // ACC/EVA use the ×3/(3∓n) table.
+  const STAGES = {
+    KEYS: ['ATK', 'DEF', 'SPA', 'SPD', 'SPE', 'ACC', 'EVA'],
+    fresh() { return { ATK: 0, DEF: 0, SPA: 0, SPD: 0, SPE: 0, ACC: 0, EVA: 0 }; },
+    clamp(n) { return Math.max(-6, Math.min(6, n)); },
+    mult(n) { n = STAGES.clamp(n); return n >= 0 ? (2 + n) / 2 : 2 / (2 - n); },
+    accMult(n) { n = STAGES.clamp(n); return n >= 0 ? (3 + n) / 3 : 3 / (3 - n); },
+    // effective combat stat for ATK/DEF/SPA/SPD/SPE (not HP)
+    effStat(mon, key) {
+      const base = mon.stats[key];
+      const n = (mon.boosts && mon.boosts[key]) || 0;
+      return Math.max(1, Math.floor(base * STAGES.mult(n)));
+    },
+    // apply a stage change; returns the actual delta applied (0 if already capped).
+    // `byOpponent` marks opponent-caused drops (for Defiant etc.).
+    apply(mon, key, delta) {
+      if (!mon.boosts) mon.boosts = STAGES.fresh();
+      const before = mon.boosts[key];
+      mon.boosts[key] = STAGES.clamp(before + delta);
+      return mon.boosts[key] - before;
+    },
+    label(key) { return { ATK: 'Attack', DEF: 'Defense', SPA: 'Sp. Atk', SPD: 'Sp. Def', SPE: 'Speed', ACC: 'accuracy', EVA: 'evasiveness' }[key] || key; },
+    phrase(delta) {
+      const a = Math.abs(delta);
+      if (delta > 0) return a >= 3 ? 'rose drastically' : a === 2 ? 'rose sharply' : 'rose';
+      return a >= 3 ? 'fell severely' : a === 2 ? 'harshly fell' : 'fell';
+    },
   };
 
   // move → status it can inflict, with canonical chance + target.
@@ -174,6 +207,84 @@ window.VIEWS = window.VIEWS || {};
     return e;
   }
 
+  // move → stat-stage change(s). target: 'self' | 'foe'. chance defaults to 1.
+  // changes: array of [statKey, delta]. Keyed by normalized move name.
+  const MOVE_STAT = (() => {
+    const t = {};
+    const add = (name, target, changes, chance) => { t[normName(name)] = { target, changes, chance: chance == null ? 1 : chance }; };
+    // self-boosting setup
+    add('Swords Dance', 'self', [['ATK', 2]]);
+    add('Nasty Plot', 'self', [['SPA', 2]]);
+    add('Calm Mind', 'self', [['SPA', 1], ['SPD', 1]]);
+    add('Dragon Dance', 'self', [['ATK', 1], ['SPE', 1]]);
+    add('Bulk Up', 'self', [['ATK', 1], ['DEF', 1]]);
+    add('Agility', 'self', [['SPE', 2]]);
+    add('Rock Polish', 'self', [['SPE', 2]]);
+    add('Iron Defense', 'self', [['DEF', 2]]);
+    add('Amnesia', 'self', [['SPD', 2]]);
+    add('Cosmic Power', 'self', [['DEF', 1], ['SPD', 1]]);
+    add('Quiver Dance', 'self', [['SPA', 1], ['SPD', 1], ['SPE', 1]]);
+    add('Shell Smash', 'self', [['ATK', 2], ['SPA', 2], ['SPE', 2], ['DEF', -1], ['SPD', -1]]);
+    add('Work Up', 'self', [['ATK', 1], ['SPA', 1]]);
+    add('Howl', 'self', [['ATK', 1]]);
+    add('Defense Curl', 'self', [['DEF', 1]]);
+    add('Harden', 'self', [['DEF', 1]]);
+    add('Withdraw', 'self', [['DEF', 1]]);
+    add('Sharpen', 'self', [['ATK', 1]]);
+    add('Double Team', 'self', [['EVA', 1]]);
+    add('Minimize', 'self', [['EVA', 2]]);
+    add('Nasty Plot', 'self', [['SPA', 2]]);
+    add('Hone Claws', 'self', [['ATK', 1], ['ACC', 1]]);
+    add('Coil', 'self', [['ATK', 1], ['DEF', 1], ['ACC', 1]]);
+    // foe-lowering
+    add('Growl', 'foe', [['ATK', -1]]);
+    add('Leer', 'foe', [['DEF', -1]]);
+    add('Tail Whip', 'foe', [['DEF', -1]]);
+    add('String Shot', 'foe', [['SPE', -1]]);
+    add('Scary Face', 'foe', [['SPE', -2]]);
+    add('Cotton Spore', 'foe', [['SPE', -2]]);
+    add('Charm', 'foe', [['ATK', -2]]);
+    add('Feather Dance', 'foe', [['ATK', -2]]);
+    add('Screech', 'foe', [['DEF', -2]]);
+    add('Metal Sound', 'foe', [['SPD', -2]]);
+    add('Fake Tears', 'foe', [['SPD', -2]]);
+    add('Sand Attack', 'foe', [['ACC', -1]]);
+    add('Smokescreen', 'foe', [['ACC', -1]]);
+    add('Flash', 'foe', [['ACC', -1]]);
+    add('Sweet Scent', 'foe', [['EVA', -2]]);
+    return t;
+  })();
+  function moveStatEffect(move) { return MOVE_STAT[normName(move.name)] || null; }
+
+  // ---------- abilities (this increment: stat-stage family) ----------
+  // Only abilities fully expressible with current systems are active; others
+  // are recognized by name but no-op until their systems exist.
+  const ABIL = {
+    has(mon, name) { return mon.ability && normName(mon.ability) === normName(name); },
+    // is `name` one we actively simulate?
+    active: new Set(['intimidate', 'moxie', 'defiant'].map(normName)),
+    isActive(name) { return name && ABIL.active.has(normName(name)); },
+    // the abilities this mon can switch between via Sync Band (listed + hidden, deduped)
+    pool(mon) { return (mon.abilityPool && mon.abilityPool.length) ? mon.abilityPool : (mon.ability ? [mon.ability] : []); },
+    // Sync Band: pick the best ability for THIS turn from the pool.
+    // Intimidate only matters on switch-in (handled there), so for an in-place
+    // turn the useful proactive pick is Moxie (if we might KO) or Defiant
+    // (if the foe might lower our stats). We keep it simple and safe: prefer an
+    // active ability over an inert one; among active, prefer Moxie when the foe
+    // is low (likely KO), else keep the current ability. Returns a name or null.
+    syncChoice(mon, foe) {
+      const opts = ABIL.pool(mon).filter(a => ABIL.isActive(a));
+      if (opts.length === 0) return null; // nothing simulated to switch to
+      const cur = mon.ability;
+      // if foe looks KO-able this turn, Moxie is the value pick
+      const foeLow = foe && !foe.fainted && (foe.hp / foe.maxHP) <= 0.45;
+      if (foeLow && opts.some(a => normName(a) === normName('Moxie')) && !ABIL.has(mon, 'Moxie')) return 'Moxie';
+      // otherwise no clearly-better in-place swap; stay put
+      return null;
+    },
+  };
+
+
   // Level 50, neutral nature, no EV/IV in Phase 1.
   // moveNames (optional): explicit moveset (manual pick or imported share code).
   //   When omitted/empty, auto-pick the 4 strongest damaging moves (random teams).
@@ -202,6 +313,11 @@ window.VIEWS = window.VIEWS || {};
       maxHP: stats.HP, hp: stats.HP, stats, moves,
       fainted: false,
       status: null, statusTurns: 0, toxicN: 0,
+      ability: (d.abilities && d.abilities[0]) || null,
+      abilityPool: Array.from(new Set([...(d.abilities || []), ...(d.hidden ? [d.hidden] : [])])),
+      item: null,            // held item (e.g. 'Sync Band'); none by default
+      syncUsedTurn: -1,      // last turn Sync Band was used (once-per-turn limit)
+      boosts: STAGES.fresh(),
     };
   }
 
@@ -275,10 +391,17 @@ window.VIEWS = window.VIEWS || {};
   }
   function computeDamage(attacker, defender, move, rng) {
     if (move.cls === 'Status' || !move.pow) return { dmg: 0, eff: 1, crit: false, missed: false };
-    // accuracy
-    if (move.acc && move.acc < 100 && rng() * 100 >= move.acc) return { dmg: 0, eff: 1, crit: false, missed: true };
-    const atkStat = move.cls === 'Physical' ? attacker.stats.ATK : attacker.stats.SPA;
-    const defStat = move.cls === 'Physical' ? defender.stats.DEF : defender.stats.SPD;
+    // accuracy — modified by the attacker's ACC and defender's EVA stages
+    {
+      const accStage = ((attacker.boosts && attacker.boosts.ACC) || 0) - ((defender.boosts && defender.boosts.EVA) || 0);
+      const baseAcc = (typeof move.acc === 'number' && move.acc > 0) ? move.acc : 100;
+      if (baseAcc < 100 || accStage !== 0) {
+        const effAcc = baseAcc * STAGES.accMult(accStage);
+        if (rng() * 100 >= effAcc) return { dmg: 0, eff: 1, crit: false, missed: true };
+      }
+    }
+    const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
+    const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
     const L = attacker.level;
     let base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
     const stab = attacker.types.includes(move.type) ? 1.5 : 1;
@@ -304,18 +427,37 @@ window.VIEWS = window.VIEWS || {};
         // value a status move only if it would actually land something useful:
         // foe must be statusable and not immune; otherwise it's near-useless.
         const eff2 = moveStatusEffect(move);
+        const stat2 = moveStatEffect(move);
         if (eff2 && STATUS.canApply(defender, eff2.code)) {
           // crippling statuses (PAR/SLP/TOX/BRN) are worth more than a chip move
           const weight = { SLP: 30, PAR: 26, TOX: 24, BRN: 20, FRZ: 22, PSN: 14 }[eff2.code] || 12;
           score = weight * eff2.chance;
+        } else if (stat2) {
+          // setup / debuff valuation
+          if (stat2.target === 'self') {
+            // worth more when healthy and not already heavily boosted; near-useless at low HP
+            const hpFrac = attacker.hp / attacker.maxHP;
+            const boostSum = STAGES.KEYS.reduce((s, k) => s + Math.max(0, (attacker.boosts && attacker.boosts[k]) || 0), 0);
+            const totalUp = stat2.changes.reduce((s, c) => s + (c[1] > 0 ? c[1] : 0), 0);
+            // strong incentive to set up once while healthy & unboosted; falls off
+            // sharply once boosted (boostSum grows) or at low HP, so it won't loop.
+            if (hpFrac > 0.55 && boostSum < 2) score = 55 + totalUp * 6;
+            else if (hpFrac > 0.5 && boostSum < 4) score = 22 + totalUp * 3;
+            else score = 3;
+          } else {
+            // lowering the foe: mild value, more if it isn't already dropped
+            const cur = stat2.changes.reduce((s, c) => s + Math.abs((defender.boosts && defender.boosts[c[0]]) || 0), 0);
+            score = cur < 4 ? 11 : 3;
+          }
+          score *= (stat2.chance == null ? 1 : stat2.chance);
         } else {
           score = 8; // generic status / setup baseline; a damaging move usually wins
         }
       } else {
         const te = typeMult(move.type, defender.types);
         const stab = attacker.types.includes(move.type) ? 1.5 : 1;
-        const atkStat = move.cls === 'Physical' ? attacker.stats.ATK : attacker.stats.SPA;
-        const defStat = move.cls === 'Physical' ? defender.stats.DEF : defender.stats.SPD;
+        const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
+        const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
         // expected damage proxy
         const exp = move.pow * stab * te * (atkStat / defStat) * ((move.acc || 100) / 100);
         score = exp;
@@ -333,8 +475,8 @@ window.VIEWS = window.VIEWS || {};
   // non-random average damage for AI estimation
   function computeDamageAvg(attacker, defender, move) {
     if (move.cls === 'Status' || !move.pow) return 0;
-    const atkStat = move.cls === 'Physical' ? attacker.stats.ATK : attacker.stats.SPA;
-    const defStat = move.cls === 'Physical' ? defender.stats.DEF : defender.stats.SPD;
+    const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
+    const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
     const L = attacker.level;
     const base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
     const stab = attacker.types.includes(move.type) ? 1.5 : 1;
@@ -344,9 +486,11 @@ window.VIEWS = window.VIEWS || {};
 
   // AI switch decision: if the active mon is in deep type trouble and a much
   // better matchup is on the bench, consider switching (basic revenge/pivot).
-  function shouldSwitch(team, activeIdx, foe, rng) {
+  // `recentlySwitched` blocks an immediate re-switch (prevents infinite pivot loops).
+  function shouldSwitch(team, activeIdx, foe, rng, recentlySwitched) {
     const active = team[activeIdx];
     if (active.fainted) return pickNextAlive(team, activeIdx);
+    if (recentlySwitched) return -1; // just came in — commit to at least one action
     // how bad is the foe's best hit on us, defensively
     const foeBest = bestMove(foe, active);
     const incoming = computeDamageAvg(foe, active, foeBest);
@@ -372,23 +516,65 @@ window.VIEWS = window.VIEWS || {};
   // ---------- the battle simulation: returns a list of events ----------
   function simulate(teamA, teamB, seedNum) {
     const rng = mulberry32(seedNum || (Math.random() * 1e9) | 0);
-    // deep-clone teams so the originals aren't mutated
-    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false }));
-    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false }));
+    // deep-clone teams so the originals aren't mutated (fresh boosts per battle)
+    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, abilityPool: (m.abilityPool || []).slice() }));
+    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, abilityPool: (m.abilityPool || []).slice() }));
     let ai = 0, bi = 0; // active indices
     const events = [];
     const log = [];
+
+    // apply a list of [stat,delta] changes to `mon`; emit events/log; handle
+    // Defiant (opponent-caused drop → +2 Atk). `byOpp` = change came from the foe.
+    const applyStatChanges = (mon, side, changes, byOpp) => {
+      let anyDrop = false;
+      changes.forEach(([k, d]) => {
+        const applied = STAGES.apply(mon, k, d);
+        if (applied !== 0) {
+          events.push({ t: 'stat', side, name: mon.name, stat: k, delta: applied, boostsOf: snapshotBoosts(A, B) });
+          log.push(`${mon.name}'s ${STAGES.label(k)} ${STAGES.phrase(applied)}!`);
+          if (d < 0 && byOpp) anyDrop = true;
+        }
+      });
+      // Defiant: a stat lowered by the opponent → +2 Attack
+      if (anyDrop && ABIL.has(mon, 'Defiant')) {
+        const a = STAGES.apply(mon, 'ATK', 2);
+        if (a !== 0) {
+          events.push({ t: 'ability', side, name: mon.name, ability: 'Defiant', boostsOf: snapshotBoosts(A, B) });
+          events.push({ t: 'stat', side, name: mon.name, stat: 'ATK', delta: a, boostsOf: snapshotBoosts(A, B) });
+          log.push(`${mon.name}'s Defiant sharply raised its Attack!`);
+        }
+      }
+    };
+
+    // Intimidate: on entry, lower the current opposing active mon's Attack by 1.
+    const doIntimidate = (mon, side, foe, foeSide) => {
+      if (!ABIL.has(mon, 'Intimidate') || !foe || foe.fainted) return;
+      events.push({ t: 'ability', side, name: mon.name, ability: 'Intimidate', boostsOf: snapshotBoosts(A, B) });
+      log.push(`${mon.name}'s Intimidate cuts the foe's Attack!`);
+      applyStatChanges(foe, foeSide, [['ATK', -1]], true); // byOpp → triggers foe's Defiant
+    };
+
     events.push({ t: 'start', a: snapshot(A), b: snapshot(B), aiIdx: ai, biIdx: bi });
     log.push(`Team A sent out ${A[ai].name}!  Team B sent out ${B[bi].name}!`);
+    // lead Intimidate (order: A then B, matching send-out order)
+    doIntimidate(A[ai], 'A', B[bi], 'B');
+    doIntimidate(B[bi], 'B', A[ai], 'A');
 
     let turn = 0, guard = 0;
+    const lastSwitchTurn = { A: -5, B: -5 }; // for anti-pivot-loop guard
     while (alive(A) && alive(B) && guard++ < 400) {
       turn++;
-      // switching phase (faint replacement handled after KO; proactive switch here)
-      const aSwitch = shouldSwitch(A, ai, B[bi], rng);
-      if (aSwitch >= 0) { events.push({ t: 'switch', side: 'A', to: aSwitch, name: A[aSwitch].name }); log.push(`Team A withdrew ${A[ai].name} and sent out ${A[aSwitch].name}.`); ai = aSwitch; }
-      const bSwitch = shouldSwitch(B, bi, A[ai], rng);
-      if (bSwitch >= 0) { events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; }
+      // ---- switch phase: a switch IS the side's action this turn ----
+      // All switches resolve before any attack; a side that switches does not
+      // also attack (canonical: switching consumes your turn).
+      let aSwitched = false, bSwitched = false;
+      const aSwitch = shouldSwitch(A, ai, B[bi], rng, lastSwitchTurn.A === turn - 1);
+      if (aSwitch >= 0) { events.push({ t: 'switch', side: 'A', to: aSwitch, name: A[aSwitch].name }); log.push(`Team A withdrew ${A[ai].name} and sent out ${A[aSwitch].name}.`); ai = aSwitch; aSwitched = true; lastSwitchTurn.A = turn; }
+      const bSwitch = shouldSwitch(B, bi, A[ai], rng, lastSwitchTurn.B === turn - 1);
+      if (bSwitch >= 0) { events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; bSwitched = true; lastSwitchTurn.B = turn; }
+      // Intimidate fires on entry, after both switches are placed
+      if (aSwitched) doIntimidate(A[ai], 'A', B[bi], 'B');
+      if (bSwitched) doIntimidate(B[bi], 'B', A[ai], 'A');
 
       const mA = A[ai], mB = B[bi];
       const moveA = bestMove(mA, mB), moveB = bestMove(mB, mA);
@@ -399,6 +585,20 @@ window.VIEWS = window.VIEWS || {};
 
       for (const [side, atk, def, mv] of order) {
         if (atk.fainted || def.fainted) continue;
+        // a side that switched this turn has used its action — it doesn't attack
+        if ((side === 'A' && aSwitched) || (side === 'B' && bSwitched)) continue;
+
+        // ---- Sync Band: swap active ability (once per turn) ----
+        if (normName(atk.item || '') === normName('Sync Band') && atk.syncUsedTurn !== turn) {
+          const pick = ABIL.syncChoice(atk, def);
+          if (pick && normName(pick) !== normName(atk.ability)) {
+            const from = atk.ability;
+            atk.ability = pick;
+            atk.syncUsedTurn = turn;
+            events.push({ t: 'sync', side, name: atk.name, from, to: pick });
+            log.push(`${atk.name}'s Sync Band switched its Ability to ${pick}!`);
+          }
+        }
 
         // ---- pre-move status gate (sleep / freeze / full paralysis) ----
         let cantAct = false, gateLine = '';
@@ -447,14 +647,34 @@ window.VIEWS = window.VIEWS || {};
           }
         }
 
+        // ---- stat-stage moves (Swords Dance, Growl, etc.) ----
+        const statEff = moveStatEffect(mv);
+        if (statEff && (statEff.chance >= 1 || rng() < statEff.chance)) {
+          if (statEff.target === 'self') {
+            applyStatChanges(atk, side, statEff.changes, false);
+          } else if (def.hp > 0 && res.eff !== 0) {
+            // foe-targeted drop counts as opponent-caused (triggers Defiant)
+            applyStatChanges(def, side === 'A' ? 'B' : 'A', statEff.changes, true);
+          }
+        }
+
         if (def.hp <= 0) {
           def.fainted = true;
           STATUS.clear(def);
           events.push({ t: 'faint', name: def.name, side: side === 'A' ? 'B' : 'A' });
           log.push(`${def.name} fainted!`);
+          // Moxie: KO raises the attacker's Attack by 1
+          if (ABIL.has(atk, 'Moxie') && !atk.fainted) {
+            const a = STAGES.apply(atk, 'ATK', 1);
+            if (a !== 0) {
+              events.push({ t: 'ability', side, name: atk.name, ability: 'Moxie', boostsOf: snapshotBoosts(A, B) });
+              events.push({ t: 'stat', side, name: atk.name, stat: 'ATK', delta: a, boostsOf: snapshotBoosts(A, B) });
+              log.push(`${atk.name}'s Moxie raised its Attack!`);
+            }
+          }
           // send out replacement
-          if (side === 'A') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); } }
-          else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); } }
+          if (side === 'A') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
+          else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
           break; // end this turn's action exchange after a faint
         }
       }
@@ -473,8 +693,8 @@ window.VIEWS = window.VIEWS || {};
             mon.fainted = true; STATUS.clear(mon);
             events.push({ t: 'faint', name: mon.name, side });
             log.push(`${mon.name} fainted!`);
-            if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); } }
-            else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); } }
+            if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
+            else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
           }
         }
       }
@@ -514,6 +734,11 @@ window.VIEWS = window.VIEWS || {};
   const snapshotStatus = (A, B) => ({
     A: A.map(m => m.status || null),
     B: B.map(m => m.status || null),
+  });
+  // per-team snapshot of stat-stage boosts for playback display
+  const snapshotBoosts = (A, B) => ({
+    A: A.map(m => ({ ...(m.boosts || STAGES.fresh()) })),
+    B: B.map(m => ({ ...(m.boosts || STAGES.fresh()) })),
   });
 
   // ============================ team-building UI ============================
@@ -748,9 +973,10 @@ window.VIEWS = window.VIEWS || {};
     // reconstruct active mons + HP from events up to `step`
     const playback = React.useMemo(() => {
       if (!result) return null;
-      const A = result.teamA.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null }));
-      const B = result.teamB.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null }));
+      const A = result.teamA.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null, boosts: null }));
+      const B = result.teamB.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null, boosts: null }));
       const applyStatusSnap = (snap) => { if (!snap) return; snap.A.forEach((s, i) => { if (A[i]) A[i].status = s; }); snap.B.forEach((s, i) => { if (B[i]) B[i].status = s; }); };
+      const applyBoostSnap = (snap) => { if (!snap) return; snap.A.forEach((b, i) => { if (A[i]) A[i].boosts = b; }); snap.B.forEach((b, i) => { if (B[i]) B[i].boosts = b; }); };
       let ai = 0, bi = 0, lastAnim = null, turn = 0;
       for (let i = 0; i <= step && i < result.events.length; i++) {
         const e = result.events[i];
@@ -764,6 +990,7 @@ window.VIEWS = window.VIEWS || {};
         }
         else if (e.t === 'status') { applyStatusSnap(e.statusOf); if (i === step) lastAnim = e; }
         else if (e.t === 'cantmove') { applyStatusSnap(e.statusOf); if (i === step) lastAnim = e; }
+        else if (e.t === 'stat' || e.t === 'ability') { applyBoostSnap(e.boostsOf); if (i === step) lastAnim = e; }
         else if (e.t === 'statusdmg') {
           const s = e.side === 'A' ? A : B; const idx = e.side === 'A' ? ai : bi;
           if (s[idx] && e.hp != null) s[idx].hp = e.hp;
@@ -956,6 +1183,8 @@ window.VIEWS = window.VIEWS || {};
       else if (t === 'switch' || t === 'send' || t === 'faint' || t === 'end') n += 1;
       else if (t === 'move') n += 1;
       else if (t === 'cantmove' || t === 'status' || t === 'statusdmg') n += 1;
+      else if (t === 'stat' || t === 'ability') n += 1;
+      else if (t === 'sync') n += 1;
     }
     return n;
   }
@@ -989,6 +1218,14 @@ window.VIEWS = window.VIEWS || {};
           <div style={{ height: 7, borderRadius: 4, background: '#1a1533', overflow: 'hidden', marginTop: 4 }}>
             <div style={{ width: hpPct + '%', height: '100%', background: hpColor, transition: 'width 0.3s ease' }} />
           </div>
+          {mon.boosts && Object.keys(mon.boosts).some(k => mon.boosts[k] !== 0) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 5, justifyContent: 'center' }}>
+              {['ATK', 'DEF', 'SPA', 'SPD', 'SPE', 'ACC', 'EVA'].filter(k => mon.boosts[k] !== 0).map(k => {
+                const v = mon.boosts[k];
+                return <span key={k} style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, padding: '1px 4px', borderRadius: 3, color: v > 0 ? '#5fd13c' : '#ff7f9e', background: v > 0 ? '#1c3a1c' : '#3a1c26' }}>{STAGES.label(k).replace('Sp. ', 'S')} {v > 0 ? '+' + v : v}</span>;
+              })}
+            </div>
+          )}
         </div>
         {/* sprite */}
         <div style={{ transform: mon.fainted ? 'translateY(30px) rotate(8deg)' : transform, opacity: mon.fainted ? 0.25 : 1, transition: 'transform 0.18s ease, opacity 0.4s ease', filter: flash ? 'brightness(2.2)' : 'none', display: 'inline-block' }}>
@@ -1043,7 +1280,7 @@ window.VIEWS = window.VIEWS || {};
             <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '6px 13px', fontSize: 13 }}>Close</button>
           </div>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: '#8a83a8', marginBottom: 16, lineHeight: 1.5 }}>
-            Everything below is exactly what the engine uses to fight. Stats are computed at Lv. {team[0] ? team[0].level : 50} from base stats — the sim runs neutral nature with no IVs, EVs, or held items yet, and abilities are shown but don't affect battle until that phase lands.
+            Everything below is exactly what the engine uses to fight. Stats are computed at Lv. {team[0] ? team[0].level : 50} from base stats — the sim runs neutral nature with no IVs, EVs, or held items yet. A few abilities are now active in battle (Intimidate, Moxie, Defiant); the rest are shown but don't affect battle until later phases.
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {team.map((m, i) => {
@@ -1085,8 +1322,9 @@ window.VIEWS = window.VIEWS || {};
                         );
                       })}
                       <div style={{ marginTop: 9, fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388' }}>
-                        <div><span style={{ color: '#9a93bb' }}>Ability:</span> {abilities.length ? abilities.join(', ') : '—'}{hidden ? ` (hidden: ${hidden})` : ''}</div>
-                        <div style={{ marginTop: 3, color: '#5f5980' }}>IV / EV / Nature / Item — not simulated yet</div>
+                        <div><span style={{ color: '#9a93bb' }}>Ability:</span> {abilities.length ? abilities.map((a, ai2) => <span key={ai2}>{ai2 ? ', ' : ''}{a}{ai2 === 0 && ABIL.active.has(normName(a)) ? <span style={{ color: '#5fd13c', fontSize: 9 }}> ●active</span> : ''}</span>) : '—'}{hidden ? ` (hidden: ${hidden})` : ''}</div>
+                        <div style={{ marginTop: 3 }}><span style={{ color: '#9a93bb' }}>Item:</span> {m.item || '—'}{normName(m.item || '') === normName('Sync Band') ? <span style={{ color: '#5fd13c', fontSize: 9 }}> ●swaps ability 1×/turn</span> : ''}</div>
+                        <div style={{ marginTop: 3, color: '#5f5980' }}>IV / EV / Nature — not simulated yet</div>
                       </div>
                     </div>
 
