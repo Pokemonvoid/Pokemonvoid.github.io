@@ -378,7 +378,7 @@ window.VIEWS = window.VIEWS || {};
   const ABIL = {
     has(mon, name) { return mon.ability && normName(mon.ability) === normName(name); },
     // is `name` one we actively simulate?
-    active: new Set(['intimidate', 'moxie', 'defiant'].map(normName)),
+    active: new Set(['intimidate', 'moxie', 'defiant', 'overgrow', 'blaze', 'torrent', 'swarm', 'adaptability', 'technician', 'tintedlens', 'reckless', 'sniper', 'solarpower', 'burninghot', 'steelyspirit', 'thickfat', 'heatproof', 'furcoat', 'fluffy', 'solidrock', 'flashfire', 'voltabsorb', 'waterabsorb', 'stormdrain', 'sapsipper', 'levitate', 'insomnia', 'vitalspirit', 'limber', 'immunity', 'magmaarmor', 'waterveil', 'purifyingsalt', 'static', 'flamebody', 'poisonpoint', 'roughskin', 'ironbarbs', 'stamina', 'weakarmor', 'angershell', 'berserk', 'angerpoint', 'rattled', 'aftermath', 'speedboost', 'moody', 'shedskin', 'hydration', 'regenerator', 'naturalcure', 'drought', 'drizzle', 'sandstream', 'sandspit', 'snowwarning', 'electricsurge', 'mistysurge', 'grassysurge', 'psychicsurge', 'chlorophyll', 'swiftswim', 'sandrush', 'slushrush', 'cloudnine', 'airlock'].map(normName)),
     isActive(name) { return name && ABIL.active.has(normName(name)); },
     // the abilities this mon can switch between via Sync Band (listed + hidden, deduped)
     pool(mon) { return (mon.abilityPool && mon.abilityPool.length) ? mon.abilityPool : (mon.ability ? [mon.ability] : []); },
@@ -460,6 +460,67 @@ window.VIEWS = window.VIEWS || {};
       if ((code === 'PSN' || code === 'TOX') && (ABIL.has(mon, 'Immunity') || ABIL.has(mon, 'Pastel Veil'))) return true;
       if (ABIL.has(mon, 'Purifying Salt')) return true; // immune to all status
       return false;
+    },
+    // is a move "contact" (physical, roughly)? used by contact-trigger abilities.
+    isContact(move) { return move && move.cls === 'Physical'; },
+    // ---- HOOK: after a damaging hit connects ----
+    // The DEFENDER's reactive abilities (contact status/chip, on-hit buffs).
+    // Returns a list of effect descriptors the engine applies: {type, ...}.
+    onHitTaken(defender, attacker, move, dealtPct, rng) {
+      const out = [];
+      const contact = ABIL.isContact(move);
+      // contact → status the attacker (30%) — only if attacker statusable
+      if (contact) {
+        if (ABIL.has(defender, 'Static')) out.push({ type: 'statusFoe', code: 'PAR', chance: 0.3 });
+        if (ABIL.has(defender, 'Flame Body')) out.push({ type: 'statusFoe', code: 'BRN', chance: 0.3 });
+        if (ABIL.has(defender, 'Poison Point')) out.push({ type: 'statusFoe', code: 'PSN', chance: 0.3 });
+        if (ABIL.has(defender, 'Cute Charm')) { /* infatuation not modeled — skip */ }
+        // contact → chip the attacker 1/8 (Rough Skin / Iron Barbs)
+        if (ABIL.has(defender, 'Rough Skin') || ABIL.has(defender, 'Iron Barbs')) out.push({ type: 'chipFoe', frac: 1 / 8, ability: ABIL.has(defender, 'Rough Skin') ? 'Rough Skin' : 'Iron Barbs' });
+      }
+      // on-hit self buffs (regardless of contact)
+      if (ABIL.has(defender, 'Stamina')) out.push({ type: 'selfStat', stat: 'DEF', delta: 1, ability: 'Stamina' });
+      if (ABIL.has(defender, 'Weak Armor') && move.cls === 'Physical') out.push({ type: 'selfStat2', changes: [['DEF', -1], ['SPE', 2]], ability: 'Weak Armor' });
+      if (ABIL.has(defender, 'Rattled') && (move.type === 'DARK' || move.type === 'GHOST' || move.type === 'BUG')) out.push({ type: 'selfStat', stat: 'SPE', delta: 1, ability: 'Rattled' });
+      // Anger Point: max Attack on a crit (handled with crit flag at call site)
+      return out;
+    },
+    // Berserk: +1 SpA when this hit drops the defender below half (and it lives)
+    berserkTrigger(defender, hpBefore, hpAfter) {
+      return ABIL.has(defender, 'Berserk') && hpAfter > 0 && hpBefore > defender.maxHP / 2 && hpAfter <= defender.maxHP / 2;
+    },
+    // Anger Shell: at <half HP from a hit → +Atk/+SpA/+Spe, -Def/-SpD
+    angerShellTrigger(defender, hpBefore, hpAfter) {
+      return (ABIL.has(defender, 'Anger Shell') || ABIL.has(defender, 'Anger shell')) && hpAfter > 0 && hpBefore > defender.maxHP / 2 && hpAfter <= defender.maxHP / 2;
+    },
+    // ---- HOOK: when a mon faints ----
+    // Aftermath: if fainted by a contact move, chip the attacker 1/4.
+    aftermath(fainted, attacker, move) {
+      return ABIL.has(fainted, 'Aftermath') && ABIL.isContact(move) && attacker && !attacker.fainted;
+    },
+    // ---- HOOK: end of turn (self effects) ----
+    endOfTurn(mon, rng) {
+      const out = [];
+      if (mon.fainted) return out;
+      if (ABIL.has(mon, 'Speed Boost')) out.push({ type: 'stat', stat: 'SPE', delta: 1, ability: 'Speed Boost' });
+      if (ABIL.has(mon, 'Moody')) {
+        // +2 to one random stat, -1 to a different one
+        const keys = ['ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
+        const up = keys[Math.floor(rng() * keys.length)];
+        let down = up; while (down === up) down = keys[Math.floor(rng() * keys.length)];
+        out.push({ type: 'stat2', changes: [[up, 2], [down, -1]], ability: 'Moody' });
+      }
+      if (mon.status && (ABIL.has(mon, 'Shed Skin')) && rng() < (1 / 3)) out.push({ type: 'cure', ability: 'Shed Skin' });
+      if (mon.status && ABIL.has(mon, 'Hydration')) out.push({ type: 'cureIfRain', ability: 'Hydration' });
+      return out;
+    },
+    // ---- HOOK: on switch-out ----
+    // Regenerator: heal 1/3 on switch out. Natural Cure: clear status on switch out.
+    onSwitchOut(mon) {
+      const out = {};
+      if (ABIL.has(mon, 'Regenerator')) out.heal = Math.floor(mon.maxHP / 3);
+      if (ABIL.has(mon, 'Natural Cure')) out.cure = true;
+      return out;
     },
   };
 
@@ -844,8 +905,15 @@ window.VIEWS = window.VIEWS || {};
       const preA = A[ai], preB = B[bi];
       const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1);
       const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1);
-      if (aSwitch >= 0) { events.push({ t: 'switch', side: 'A', to: aSwitch, name: A[aSwitch].name }); log.push(`Team A withdrew ${A[ai].name} and sent out ${A[aSwitch].name}.`); ai = aSwitch; aSwitched = true; lastSwitchTurn.A = turn; }
-      if (bSwitch >= 0) { events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; bSwitched = true; lastSwitchTurn.B = turn; }
+      // switch-out abilities (Regenerator heal, Natural Cure) on the OUTGOING mon
+      const doSwitchOut = (side, outIdx) => {
+        const mon = side === 'A' ? A[outIdx] : B[outIdx];
+        const so = ABIL.onSwitchOut(mon);
+        if (so.heal && mon.hp > 0 && mon.hp < mon.maxHP) { mon.hp = Math.min(mon.maxHP, mon.hp + so.heal); }
+        if (so.cure && mon.status) { STATUS.clear(mon); }
+      };
+      if (aSwitch >= 0) { doSwitchOut('A', ai); events.push({ t: 'switch', side: 'A', to: aSwitch, name: A[aSwitch].name }); log.push(`Team A withdrew ${A[ai].name} and sent out ${A[aSwitch].name}.`); ai = aSwitch; aSwitched = true; lastSwitchTurn.A = turn; }
+      if (bSwitch >= 0) { doSwitchOut('B', bi); events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; bSwitched = true; lastSwitchTurn.B = turn; }
       // Intimidate fires on entry, after both switches are placed
       if (aSwitched) onEntry('A', ai);
       if (bSwitched) onEntry('B', bi);
@@ -920,6 +988,7 @@ window.VIEWS = window.VIEWS || {};
           continue;
         }
         const dealt = Math.min(res.dmg, def.hp);
+        const defHpBefore = def.hp;
         def.hp = Math.max(0, def.hp - res.dmg);
         const pct = Math.round((dealt / def.maxHP) * 100);
         events.push({ t: 'move', side, move: mv.name, dmg: res.dmg, hp: def.hp, maxHP: def.maxHP, eff: res.eff, crit: res.crit, attacker: atk.name, target: def.name, cls: mv.cls });
@@ -932,6 +1001,46 @@ window.VIEWS = window.VIEWS || {};
           else if (res.eff === 0) line += ` It doesn't affect ${def.name}…`;
         }
         log.push(line);
+
+        // ---- reactive defender abilities on a connecting damaging hit ----
+        if (res.dmg > 0 && res.eff !== 0) {
+          const defSide = side === 'A' ? 'B' : 'A';
+          // Anger Point: a critical hit maxes the defender's Attack
+          if (res.crit && ABIL.has(def, 'Anger Point') && def.hp > 0) {
+            const a = STAGES.apply(def, 'ATK', 12);
+            if (a !== 0) { events.push({ t: 'ability', side: defSide, name: def.name, ability: 'Anger Point', boostsOf: snapshotBoosts(A, B) }); events.push({ t: 'stat', side: defSide, name: def.name, stat: 'ATK', delta: a, boostsOf: snapshotBoosts(A, B) }); log.push(`${def.name}'s Anger Point maxed its Attack!`); }
+          }
+          if (def.hp > 0) {
+            const hooks = ABIL.onHitTaken(def, atk, mv, pct, rng);
+            for (const h of hooks) {
+              if (h.type === 'statusFoe' && rng() < h.chance && STATUS.canApply(atk, h.code)) {
+                STATUS.apply(atk, h.code, rng);
+                events.push({ t: 'status', side, name: atk.name, code: h.code, statusOf: snapshotStatus(A, B) });
+                log.push(`${atk.name} was ${STATUS.label[h.code]} by ${def.name}!`);
+              } else if (h.type === 'chipFoe' && !atk.fainted && !ABIL.has(atk, 'Magic Guard')) {
+                const c = Math.max(1, Math.floor(atk.maxHP * h.frac));
+                atk.hp = Math.max(0, atk.hp - c);
+                events.push({ t: 'chip', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP, dmg: c, ability: h.ability });
+                log.push(`${atk.name} was hurt by ${def.name}'s ${h.ability}!`);
+              } else if (h.type === 'selfStat') {
+                const a = STAGES.apply(def, h.stat, h.delta);
+                if (a !== 0) { events.push({ t: 'ability', side: defSide, name: def.name, ability: h.ability, boostsOf: snapshotBoosts(A, B) }); events.push({ t: 'stat', side: defSide, name: def.name, stat: h.stat, delta: a, boostsOf: snapshotBoosts(A, B) }); log.push(`${def.name}'s ${h.ability} raised its ${STAGES.label(h.stat)}!`); }
+              } else if (h.type === 'selfStat2') {
+                events.push({ t: 'ability', side: defSide, name: def.name, ability: h.ability, boostsOf: snapshotBoosts(A, B) });
+                applyStatChanges(def, defSide, h.changes, false);
+              }
+            }
+            // Berserk / Anger Shell: crossing below half HP from this hit
+            if (ABIL.berserkTrigger(def, defHpBefore, def.hp)) {
+              const a = STAGES.apply(def, 'SPA', 1);
+              if (a !== 0) { events.push({ t: 'ability', side: defSide, name: def.name, ability: 'Berserk', boostsOf: snapshotBoosts(A, B) }); events.push({ t: 'stat', side: defSide, name: def.name, stat: 'SPA', delta: a, boostsOf: snapshotBoosts(A, B) }); log.push(`${def.name}'s Berserk raised its Sp. Atk!`); }
+            }
+            if (ABIL.angerShellTrigger(def, defHpBefore, def.hp)) {
+              events.push({ t: 'ability', side: defSide, name: def.name, ability: 'Anger Shell', boostsOf: snapshotBoosts(A, B) });
+              applyStatChanges(def, defSide, [['ATK', 1], ['SPA', 1], ['SPE', 1], ['DEF', -1], ['SPD', -1]], false);
+            }
+          }
+        }
 
         // ---- field-setting moves (weather / terrain / hazards) ----
         const fld = moveFieldEffect(mv);
@@ -1002,6 +1111,13 @@ window.VIEWS = window.VIEWS || {};
           STATUS.clear(def);
           events.push({ t: 'faint', name: def.name, side: side === 'A' ? 'B' : 'A' });
           log.push(`${def.name} fainted!`);
+          // Aftermath: fainting to a contact move chips the attacker 1/4
+          if (ABIL.aftermath(def, atk, mv) && !ABIL.has(atk, 'Magic Guard')) {
+            const c = Math.max(1, Math.floor(atk.maxHP / 4));
+            atk.hp = Math.max(0, atk.hp - c);
+            events.push({ t: 'chip', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP, dmg: c, ability: 'Aftermath' });
+            log.push(`${atk.name} was hurt by ${def.name}'s Aftermath!`);
+          }
           // Moxie: KO raises the attacker's Attack by 1
           if (ABIL.has(atk, 'Moxie') && !atk.fainted) {
             const a = STAGES.apply(atk, 'ATK', 1);
@@ -1015,6 +1131,16 @@ window.VIEWS = window.VIEWS || {};
           if (side === 'A') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
           else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
           break; // end this turn's action exchange after a faint
+        }
+
+        // attacker may have fainted from contact chip (Rough Skin / Iron Barbs / Aftermath)
+        if (atk.hp <= 0 && !atk.fainted) {
+          atk.fainted = true; STATUS.clear(atk);
+          events.push({ t: 'faint', name: atk.name, side });
+          log.push(`${atk.name} fainted!`);
+          if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
+          else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
+          break;
         }
       }
 
@@ -1068,7 +1194,30 @@ window.VIEWS = window.VIEWS || {};
           }
         }
       }
-      // decrement field durations
+
+      // ---- end-of-turn self abilities (Speed Boost, Moody, Shed Skin, Hydration) ----
+      for (const side of eotOrder) {
+        const mon = side === 'A' ? A[ai] : B[bi];
+        if (!mon || mon.fainted) continue;
+        for (const h of ABIL.endOfTurn(mon, rng)) {
+          if (h.type === 'stat') {
+            const a = STAGES.apply(mon, h.stat, h.delta);
+            if (a !== 0) { events.push({ t: 'ability', side, name: mon.name, ability: h.ability, boostsOf: snapshotBoosts(A, B) }); events.push({ t: 'stat', side, name: mon.name, stat: h.stat, delta: a, boostsOf: snapshotBoosts(A, B) }); log.push(`${mon.name}'s ${h.ability} raised its ${STAGES.label(h.stat)}!`); }
+          } else if (h.type === 'stat2') {
+            events.push({ t: 'ability', side, name: mon.name, ability: h.ability, boostsOf: snapshotBoosts(A, B) });
+            applyStatChanges(mon, side, h.changes, false);
+          } else if (h.type === 'cure' && mon.status) {
+            log.push(`${mon.name}'s ${h.ability} cured its ${STATUS.label[mon.status] || 'status'}!`);
+            STATUS.clear(mon);
+            events.push({ t: 'status', side, name: mon.name, code: null, statusOf: snapshotStatus(A, B) });
+          } else if (h.type === 'cureIfRain' && mon.status && curWeather() === 'RAIN') {
+            log.push(`${mon.name}'s Hydration cured its status!`);
+            STATUS.clear(mon);
+            events.push({ t: 'status', side, name: mon.name, code: null, statusOf: snapshotStatus(A, B) });
+          }
+        }
+      }
+
       if (field.weather.kind) { field.weather.turns--; if (field.weather.turns <= 0) { log.push(`The ${FIELD.WEATHER[field.weather.kind]} subsided.`); events.push({ t: 'weatherend' }); field.weather.kind = null; } }
       if (field.terrain.kind) { field.terrain.turns--; if (field.terrain.turns <= 0) { log.push(`The ${FIELD.TERRAIN[field.terrain.kind]} faded.`); events.push({ t: 'terrainend' }); field.terrain.kind = null; } }
 
@@ -1383,6 +1532,11 @@ window.VIEWS = window.VIEWS || {};
           if (s[idx] && e.hp != null) s[idx].hp = e.hp;
           if (i === step) lastAnim = e;
         }
+        else if (e.t === 'chip' || e.t === 'heal') {
+          const s = e.side === 'A' ? A : B; const idx = e.side === 'A' ? ai : bi;
+          if (s[idx] && e.hp != null) s[idx].hp = e.hp;
+          if (i === step) lastAnim = e;
+        }
         else if (e.t === 'weather') weather = e.kind;
         else if (e.t === 'weatherend') weather = null;
         else if (e.t === 'terrain') terrain = e.kind;
@@ -1584,6 +1738,7 @@ window.VIEWS = window.VIEWS || {};
       else if (t === 'stat' || t === 'ability') n += 1;
       else if (t === 'sync') n += 1;
       else if (t === 'weather' || t === 'terrain' || t === 'hazard' || t === 'hazardset' || t === 'weatherdmg' || t === 'weatherend' || t === 'terrainend') n += 1;
+      else if (t === 'chip' || t === 'heal') n += 1;
     }
     return n;
   }
