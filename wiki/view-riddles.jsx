@@ -93,6 +93,16 @@ window.VIEWS = window.VIEWS || {};
   }
   function saveSolved(set) { try { localStorage.setItem(LS_KEY, JSON.stringify([...set])); } catch (e) {} }
 
+  // Verification passphrase: first letter of every answer, in tier order, grouped.
+  // Deterministic and derived from the real answers — a player can only produce it
+  // by having actually solved all 50. Computed at runtime so it stays correct if
+  // riddles are ever edited, and never sits in the source as a plain string.
+  function rewardPhrase() {
+    const order = ['Easy', 'Medium', 'Hard', 'Expert', 'Nightmare'];
+    const groups = order.map(t => RIDDLES[t].map(r => r.a.toUpperCase().replace(/[^A-Z0-9]/g, '')[0]).join(''));
+    return 'VOID-' + groups.join('-');
+  }
+
   window.VIEWS.Riddles = function Riddles() {
     const [tier, setTier] = React.useState(null);     // tier name
     const [idx, setIdx] = React.useState(0);          // which riddle in the tier
@@ -249,6 +259,7 @@ window.VIEWS = window.VIEWS || {};
     );
   };
   function RewardPopup({ onClose }) {
+    const [copied, setCopied] = React.useState(false);
     return (
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(5,4,12,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
         <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, textAlign: 'center', borderRadius: 20, padding: '34px 28px', background: 'radial-gradient(ellipse at 50% 0%, #2a1d00, #0a0818 75%)', border: '1px solid #ffd54a', boxShadow: '0 0 50px #ffb30055' }}>
@@ -258,9 +269,13 @@ window.VIEWS = window.VIEWS || {};
           <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#e9e0c4', lineHeight: 1.6, margin: '0 0 18px' }}>
             You've cracked every riddle in the chamber — Easy through Nightmare. That's no small feat.
           </p>
-          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#fff', lineHeight: 1.6, margin: '0 0 22px', fontWeight: 600 }}>
-            Contact <span style={{ color: '#ffd54a' }}>Vaereth</span> to claim your reward — mention you completed all 50 Riddle Chamber riddles.
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#fff', lineHeight: 1.6, margin: '0 0 18px', fontWeight: 600 }}>
+            Contact <span style={{ color: '#ffd54a' }}>Vaereth</span> to claim your reward — send the verification phrase below so I know you truly cracked all 50.
           </p>
+          <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 1, color: '#8a83a8', marginBottom: 6 }}>VERIFICATION PHRASE</div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#ffd54a', background: '#0a0818', border: '1px solid #ffd54a55', borderRadius: 10, padding: '12px 14px', wordBreak: 'break-all', marginBottom: 12 }}>{rewardPhrase()}</div>
+          <button onClick={() => { try { navigator.clipboard.writeText(rewardPhrase()); setCopied(true); } catch (e) {} }} style={{ cursor: 'pointer', background: copied ? '#0f3320' : '#1a1533', border: '1px solid #ffd54a55', color: copied ? '#7ad17a' : '#ffd54a', borderRadius: 10, padding: '9px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, marginBottom: 18 }}>{copied ? '✓ Copied' : 'Copy Phrase'}</button>
+          <div />
           <button onClick={onClose} style={{ cursor: 'pointer', background: 'linear-gradient(135deg,#ffb300,#ff7a00)', border: '1px solid #ffd54a', color: '#2a1800', borderRadius: 12, padding: '12px 28px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700 }}>Close</button>
         </div>
       </div>
