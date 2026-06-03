@@ -256,6 +256,10 @@ window.VIEWS = window.VIEWS || {};
   })();
   function moveStatEffect(move) { return MOVE_STAT[normName(move.name)] || null; }
 
+  // moves that make the user faint after dealing damage (canonical self-KO).
+  const SELF_KO = new Set(['explosion', 'selfdestruct', 'mistyexplosion'].map(normName));
+  const isSelfKO = (move) => SELF_KO.has(normName(move.name));
+
   // ---------- abilities (this increment: stat-stage family) ----------
   // Only abilities fully expressible with current systems are active; others
   // are recognized by name but no-op until their systems exist.
@@ -467,6 +471,15 @@ window.VIEWS = window.VIEWS || {};
           if (approx >= defender.hp) score *= 1.6;
         }
         if (te === 0) score = 0.1;
+        // self-KO moves cost you the user — only worth it as a trade. Value them
+        // only when they'd KO the foe (or the user is nearly dead anyway); else
+        // make them a near-last resort so the AI doesn't suicide for nothing.
+        if (isSelfKO(move)) {
+          const approx = computeDamageAvg(attacker, defender, move);
+          const securesKO = te > 0 && approx >= defender.hp;
+          const nearlyDead = attacker.hp <= attacker.maxHP * 0.25;
+          score = (securesKO || nearlyDead) ? score * 0.9 : 0.2;
+        }
       }
       if (score > bestScore) { bestScore = score; best = move; }
     });
@@ -656,6 +669,29 @@ window.VIEWS = window.VIEWS || {};
             // foe-targeted drop counts as opponent-caused (triggers Defiant)
             applyStatChanges(def, side === 'A' ? 'B' : 'A', statEff.changes, true);
           }
+        }
+
+        // ---- self-KO moves (Explosion / Self-Destruct): user faints after the hit ----
+        if (isSelfKO(mv)) {
+          // defender may also have fainted from the blast — resolve both, attacker last
+          const defSideTag = side === 'A' ? 'B' : 'A';
+          if (def.hp <= 0 && !def.fainted) {
+            def.fainted = true; STATUS.clear(def);
+            events.push({ t: 'faint', name: def.name, side: defSideTag });
+            log.push(`${def.name} fainted!`);
+          }
+          atk.fainted = true; STATUS.clear(atk);
+          events.push({ t: 'faint', name: atk.name, side });
+          log.push(`${atk.name} fainted from the recoil of ${mv.name}!`);
+          // replace the defender if it fainted
+          if (def.fainted) {
+            if (defSideTag === 'B') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
+            else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
+          }
+          // replace the attacker (the self-KO user)
+          if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); doIntimidate(A[ai], 'A', B[bi], 'B'); } }
+          else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); doIntimidate(B[bi], 'B', A[ai], 'A'); } }
+          break; // turn ends after a self-KO
         }
 
         if (def.hp <= 0) {
