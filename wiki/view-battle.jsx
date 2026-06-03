@@ -805,12 +805,43 @@ window.VIEWS = window.VIEWS || {};
   }
 
   // ---------- AI: score each move by expected value ----------
+  // ---------- AI difficulty ----------
+  // 'normal' preserves the original greedy 1-ply behavior. 'hard' enables
+  // speed-aware KO logic, a survival check, situational status/setup valuation,
+  // ability-immunity awareness, and smarter (hazard/immunity-aware) switching.
+  // The flag is read from the closure variable `aiMode` set per-battle.
+
+  // type multiplier that also respects ability-based immunities (Levitate,
+  // Flash Fire, Volt Absorb, etc.) and -ate type changes — so the AI doesn't
+  // fire moves into immunities. Falls back to plain typeMult on Normal.
+  function aiTypeMult(attacker, defender, move) {
+    const ate = ABIL.ateType(attacker, move);
+    const effType = ate ? ate.type : move.type;
+    const emove = (effType === move.type) ? move : { ...move, type: effType };
+    if (ABIL.immune(defender, emove)) return 0;
+    if (ABIL.blocksMove(defender, move)) return 0;
+    return typeMult(effType, defender.types) * (ate ? ate.mult : 1);
+  }
+
+  // effective in-battle speed (paralysis + weather speed abilities), matching
+  // the turn loop's own calculation so the AI can reason about move order.
+  // `wx` (current weather) is passed in since this lives outside simulate's scope.
+  function aiSpeed(mon, wx) {
+    let mult = 1;
+    if (wx === 'SUN' && ABIL.has(mon, 'Chlorophyll')) mult = 2;
+    else if (wx === 'RAIN' && ABIL.has(mon, 'Swift Swim')) mult = 2;
+    else if (wx === 'SAND' && ABIL.has(mon, 'Sand Rush')) mult = 2;
+    else if (wx === 'HAIL' && ABIL.has(mon, 'Slush Rush')) mult = 2;
+    return Math.floor(STATUS.speed(mon) * mult);
+  }
+
   function bestMove(attacker, defender, ctx) {
     const cx = ctx || {};
     let best = null, bestScore = -1;
     attacker.moves.forEach(move => {
       let score;
       if (move.cls === 'Status' || !move.pow) {
+        const hard = cx.mode === 'hard';
         // value a status move only if it would actually land something useful:
         // foe must be statusable and not immune; otherwise it's near-useless.
         const eff2 = moveStatusEffect(move);
@@ -819,6 +850,13 @@ window.VIEWS = window.VIEWS || {};
           // crippling statuses (PAR/SLP/TOX/BRN) are worth more than a chip move
           const weight = { SLP: 30, PAR: 26, TOX: 24, BRN: 20, FRZ: 22, PSN: 14 }[eff2.code] || 12;
           score = weight * eff2.chance;
+          if (hard) {
+            // paralysis is far better against a foe that currently outspeeds us
+            if (eff2.code === 'PAR' && cx.foeSpeed != null && cx.mySpeed != null && cx.foeSpeed > cx.mySpeed) score *= 1.8;
+            // burn shines against a physical attacker; toxic against a bulky wall we can't break
+            if (eff2.code === 'BRN' && cx.foeBestDmg != null && cx.foeBestPhysical) score *= 1.4;
+            if (eff2.code === 'TOX' && cx.myBestDmg != null && cx.myBestDmg < defender.hp * 0.4) score *= 1.5;
+          }
         } else if (stat2) {
           // if every stat this move changes is already capped in the intended
           // direction, the move does nothing — never loop on it.
@@ -838,6 +876,14 @@ window.VIEWS = window.VIEWS || {};
             if (hpFrac > 0.55 && boostSum < 2) score = 55 + totalUp * 6;
             else if (hpFrac > 0.5 && boostSum < 4) score = 22 + totalUp * 3;
             else score = 3;
+            if (hard) {
+              // setting up is much safer when the foe can't KO us this turn,
+              // and much riskier when it can — bias accordingly.
+              if (cx.foeBestDmg != null) {
+                if (cx.foeBestDmg >= attacker.hp) score *= 0.25;       // would be KO'd mid-setup
+                else if (cx.foeBestDmg < attacker.hp * 0.35) score *= 1.4; // free setup window
+              }
+            }
           } else {
             // lowering the foe: mild value, more if it isn't already dropped
             const cur = stat2.changes.reduce((s, c) => s + Math.abs((defender.boosts && defender.boosts[c[0]]) || 0), 0);
@@ -870,22 +916,34 @@ window.VIEWS = window.VIEWS || {};
           score = 0.3;
         }
       } else {
-        const te = typeMult(move.type, defender.types);
+        const hard = cx.mode === 'hard';
+        const te = aiTypeMult(attacker, defender, move);
         const stab = attacker.types.includes(move.type) ? 1.5 : 1;
         const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
         const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
         // expected damage proxy
         const exp = move.pow * stab * te * (atkStat / defStat) * ((move.acc || 100) / 100);
         score = exp;
-        // bonus for a likely KO
-        if (te > 0) {
+        if (te === 0) { score = 0.1; }  // immune (type or ability) — almost never pick
+        else {
           const approx = computeDamageAvg(attacker, defender, move);
-          if (approx >= defender.hp) score *= 1.6;
+          const killsFoe = approx >= defender.hp;
+          if (hard) {
+            // speed-aware KO: a KO is only worth the big bonus if we actually act
+            // first (or the foe can't KO us back this turn). Otherwise it's a
+            // normal strong hit — we might faint before it lands.
+            const iMoveFirst = cx.mySpeed != null && cx.foeSpeed != null
+              ? (cx.mySpeed > cx.foeSpeed || (cx.mySpeed === cx.foeSpeed))  // tie: assume we might
+              : true;
+            const foeCanKOme = cx.foeBestDmg != null && cx.foeBestDmg >= attacker.hp;
+            if (killsFoe && (iMoveFirst || !foeCanKOme)) score *= 1.9;       // safe/clean KO
+            else if (killsFoe) score *= 1.25;                                // KO but we may die first
+          } else {
+            // Normal mode: original behavior
+            if (killsFoe) score *= 1.6;
+          }
         }
-        if (te === 0) score = 0.1;
-        // self-KO moves cost you the user — only worth it as a trade. Value them
-        // only when they'd KO the foe (or the user is nearly dead anyway); else
-        // make them a near-last resort so the AI doesn't suicide for nothing.
+        // self-KO moves cost you the user — only worth it as a trade.
         if (isSelfKO(move)) {
           const approx = computeDamageAvg(attacker, defender, move);
           const securesKO = te > 0 && approx >= defender.hp;
@@ -897,37 +955,71 @@ window.VIEWS = window.VIEWS || {};
     });
     return best || attacker.moves[0];
   }
-  // non-random average damage for AI estimation
+  // non-random average damage for AI estimation (ability-aware: respects
+  // Levitate/Flash Fire/etc. immunities and -ate type changes)
   function computeDamageAvg(attacker, defender, move) {
     if (move.cls === 'Status' || !move.pow) return 0;
+    const ate = ABIL.ateType(attacker, move);
+    const effType = ate ? ate.type : move.type;
+    const emove = (effType === move.type) ? move : { ...move, type: effType };
+    if (ABIL.immune(defender, emove) || ABIL.blocksMove(defender, move)) return 0;
     const atkStat = move.cls === 'Physical' ? STAGES.effStat(attacker, 'ATK') : STAGES.effStat(attacker, 'SPA');
     const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
     const L = attacker.level;
     const base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
-    const stab = attacker.types.includes(move.type) ? 1.5 : 1;
-    const te = typeMult(move.type, defender.types);
-    return Math.floor(base * stab * te * 0.925 * 0.6 * STATUS.burnFactor(attacker, move));
+    const stab = attacker.types.includes(effType) ? 1.5 : 1;
+    const te = typeMult(effType, defender.types);
+    const ateMult = ate ? ate.mult : 1;
+    return Math.floor(base * stab * te * ateMult * 0.925 * 0.6 * STATUS.burnFactor(attacker, move));
   }
 
   // AI switch decision: if the active mon is in deep type trouble and a much
   // better matchup is on the bench, consider switching (basic revenge/pivot).
   // `recentlySwitched` blocks an immediate re-switch (prevents infinite pivot loops).
-  function shouldSwitch(team, activeIdx, foe, rng, recentlySwitched) {
+  function shouldSwitch(team, activeIdx, foe, rng, recentlySwitched, mode, hazardsOnMe) {
+    const hard = mode === 'hard';
     const active = team[activeIdx];
     if (active.fainted) return pickNextAlive(team, activeIdx);
     if (recentlySwitched) return -1; // just came in — commit to at least one action
     // how bad is the foe's best hit on us, defensively
-    const foeBest = bestMove(foe, active);
+    const foeBest = bestMove(foe, active, { mode: 'normal' });
     const incoming = computeDamageAvg(foe, active, foeBest);
     const inDanger = incoming >= active.hp * 0.8; // likely to be KO'd
     if (!inDanger) return -1;
-    // find a benched mon that resists the foe and can hit back hard
+
+    // estimate hazard chip a benched mon would take on entry (Hard only) so we
+    // don't pivot a frail teammate straight into Stealth Rock + Spikes death.
+    const hazardChip = (m) => {
+      if (!hard || !hazardsOnMe) return 0;
+      let frac = 0;
+      if (hazardsOnMe.rock) {
+        const weak = typeMult('ROCK', m.types); // SR scales with Rock effectiveness
+        frac += 0.125 * weak;
+      }
+      const sp = hazardsOnMe.spikes || 0;
+      const grounded = !m.types.includes('FLYING') && !ABIL.has(m, 'Levitate');
+      if (grounded && sp) frac += [0, 0.125, 0.1667, 0.25][Math.min(3, sp)];
+      return Math.floor(m.maxHP * frac);
+    };
+
+    // find a benched mon that handles the foe well and can hit back hard
     let bestBench = -1, bestVal = 0;
     team.forEach((m, i) => {
       if (i === activeIdx || m.fainted) return;
-      const takes = computeDamageAvg(foe, m, bestMove(foe, m));
-      const deals = computeDamageAvg(m, foe, bestMove(m, foe));
-      const val = deals - takes;
+      const chip = hazardChip(m);
+      const effHP = m.hp - chip;                       // HP after switch-in chip
+      if (effHP <= 0) return;                          // would faint on entry — never
+      const takes = computeDamageAvg(foe, m, bestMove(foe, m, { mode: 'normal' }));
+      const deals = computeDamageAvg(m, foe, bestMove(m, foe, { mode: 'normal' }));
+      let val = deals - takes;
+      if (hard) {
+        // big bonus for an incoming mon that is immune to or strongly resists
+        // the foe's chosen move (a clean pivot)
+        const inMult = aiTypeMult(foe, m, foeBest);
+        if (inMult === 0) val += active.maxHP;         // hard wall / immunity
+        else if (inMult <= 0.5) val += active.maxHP * 0.5;
+        val -= chip;                                   // penalize hazard damage taken
+      }
       if (val > bestVal) { bestVal = val; bestBench = i; }
     });
     // only switch if a bench mon is clearly better than staying in
@@ -939,7 +1031,8 @@ window.VIEWS = window.VIEWS || {};
   }
 
   // ---------- the battle simulation: returns a list of events ----------
-  function simulate(teamA, teamB, seedNum) {
+  function simulate(teamA, teamB, seedNum, aiMode) {
+    aiMode = aiMode || 'normal';
     const rng = mulberry32(seedNum || (Math.random() * 1e9) | 0);
     // deep-clone teams so the originals aren't mutated (fresh boosts per battle)
     const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, abilityPool: (m.abilityPool || []).slice() }));
@@ -1052,8 +1145,8 @@ window.VIEWS = window.VIEWS || {};
       // both sides decide their switch against the SAME pre-switch state, so B
       // doesn't get to react to A's switch (that was a slot-based information edge).
       const preA = A[ai], preB = B[bi];
-      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1);
-      const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1);
+      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1, aiMode, field.hazards.A);
+      const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1, aiMode, field.hazards.B);
       // switch-out abilities (Regenerator heal, Natural Cure) on the OUTGOING mon
       const doSwitchOut = (side, outIdx) => {
         const mon = side === 'A' ? A[outIdx] : B[outIdx];
@@ -1070,8 +1163,23 @@ window.VIEWS = window.VIEWS || {};
       const mA = A[ai], mB = B[bi];
       const benchCount = (team, idx) => team.reduce((n, m, i) => n + ((i !== idx && !m.fainted) ? 1 : 0), 0);
       const wxNow = curWeather(), txNow = field.terrain.kind;
-      const ctxA = { weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.B, foeBench: benchCount(B, bi) };
-      const ctxB = { weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.A, foeBench: benchCount(A, ai) };
+      // pre-compute each side's effective speed and the foe's best threat so the
+      // AI (on Hard) can reason about move order, KO safety, and setup windows.
+      const spA0 = aiSpeed(mA, wxNow), spB0 = aiSpeed(mB, wxNow);
+      const foeBestVsA = bestMove(mB, mA, { mode: 'normal' });   // cheap, no-ctx estimate
+      const foeBestVsB = bestMove(mA, mB, { mode: 'normal' });
+      const dmgBtoA = computeDamageAvg(mB, mA, foeBestVsA);
+      const dmgAtoB = computeDamageAvg(mA, mB, foeBestVsB);
+      const ctxA = {
+        mode: aiMode, weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.B, foeBench: benchCount(B, bi),
+        mySpeed: spA0, foeSpeed: spB0, foeBestDmg: dmgBtoA, myBestDmg: dmgAtoB,
+        foeBestPhysical: foeBestVsA && foeBestVsA.cls === 'Physical',
+      };
+      const ctxB = {
+        mode: aiMode, weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.A, foeBench: benchCount(A, ai),
+        mySpeed: spB0, foeSpeed: spA0, foeBestDmg: dmgAtoB, myBestDmg: dmgBtoA,
+        foeBestPhysical: foeBestVsB && foeBestVsB.cls === 'Physical',
+      };
       const moveA = bestMove(mA, mB, ctxA), moveB = bestMove(mB, mA, ctxB);
       // turn order by speed (paralysis halves speed; ties random)
       const wx = curWeather();
@@ -1601,6 +1709,7 @@ window.VIEWS = window.VIEWS || {};
     const [inspect, setInspect] = React.useState(null); // null | 'A' | 'B'
     const [buildMsg, setBuildMsg] = React.useState('');
     const [vaereth, setVaereth] = React.useState(false); // VAERETH boss mode (Team B becomes a cranked boss)
+    const [aiMode, setAiMode] = React.useState('normal'); // 'normal' | 'hard' AI difficulty
     const timer = React.useRef(null);
 
     // current display state derived from events up to `step`
@@ -1689,7 +1798,9 @@ window.VIEWS = window.VIEWS || {};
     const run = () => {
       const built = assembleTeams();
       if (!built) return;
-      const r = simulate(built.A, built.B);
+      // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
+      const mode = vaereth ? 'hard' : aiMode;
+      const r = simulate(built.A, built.B, undefined, mode);
       setResult(r);
       if (skip) { setStep(r.events.length - 1); setPlaying(false); }
       else { setStep(0); setPlaying(true); }
@@ -1790,6 +1901,14 @@ window.VIEWS = window.VIEWS || {};
             title={`${BOSS_NAME}: a maximally-hard boss replaces Team B. Level 100, boosted stats, optimal team.`}
             style={{ cursor: 'pointer', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
             {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
+          </button>
+          <button onClick={() => { setAiMode(m => m === 'hard' ? 'normal' : 'hard'); setResult(null); setStep(0); setPlaying(false); }}
+            disabled={vaereth}
+            title={vaereth
+              ? `${BOSS_NAME} always uses the smarter Hard AI.`
+              : 'AI difficulty. Hard: the AI plays smarter — speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly (hazard- and immunity-aware).'}
+            style={{ cursor: vaereth ? 'not-allowed' : 'pointer', opacity: vaereth ? 0.5 : 1, background: (vaereth || aiMode === 'hard') ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26', border: (vaereth || aiMode === 'hard') ? '1px solid #b89bff' : '1px solid #3a3168', color: (vaereth || aiMode === 'hard') ? '#fff' : '#9a93bb', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
+            {(vaereth || aiMode === 'hard') ? '🧠 AI: Hard' : '🧠 AI: Normal'}
           </button>
         </div>
 
