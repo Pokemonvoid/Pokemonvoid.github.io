@@ -13,7 +13,7 @@
   // The anon key is designed to be public; row-level security on the table
   // is what keeps votes safe. Leaving these blank shows a friendly notice.
   const SUPABASE_URL = 'https://mzrwajvztpcncthstzcq.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_NzYqNoJ376FgIGdiedosqA_6T88qB9n'; // sb_publishable_... — keep on ONE line
+  const SUPABASE_ANON_KEY = 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'; // sb_publishable_... — keep on ONE line
   // ====================================================================
 
   const CONFIGURED = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -255,23 +255,31 @@
           {rows === null && <div style={{ color: '#6a6388', fontFamily: "'Space Grotesk', sans-serif", textAlign: 'center', padding: 24 }}>Loading…</div>}
           {rows && tally.length === 0 && <div style={{ color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", textAlign: 'center', padding: 24 }}>No votes yet this week. Be the first!</div>}
 
-          {tally.map((t, i) => (
-            <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < tally.length - 1 ? '1px solid #1d1838' : 'none' }}>
-              <div style={{ width: 32, flexShrink: 0, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 18, color: i < 3 ? '#ffd54a' : '#6a6388' }}>{medal(i)}</div>
-              <div style={{ width: 80, height: 80, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, background: '#100c20', border: '1px solid #221c40' }}>
-                <SpriteSlot dex={t.dex} name={t.mon} size={72} accent="#8a5cff" />
+          {tally.map((t, i) => {
+            const lead = i === 0;
+            const tile = lead ? 112 : 80;
+            const sprite = lead ? 104 : 72;
+            return (
+            <div key={t.mon} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: lead ? '18px 0' : '14px 0', borderBottom: i < tally.length - 1 ? '1px solid #1d1838' : 'none' }}>
+              <div style={{ width: 32, flexShrink: 0, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: lead ? 22 : 18, color: i < 3 ? '#ffd54a' : '#6a6388' }}>{medal(i)}</div>
+              <div style={{ width: tile, height: tile, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 14, background: lead ? 'radial-gradient(ellipse at 50% 35%, #2a2410, #100c20 75%)' : '#100c20', border: lead ? '1px solid #ffd54a' : '1px solid #221c40', boxShadow: lead ? '0 0 20px #ffd54a55, inset 0 0 14px #ffd54a18' : 'none', transition: 'width .35s ease, height .35s ease' }}>
+                <SpriteSlot dex={t.dex} name={t.mon} size={sprite} accent={lead ? '#ffd54a' : '#8a5cff'} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
-                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 17, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
-                  <span style={{ fontFamily: "'Space Mono', monospace", color: '#cdbfff', fontSize: 15, fontWeight: 600 }}>{t.n}</span>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 9, minWidth: 0 }}>
+                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: lead ? 700 : 600, color: '#fff', fontSize: lead ? 21 : 17, cursor: 'pointer' }} onClick={() => go('#/pokemon/' + t.dex)}>{t.mon}</span>
+                    {lead && <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, letterSpacing: 1, color: '#ffd54a', border: '1px solid #6a5a1f', borderRadius: 5, padding: '2px 6px', whiteSpace: 'nowrap' }}>FAVOURITE</span>}
+                  </span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", color: lead ? '#ffd54a' : '#cdbfff', fontSize: lead ? 17 : 15, fontWeight: 600 }}>{t.n}</span>
                 </div>
-                <div style={{ height: 10, borderRadius: 5, background: '#1a1533', overflow: 'hidden' }}>
-                  <div style={{ width: (maxN ? Math.round((t.n / maxN) * 100) : 0) + '%', height: '100%', background: i === 0 ? 'linear-gradient(90deg,#8a5cff,#ffd54a)' : 'linear-gradient(90deg,#5a2db3,#8a5cff)', transition: 'width 0.4s ease' }} />
+                <div style={{ height: lead ? 12 : 10, borderRadius: 6, background: '#1a1533', overflow: 'hidden' }}>
+                  <div style={{ width: (maxN ? Math.round((t.n / maxN) * 100) : 0) + '%', height: '100%', background: lead ? 'linear-gradient(90deg,#8a5cff,#ffd54a)' : 'linear-gradient(90deg,#5a2db3,#8a5cff)', transition: 'width 0.4s ease' }} />
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* hall of fame */}
