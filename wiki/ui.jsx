@@ -169,6 +169,7 @@
     ['Living Dex', '#/living'], ['Catch Calculator', '#/catch'],
     ['Damage Calculator', '#/damage'], ['Nuzlocke Randomizer', '#/nuzlocke'],
     ['Battle Sim', '#/battle'],
+    ['★ Vote', '#/vote'],
     // ['Trainers', '#/trainers'],
   ];
   function NavBar({ route, query, setQuery }) {

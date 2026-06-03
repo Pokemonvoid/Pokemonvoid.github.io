@@ -1799,8 +1799,7 @@ window.VIEWS = window.VIEWS || {};
       const built = assembleTeams();
       if (!built) return;
       // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
-      const mode = vaereth ? 'hard' : aiMode;
-      const r = simulate(built.A, built.B, undefined, mode);
+      const r = simulate(built.A, built.B, undefined, aiMode);
       setResult(r);
       if (skip) { setStep(r.events.length - 1); setPlaying(false); }
       else { setStep(0); setPlaying(true); }
@@ -1897,18 +1896,15 @@ window.VIEWS = window.VIEWS || {};
               <button key={s} onClick={() => setSpeed(s)} style={{ cursor: 'pointer', padding: '8px 12px', background: speed === s ? '#322663' : '#100c24', border: 'none', borderRight: s !== 20 ? '1px solid #2a2545' : 'none', color: speed === s ? '#fff' : '#9a93bb', fontFamily: "'Space Mono', monospace", fontSize: 13 }}>{s}x</button>
             ))}
           </div>
-          <button onClick={() => { setVaereth(v => !v); setResult(null); setStep(0); setPlaying(false); }}
+          <button onClick={() => { setVaereth(v => { const nv = !v; if (nv) setAiMode('hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
             title={`${BOSS_NAME}: a maximally-hard boss replaces Team B. Level 100, boosted stats, optimal team.`}
             style={{ cursor: 'pointer', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
             {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
           </button>
           <button onClick={() => { setAiMode(m => m === 'hard' ? 'normal' : 'hard'); setResult(null); setStep(0); setPlaying(false); }}
-            disabled={vaereth}
-            title={vaereth
-              ? `${BOSS_NAME} always uses the smarter Hard AI.`
-              : 'AI difficulty. Hard: the AI plays smarter — speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly (hazard- and immunity-aware).'}
-            style={{ cursor: vaereth ? 'not-allowed' : 'pointer', opacity: vaereth ? 0.5 : 1, background: (vaereth || aiMode === 'hard') ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26', border: (vaereth || aiMode === 'hard') ? '1px solid #b89bff' : '1px solid #3a3168', color: (vaereth || aiMode === 'hard') ? '#fff' : '#9a93bb', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
-            {(vaereth || aiMode === 'hard') ? '🧠 AI: Hard' : '🧠 AI: Normal'}
+            title={'AI difficulty. Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly (hazard- and immunity-aware). Toggle anytime.'}
+            style={{ cursor: 'pointer', background: aiMode === 'hard' ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26', border: aiMode === 'hard' ? '1px solid #b89bff' : '1px solid #3a3168', color: aiMode === 'hard' ? '#fff' : '#9a93bb', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
+            {aiMode === 'hard' ? '🧠 AI: Hard' : '🧠 AI: Normal'}
           </button>
         </div>
 
@@ -2285,5 +2281,8 @@ window.VIEWS = window.VIEWS || {};
     );
   }
 
-  window.VIEWS.Battle = BattleGate;
+  // Battle Sim is now public — no passcode. (The BattleGate component and gate
+  // helpers above are kept but unused, so the gate can be re-enabled later by
+  // setting window.VIEWS.Battle = BattleGate instead.)
+  window.VIEWS.Battle = BattleSim;
 })();
