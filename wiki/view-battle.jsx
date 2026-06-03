@@ -149,6 +149,7 @@ window.VIEWS = window.VIEWS || {};
       if (target.status) return false;
       const imm = STATUS.immuneType[code] || [];
       if (target.types.some(t => imm.includes(t))) return false;
+      if (ABIL.blocksStatus(target, code)) return false; // ability immunity (Insomnia, Limber, etc.)
       return true;
     },
     apply(target, code, rng) {
@@ -397,6 +398,69 @@ window.VIEWS = window.VIEWS || {};
       // otherwise no clearly-better in-place swap; stay put
       return null;
     },
+
+    // ---- damage multipliers from the ATTACKER's ability ----
+    // returns a multiplier on outgoing damage for this move.
+    attackMult(attacker, defender, move, te) {
+      let m = 1;
+      const t = move.type, lowHP = attacker.hp <= attacker.maxHP / 3;
+      // pinch abilities: ×1.5 to their type when below 1/3 HP
+      if (lowHP && t === 'GRASS' && ABIL.has(attacker, 'Overgrow')) m *= 1.5;
+      if (lowHP && t === 'FIRE' && ABIL.has(attacker, 'Blaze')) m *= 1.5;
+      if (lowHP && t === 'WATER' && ABIL.has(attacker, 'Torrent')) m *= 1.5;
+      if (lowHP && t === 'BUG' && ABIL.has(attacker, 'Swarm')) m *= 1.5;
+      // type-power abilities
+      if (t === 'FIRE' && (ABIL.has(attacker, 'Burning Hot') || ABIL.has(attacker, 'Solar Power'))) m *= 1.5;
+      if (t === 'STEEL' && ABIL.has(attacker, 'Steely Spirit')) m *= 1.5;
+      // move-property abilities
+      if (move.pow && move.pow <= 60 && ABIL.has(attacker, 'Technician')) m *= 1.5;
+      if (te > 1 && (ABIL.has(attacker, 'Tinted Lens') || ABIL.has(attacker, 'Tinted Lense'))) m *= 1; // tinted lens boosts NOT-very-effective; handled below
+      if (te > 0 && te < 1 && (ABIL.has(attacker, 'Tinted Lens') || ABIL.has(attacker, 'Tinted Lense'))) m *= 2;
+      if (ABIL.has(attacker, 'Reckless') && /recoil|take down|double edge|head smash|brave bird|flare blitz|wood hammer|submission/i.test(move.name)) m *= 1.2;
+      return m;
+    },
+    // STAB multiplier override: Adaptability makes STAB ×2 instead of ×1.5
+    stabFor(attacker, move) {
+      const isStab = attacker.types.includes(move.type);
+      if (!isStab) return 1;
+      return (ABIL.has(attacker, 'Adaptability') || ABIL.has(attacker, 'Adaptablility')) ? 2 : 1.5;
+    },
+    // ---- damage multipliers from the DEFENDER's ability ----
+    defendMult(defender, move, te) {
+      let m = 1;
+      const t = move.type;
+      if ((t === 'FIRE' || t === 'ICE') && ABIL.has(defender, 'Thick Fat')) m *= 0.5;
+      if (t === 'FIRE' && ABIL.has(defender, 'Heatproof')) m *= 0.5;
+      if (move.cls === 'Physical' && ABIL.has(defender, 'Fur Coat')) m *= 0.5;
+      // Fluffy: halves contact (approx: physical) damage, doubles Fire damage taken
+      if (ABIL.has(defender, 'Fluffy')) { if (move.cls === 'Physical') m *= 0.5; if (t === 'FIRE') m *= 2; }
+      if (te > 1 && (ABIL.has(defender, 'Solid Rock') || ABIL.has(defender, 'Filter'))) m *= 0.75;
+      return m;
+    },
+    // crit multiplier override: Sniper makes crits hit harder
+    critMultFor(attacker, isCrit) { if (!isCrit) return 1; return ABIL.has(attacker, 'Sniper') ? 2.25 : 1.5; },
+    // ---- type immunity / absorption (checked before damage) ----
+    // returns null (no immunity) or {heal: bool, line: string}
+    immune(defender, move) {
+      const t = move.type;
+      if (move.cls === 'Status') return null;
+      if (t === 'FIRE' && ABIL.has(defender, 'Flash Fire')) return { heal: false, line: `${defender.name}'s Flash Fire absorbed the flames!` };
+      if (t === 'ELECTRIC' && (ABIL.has(defender, 'Volt Absorb') || ABIL.has(defender, 'Lightning Rod') || ABIL.has(defender, 'Motor Drive'))) return { heal: ABIL.has(defender, 'Volt Absorb'), line: `${defender.name} absorbed the electricity!` };
+      if (t === 'WATER' && (ABIL.has(defender, 'Water Absorb') || ABIL.has(defender, 'Storm Drain') || ABIL.has(defender, 'Dry Skin'))) return { heal: ABIL.has(defender, 'Water Absorb') || ABIL.has(defender, 'Dry Skin'), line: `${defender.name} absorbed the water!` };
+      if (t === 'GRASS' && ABIL.has(defender, 'Sap Sipper')) return { heal: false, line: `${defender.name}'s Sap Sipper blocked the move!` };
+      if (t === 'GROUND' && ABIL.has(defender, 'Levitate')) return { heal: false, line: `${defender.name} is unaffected — it's floating with Levitate!` };
+      return null;
+    },
+    // status-immunity passives: can this status be applied given the mon's ability?
+    blocksStatus(mon, code) {
+      if ((code === 'SLP') && (ABIL.has(mon, 'Insomnia') || ABIL.has(mon, 'Vital Spirit') || ABIL.has(mon, 'Sweet Veil'))) return true;
+      if ((code === 'BRN') && ABIL.has(mon, 'Water Veil')) return true;
+      if ((code === 'FRZ') && ABIL.has(mon, 'Magma Armor')) return true;
+      if ((code === 'PAR') && ABIL.has(mon, 'Limber')) return true;
+      if ((code === 'PSN' || code === 'TOX') && (ABIL.has(mon, 'Immunity') || ABIL.has(mon, 'Pastel Veil'))) return true;
+      if (ABIL.has(mon, 'Purifying Salt')) return true; // immune to all status
+      return false;
+    },
   };
 
 
@@ -506,6 +570,9 @@ window.VIEWS = window.VIEWS || {};
   }
   function computeDamage(attacker, defender, move, rng, fieldCtx) {
     if (move.cls === 'Status' || !move.pow) return { dmg: 0, eff: 1, crit: false, missed: false };
+    // ability-based type immunity / absorption (before accuracy/damage)
+    const imm = ABIL.immune(defender, move);
+    if (imm) return { dmg: 0, eff: 0, crit: false, missed: false, immune: true, immuneInfo: imm };
     // accuracy — modified by the attacker's ACC and defender's EVA stages
     {
       const accStage = ((attacker.boosts && attacker.boosts.ACC) || 0) - ((defender.boosts && defender.boosts.EVA) || 0);
@@ -519,10 +586,10 @@ window.VIEWS = window.VIEWS || {};
     const defStat = move.cls === 'Physical' ? STAGES.effStat(defender, 'DEF') : STAGES.effStat(defender, 'SPD');
     const L = attacker.level;
     let base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
-    const stab = attacker.types.includes(move.type) ? 1.5 : 1;
+    const stab = ABIL.stabFor(attacker, move);
     const te = typeMult(move.type, defender.types);
     const crit = rng() < (1 / 16);
-    const critMult = crit ? 1.5 : 1;
+    const critMult = ABIL.critMultFor(attacker, crit);
     const roll = 0.85 + rng() * 0.15; // 0.85–1.00
     // Phase 1 uses no EV/IV investment, which makes frail mons extremely glassy.
     // A modest scalar lengthens battles so switching and matchups actually matter.
@@ -534,7 +601,9 @@ window.VIEWS = window.VIEWS || {};
       if (fieldCtx.weather) wmult = FIELD.weatherDamage(fieldCtx.weather, move.type);
       if (fieldCtx.terrain) tmult = FIELD.terrainDamage(fieldCtx.terrain, move.type, FIELD.grounded(attacker));
     }
-    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn * wmult * tmult);
+    const aMult = ABIL.attackMult(attacker, defender, move, te);
+    const dMult = ABIL.defendMult(defender, move, te);
+    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn * wmult * tmult * aMult * dMult);
     if (te > 0) dmg = Math.max(1, dmg);
     return { dmg, eff: te, crit, missed: false };
   }
@@ -754,9 +823,15 @@ window.VIEWS = window.VIEWS || {};
 
     events.push({ t: 'start', a: snapshot(A), b: snapshot(B), aiIdx: ai, biIdx: bi });
     log.push(`Team A sent out ${A[ai].name}!  Team B sent out ${B[bi].name}!`);
-    // leads enter: weather/terrain abilities + Intimidate (no hazards on lead)
-    onEntry('A', ai, true);
-    onEntry('B', bi, true);
+    // leads enter: weather/terrain abilities + Intimidate (no hazards on lead).
+    // Faster lead resolves last (so its weather/terrain "wins" ties) — fair, not slot-based.
+    {
+      const sa = STATUS.speed(A[ai]), sb = STATUS.speed(B[bi]);
+      const aFastLast = sa >= sb; // faster goes last; tie → A last (coinflip below)
+      const aLast = sa === sb ? (rng() < 0.5) : aFastLast;
+      if (aLast) { onEntry('B', bi, true); onEntry('A', ai, true); }
+      else { onEntry('A', ai, true); onEntry('B', bi, true); }
+    }
 
     while (alive(A) && alive(B) && guard++ < 300) {
       turn++;
@@ -764,9 +839,12 @@ window.VIEWS = window.VIEWS || {};
       // All switches resolve before any attack; a side that switches does not
       // also attack (canonical: switching consumes your turn).
       let aSwitched = false, bSwitched = false;
-      const aSwitch = shouldSwitch(A, ai, B[bi], rng, lastSwitchTurn.A === turn - 1);
+      // both sides decide their switch against the SAME pre-switch state, so B
+      // doesn't get to react to A's switch (that was a slot-based information edge).
+      const preA = A[ai], preB = B[bi];
+      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1);
+      const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1);
       if (aSwitch >= 0) { events.push({ t: 'switch', side: 'A', to: aSwitch, name: A[aSwitch].name }); log.push(`Team A withdrew ${A[ai].name} and sent out ${A[aSwitch].name}.`); ai = aSwitch; aSwitched = true; lastSwitchTurn.A = turn; }
-      const bSwitch = shouldSwitch(B, bi, A[ai], rng, lastSwitchTurn.B === turn - 1);
       if (bSwitch >= 0) { events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; bSwitched = true; lastSwitchTurn.B = turn; }
       // Intimidate fires on entry, after both switches are placed
       if (aSwitched) onEntry('A', ai);
@@ -824,6 +902,18 @@ window.VIEWS = window.VIEWS || {};
         if (cantAct) continue;
 
         const res = computeDamage(atk, def, mv, rng, { weather: curWeather(), terrain: field.terrain.kind });
+        if (res.immune) {
+          events.push({ t: 'move', side, move: mv.name, attacker: atk.name, target: def.name, immune: true });
+          log.push(`${atk.name} used ${mv.name}. ${res.immuneInfo.line}`);
+          // absorb-heal abilities (Volt Absorb / Water Absorb): restore 1/4 max HP
+          if (res.immuneInfo.heal && def.hp < def.maxHP) {
+            const h = Math.floor(def.maxHP / 4);
+            def.hp = Math.min(def.maxHP, def.hp + h);
+            events.push({ t: 'heal', side: side === 'A' ? 'B' : 'A', name: def.name, hp: def.hp, maxHP: def.maxHP });
+            log.push(`${def.name} restored some HP!`);
+          }
+          continue;
+        }
         if (res.missed) {
           events.push({ t: 'move', side, move: mv.name, missed: true, attacker: atk.name, target: def.name });
           log.push(`${atk.name} used ${mv.name} — but it missed!`);
@@ -929,7 +1019,14 @@ window.VIEWS = window.VIEWS || {};
       }
 
       // ---- end-of-turn residual damage (burn / poison / toxic) ----
-      for (const [side, mon, oppIdx] of [['A', A[ai], 'A'], ['B', B[bi], 'B']]) {
+      // Process sides in speed order (ties random) so neither slot is favored.
+      const eotOrder = (() => {
+        const sa = STATUS.speed(A[ai] || {}), sb = STATUS.speed(B[bi] || {});
+        const aF = sa > sb || (sa === sb && rng() < 0.5);
+        return aF ? ['A', 'B'] : ['B', 'A'];
+      })();
+      for (const side of eotOrder) {
+        const mon = side === 'A' ? A[ai] : B[bi];
         if (!mon || mon.fainted) continue;
         const r = STATUS.residual(mon);
         if (r > 0) {
@@ -951,7 +1048,8 @@ window.VIEWS = window.VIEWS || {};
       // ---- end-of-turn weather: chip damage + duration ----
       const wk = curWeather();
       if (wk === 'SAND' || wk === 'HAIL') {
-        for (const [side, mon] of [['A', A[ai]], ['B', B[bi]]]) {
+        for (const side of eotOrder) {
+          const mon = side === 'A' ? A[ai] : B[bi];
           if (!mon || mon.fainted) continue;
           // Sand: Rock/Ground/Steel immune. Hail/Snow: Ice immune. Magic Guard / Overcoat immune. Weather Shell / Sand Bath skip.
           const immune = (wk === 'SAND' ? FIELD.sandImmuneType(mon.types) : mon.types.includes('ICE'))
