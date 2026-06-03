@@ -9060,7 +9060,7 @@ window.VGAME = (function () {
     {
       slug: 'acciome-city', name: 'Acciome City', kind: 'City', tag: '',
       desc: 'A highly developed city known for its prestigious university and tight-knit community, filled with apartments and parks dedicated to its founder, Arun. Acciome University nurtures aspiring trainers, researchers, and educators. The player attends classes and has their first rival battle against Kayden here.',
-      exits: 'West — Route 5 | North — Acciome University',
+      exits: 'West — Route 5',
       encounter: '', map: 'acciome-city.png',
       mons: [],
       encounters: [],
