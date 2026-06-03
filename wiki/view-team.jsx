@@ -58,8 +58,9 @@ window.VIEWS = window.VIEWS || {};
   const SKEYS = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
   // compact spec suffix appended to a member segment only when it differs from
   // the default build (max IVs, neutral 'Hardy' nature, no EVs). Format:
-  //   *<natureIdx b36 1ch> i<6× IV b36 1ch> e<6× EV b36 2ch>
-  // Decoders that don't understand '*' simply ignore everything after it.
+  //   -<natureIdx b36 1ch><6× IV b36 1ch><6× EV b36 2ch>   (fixed widths, 19 chars)
+  // Uses '-' as the marker (Discord-markdown safe, unlike the old '*'). Fields are
+  // fixed-width so no internal separators are needed. Old '*'-style codes still decode.
   function _isDefaultSpec(m) {
     const nat = m.nature || 'Hardy';
     const natList = (S().NATURE_LIST) || ['Hardy'];
@@ -73,9 +74,9 @@ window.VIEWS = window.VIEWS || {};
     const natList = (S().NATURE_LIST) || ['Hardy'];
     const ni = Math.max(0, natList.indexOf(m.nature || 'Hardy'));
     const ivs = m.ivs || defIVs(), evs = m.evs || defEVs();
-    const ivStr = SKEYS.map(k => (ivs[k] == null ? 31 : ivs[k]).toString(36)).join('');
-    const evStr = SKEYS.map(k => Math.max(0, Math.min(252, evs[k] | 0)).toString(36).padStart(2, '0')).join('');
-    return '*' + ni.toString(36) + 'i' + ivStr + 'e' + evStr;
+    const ivStr = SKEYS.map(k => (ivs[k] == null ? 31 : ivs[k]).toString(36)).join('');           // 6 chars
+    const evStr = SKEYS.map(k => Math.max(0, Math.min(252, evs[k] | 0)).toString(36).padStart(2, '0')).join(''); // 12 chars
+    return '-' + ni.toString(36) + ivStr + evStr;
   }
   function encodeTeam(loadout) {
     try {
@@ -108,21 +109,41 @@ window.VIEWS = window.VIEWS || {};
     return out;
   }
   function _parseSpec(specStr) {
-    // specStr is the part after '*':  <natB36>i<6 IV b36><e><6×2 EV b36>
+    // new fixed-width form (after '-'):  <natB36 1><6 IV b36><12 EV b36>  (19 total minus marker = 19 chars)
+    // legacy form (after '*'):           <natB36>i<6 IV b36>e<12 EV b36>
     try {
       const natList = (S().NATURE_LIST) || ['Hardy'];
-      const iPos = specStr.indexOf('i'), ePos = specStr.indexOf('e', iPos + 1);
-      const ni = parseInt(specStr.slice(0, iPos), 36) || 0;
-      const nature = natList[ni] || 'Hardy';
-      const ivPart = specStr.slice(iPos + 1, ePos);
-      const evPart = specStr.slice(ePos + 1);
       const ivs = {}, evs = {};
+      if (specStr.indexOf('i') >= 0 && specStr.indexOf('e') > specStr.indexOf('i')) {
+        // legacy '*' form with i/e separators
+        const iPos = specStr.indexOf('i'), ePos = specStr.indexOf('e', iPos + 1);
+        const ni = parseInt(specStr.slice(0, iPos), 36) || 0;
+        const ivPart = specStr.slice(iPos + 1, ePos), evPart = specStr.slice(ePos + 1);
+        SKEYS.forEach((k, idx) => {
+          ivs[k] = Math.max(0, Math.min(31, parseInt(ivPart[idx] || 'v', 36) || 0));
+          evs[k] = Math.max(0, Math.min(252, parseInt(evPart.slice(idx * 2, idx * 2 + 2) || '00', 36) || 0));
+        });
+        return { nature: natList[ni] || 'Hardy', ivs, evs };
+      }
+      // new fixed-width form: char0 = nature, chars 1-6 = IVs, chars 7-18 = EVs (2 each)
+      const ni = parseInt(specStr[0] || '0', 36) || 0;
+      const ivPart = specStr.slice(1, 7), evPart = specStr.slice(7, 19);
       SKEYS.forEach((k, idx) => {
         ivs[k] = Math.max(0, Math.min(31, parseInt(ivPart[idx] || 'v', 36) || 0));
         evs[k] = Math.max(0, Math.min(252, parseInt(evPart.slice(idx * 2, idx * 2 + 2) || '00', 36) || 0));
       });
-      return { nature, ivs, evs };
+      return { nature: natList[ni] || 'Hardy', ivs, evs };
     } catch (e) { return null; }
+  }
+  // find where the spec marker starts in a member's after-dot string, without
+  // mistaking a '-' inside a literal <Move-Name> for the marker.
+  function _specSplit(afterDot) {
+    const lastGt = afterDot.lastIndexOf('>');          // end of any literal move names
+    const searchFrom = lastGt >= 0 ? lastGt + 1 : 0;
+    let pos = afterDot.indexOf('-', searchFrom);        // new marker
+    if (pos < 0) pos = afterDot.indexOf('*', searchFrom); // legacy marker
+    if (pos < 0) return [afterDot, ''];
+    return [afterDot.slice(0, pos), afterDot.slice(pos + 1)];
   }
   function decodeTeam(code) {
     try {
@@ -136,11 +157,8 @@ window.VIEWS = window.VIEWS || {};
         const members = rest ? rest.split(';').filter(Boolean).slice(0, MAXTEAM).map(seg => {
           const dot = seg.indexOf('.');
           const dexRaw = dot >= 0 ? seg.slice(0, dot) : seg;
-          let afterDot = dot >= 0 ? seg.slice(dot + 1) : '';
-          // split off the optional EV/IV/nature spec (after '*')
-          const star = afterDot.indexOf('*');
-          const movesStr = star >= 0 ? afterDot.slice(0, star) : afterDot;
-          const specStr = star >= 0 ? afterDot.slice(star + 1) : '';
+          const afterDot = dot >= 0 ? seg.slice(dot + 1) : '';
+          const [movesStr, specStr] = _specSplit(afterDot);
           const base = { dex: padDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
           const spec = specStr ? _parseSpec(specStr) : null;
           return spec ? { ...base, ...spec } : base;
