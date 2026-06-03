@@ -2108,8 +2108,8 @@ window.VIEWS = window.VIEWS || {};
     // submit a fresh-team boss win to the leaderboard (fire-and-forget; the DB's
     // unique index quietly rejects a duplicate team, so this is safe to call once
     // per earned certificate). Reads the same Supabase config as the vote board.
-    const LB_URL = 'https://mzrwajvztpcncthstzcq.supabase.co';
-    const LB_KEY = 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'; // sb_publishable_... — keep on ONE line (same key as vote board)
+    const LB_URL = 'https://fzwxxvmzjkepfibjjyza.supabase.co';
+    const LB_KEY = 'sb_publishable_mK-sym5D-ue5JoRGODx4iw_FM3X3EDK'; // sb_publishable_... — keep on ONE line (same key as vote board)
     const submitWin = (tier, team, name) => {
       if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return; // not configured
       const payload = {

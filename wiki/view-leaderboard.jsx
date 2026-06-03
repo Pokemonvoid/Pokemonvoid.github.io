@@ -15,8 +15,8 @@
   // ====================================================================
   // CONFIG — same PUBLIC Supabase project as the vote board. Paste your
   // publishable key here on deploy (it's the placeholder again locally).
-  const SUPABASE_URL = 'https://mzrwajvztpcncthstzcq.supabase.co';
-  const SUPABASE_ANON_KEY = 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'; // sb_publishable_... — keep on ONE line
+  const SUPABASE_URL = 'https://fzwxxvmzjkepfibjjyza.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_mK-sym5D-ue5JoRGODx4iw_FM3X3EDK'; // sb_publishable_... — keep on ONE line
   // ====================================================================
 
   const CONFIGURED = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
