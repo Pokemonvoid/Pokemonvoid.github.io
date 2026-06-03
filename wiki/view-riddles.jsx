@@ -86,9 +86,22 @@ window.VIEWS = window.VIEWS || {};
 
   const TOTAL = Object.values(RIDDLES).reduce((n, arr) => n + arr.length, 0); // 50
   const LS_KEY = 'voiddex_riddles_solved';
+  // One-time patch (difficulty rework of Expert + Nightmare): the riddles in those
+  // two tiers changed, so previously-earned solves there are no longer valid. We
+  // clear ONLY Expert#* and Nightmare#* once per device, keeping Easy/Medium/Hard
+  // progress intact. A flag ensures this happens a single time, not on every load.
+  const PATCH_FLAG = 'voiddex_riddles_patch_en1';
   function loadSolved() {
-    try { const a = JSON.parse(localStorage.getItem(LS_KEY)); return new Set(Array.isArray(a) ? a : []); }
-    catch (e) { return new Set(); }
+    try {
+      let arr = JSON.parse(localStorage.getItem(LS_KEY));
+      if (!Array.isArray(arr)) arr = [];
+      if (!localStorage.getItem(PATCH_FLAG)) {
+        arr = arr.filter(k => !/^Expert#/.test(k) && !/^Nightmare#/.test(k));
+        localStorage.setItem(LS_KEY, JSON.stringify(arr));
+        localStorage.setItem(PATCH_FLAG, '1');
+      }
+      return new Set(arr);
+    } catch (e) { return new Set(); }
   }
   function saveSolved(set) { try { localStorage.setItem(LS_KEY, JSON.stringify([...set])); } catch (e) {} }
 
