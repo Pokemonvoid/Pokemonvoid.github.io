@@ -2160,6 +2160,7 @@ window.VIEWS = window.VIEWS || {};
                     {result.winner === 'Draw' ? 'Draw' : 'Team ' + result.winner + ' Wins'}
                   </div>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#9a93bb', marginTop: 4 }}>{result.turns} turns · A: {result.survivorsA} left · B: {result.survivorsB} left</div>
+                  <button onClick={run} style={{ cursor: 'pointer', marginTop: 16, background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', borderRadius: 10, padding: '9px 22px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 16 }}>↻ Retry</button>
                 </div>
               </div>
             )}
