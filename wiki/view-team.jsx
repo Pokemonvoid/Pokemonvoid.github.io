@@ -185,6 +185,15 @@ window.VIEWS = window.VIEWS || {};
   window.VTEAM = window.VTEAM || {};
   window.VTEAM.decodeTeam = decodeTeam;
   window.VTEAM.encodeTeam = encodeTeam;
+  // expose saved loadouts (read from the same localStorage the builder uses) so
+  // the Battle Sim can offer "import a saved loadout" without copy-pasting codes.
+  // Returns [{ id, name, members:[{dex,moves,evs,ivs,nature}] }], normalized.
+  window.VTEAM.listLoadouts = function () {
+    try {
+      const state = loadAll();
+      return (state.loadouts || []).map(l => ({ id: l.id, name: l.name, members: (l.members || []).map(normMember) }));
+    } catch (e) { return []; }
+  };
 
   // a mon's learnable move names (deduped) from level/TM/egg lists
   function learnableMoves(dex) {

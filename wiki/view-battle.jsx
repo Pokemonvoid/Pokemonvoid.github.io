@@ -2109,7 +2109,7 @@ window.VIEWS = window.VIEWS || {};
     // unique index quietly rejects a duplicate team, so this is safe to call once
     // per earned certificate). Reads the same Supabase config as the vote board.
     const LB_URL = 'https://fzwxxvmzjkepfibjjyza.supabase.co';
-    const LB_KEY = 'sb_publishable_mK-sym5D-ue5JoRGODx4iw_FM3X3EDK'; // sb_publishable_... — keep on ONE line (same key as vote board)
+    const LB_KEY = 'sb_publishable_mK-sym5D-ue5JoRGODx4iw_FM3X3EDK'; // sb_publishable_... — keep on ONE line
     const submitWin = (tier, team, name) => {
       if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return; // not configured
       const payload = {
@@ -2176,27 +2176,43 @@ window.VIEWS = window.VIEWS || {};
     };
 
     // import a VT2…/VTEAM1 code into the chosen side(s) as a manual roster
+    // turn a decoded/loaded loadout into the manual roster(s) and apply it.
+    const applyLoadout = (lo) => {
+      if (!lo || !lo.members || lo.members.length === 0) return false;
+      const roster = lo.members.map(m => {
+        const resolved = resolveMoves(m.moves);
+        return { dex: m.dex, moves: resolved.length ? resolved : autoMoves(m.dex), evs: m.evs, ivs: m.ivs, nature: m.nature };
+      }).filter(m => byDex(m.dex));
+      if (roster.length === 0) return false;
+      const named = lo.name ? `"${lo.name}"` : 'team';
+      if (importInto === 'A' || importInto === 'both') { setManualA(roster.map(r => ({ ...r }))); setSrcA('manual'); }
+      if (importInto === 'B' || importInto === 'both') { setManualB(roster.map(r => ({ ...r }))); setSrcB('manual'); }
+      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${importInto === 'both' ? 'A & B' : importInto}.`);
+      setResult(null); setStep(0); setPlaying(false);
+      return true;
+    };
     const doImport = () => {
       const lo = decodeShareCode(importText);
       if (!lo || !lo.members || lo.members.length === 0) {
         setImportMsg('That code is not valid. Copy the whole thing (it starts with VT2).');
         return;
       }
-      // members → manual roster shape with resolved MOVE objects
-      const roster = lo.members.map(m => {
-        const resolved = resolveMoves(m.moves);
-        return { dex: m.dex, moves: resolved.length ? resolved : autoMoves(m.dex), evs: m.evs, ivs: m.ivs, nature: m.nature };
-      }).filter(m => byDex(m.dex));
-      if (roster.length === 0) { setImportMsg('Code decoded, but no valid Pokémon were found in it.'); return; }
-      const named = lo.name ? `"${lo.name}"` : 'team';
-      if (importInto === 'A' || importInto === 'both') { setManualA(roster.map(r => ({ ...r }))); setSrcA('manual'); }
-      if (importInto === 'B' || importInto === 'both') { setManualB(roster.map(r => ({ ...r }))); setSrcB('manual'); }
-      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${importInto === 'both' ? 'A & B' : importInto}.`);
-      setResult(null); setStep(0); setPlaying(false);
+      if (!applyLoadout(lo)) setImportMsg('Code decoded, but no valid Pokémon were found in it.');
     };
+    // import a saved Team Builder loadout directly (no code needed)
+    const importSavedLoadout = (lo) => {
+      if (!applyLoadout(lo)) setImportMsg('That loadout has no valid Pokémon yet — add some in the Team Builder.');
+    };
+    // saved loadouts from the Team Builder (read once when the modal opens)
+    const [savedLoadouts, setSavedLoadouts] = React.useState([]);
 
     // open the import modal pre-targeted at a side ('A' | 'B' | 'both')
-    const openImport = (into) => { setImportInto(into || 'A'); setImportText(''); setImportMsg(''); setImportOpen(true); };
+    const openImport = (into) => {
+      setImportInto(into || 'A'); setImportText(''); setImportMsg('');
+      try { setSavedLoadouts((window.VTEAM && window.VTEAM.listLoadouts) ? window.VTEAM.listLoadouts() : []); }
+      catch (e) { setSavedLoadouts([]); }
+      setImportOpen(true);
+    };
 
     // switch a side's source; entering 'random' rolls that side a fresh team at
     // the current level (so it doesn't keep showing the old manual roster).
@@ -2402,6 +2418,35 @@ window.VIEWS = window.VIEWS || {};
                   <button key={v} onClick={() => setImportInto(v)} style={{ cursor: 'pointer', flex: 1, padding: '8px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, fontWeight: 600, background: importInto === v ? '#8a5cff22' : '#100c24', border: `1px solid ${importInto === v ? '#8a5cff' : '#2a2545'}`, color: importInto === v ? '#fff' : '#9a93bb' }}>{lbl}</button>
                 ))}
               </div>
+
+              {/* saved Team Builder loadouts — one tap to import, no code needed */}
+              {savedLoadouts.filter(l => l.members && l.members.length).length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, letterSpacing: 1, color: '#8a83a8', marginBottom: 6 }}>YOUR SAVED LOADOUTS</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
+                    {savedLoadouts.filter(l => l.members && l.members.length).map(l => (
+                      <button key={l.id} onClick={() => importSavedLoadout(l)}
+                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 10, background: '#120e26', border: '1px solid #2a2545', textAlign: 'left' }}>
+                        <span style={{ flex: 1, minWidth: 0, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 14, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</span>
+                        <span style={{ display: 'flex', gap: 2 }}>
+                          {l.members.slice(0, 6).map((m, mi) => (
+                            <span key={mi} style={{ width: 26, height: 26, borderRadius: 6, background: '#0c091c', border: '1px solid #221c40', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <SpriteSlot dex={m.dex} name={(byDex(m.dex) || {}).name || ''} size={22} accent="#8a5cff" />
+                            </span>
+                          ))}
+                        </span>
+                        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#8a5cff', whiteSpace: 'nowrap' }}>Use →</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 4px' }}>
+                    <div style={{ flex: 1, height: 1, background: '#1d1838' }} />
+                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388' }}>or paste a code</span>
+                    <div style={{ flex: 1, height: 1, background: '#1d1838' }} />
+                  </div>
+                </div>
+              )}
+
               <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VT2… code here" spellCheck={false}
                 style={{ width: '100%', boxSizing: 'border-box', minHeight: 90, padding: '10px 12px', borderRadius: 9, background: '#100c24', border: '1px solid #2a2545', color: '#cdbfff', fontFamily: "'Space Mono', monospace", fontSize: 12.5, resize: 'vertical' }} />
               {importMsg && <div style={{ marginTop: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: importMsg.startsWith('Imported') ? '#7fe0a0' : '#ff9fb5' }}>{importMsg}</div>}
