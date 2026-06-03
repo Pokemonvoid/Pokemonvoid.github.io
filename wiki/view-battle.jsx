@@ -720,12 +720,12 @@ window.VIEWS = window.VIEWS || {};
   // multiplier and hand-picked optimal moves.
   const BOSS_NAME = 'Pokedex Fillers';
   const VAERETH_ROSTER = [
-    { dex: '069', moves: ['Rock Wrecker', 'Self-Destruct', 'Liquidation', 'Brine'] },        // Sedimonk [ROCK/WATER]
-    { dex: '073', moves: ['Rock Wrecker', 'Self-Destruct', 'Kowtow Cleave', 'Night Slash'] }, // Sedirogue [ROCK/DARK]
-    { dex: '074', moves: ['Rock Wrecker', 'Self-Destruct', 'Icicle Crash', 'Stone Axe'] },    // Sediserker [ROCK/ICE]
-    { dex: '006', moves: ['Burn Up', 'Supernova', 'Slam', 'Ember'] },                          // Galeliadea [FIRE/COSMIC]
-    { dex: '071', moves: ['Rock Wrecker', 'Self-Destruct', 'Electro Shot', 'Crystalize'] },    // Sedificer [ROCK/ELECTRIC]
-    { dex: '099', moves: ['Water Spout', 'Fly', 'Steel Wing', 'Water Gun'] },                  // Writrout [WATER/FLYING]
+    { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Aqua Jet', 'Brine'] },          // Sedimonk [ROCK/WATER] — Aqua Jet covers recharge turns
+    { dex: '073', moves: ['Rock Wrecker', 'Kowtow Cleave', 'Night Slash', 'Psycho Cut'] }, // Sedirogue [ROCK/DARK] — strong non-recharge STAB + coverage
+    { dex: '074', moves: ['Rock Wrecker', 'Icicle Crash', 'Ice Shard', 'Stone Axe'] },     // Sediserker [ROCK/ICE] — Ice Shard priority
+    { dex: '006', moves: ['Burn Up', 'Supernova', 'Slam', 'Ember'] },                       // Galeliadea [FIRE/COSMIC]
+    { dex: '071', moves: ['Electro Shot', 'Rock Wrecker', 'Crystalize', 'Signal Beam'] },   // Sedificer [ROCK/ELECTRIC] — Electro Shot (130, no recharge) primary
+    { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'] },        // Writrout [WATER/FLYING] — dropped Fly (2-turn)
   ];
   const VAERETH_LEVEL = 100;
   const VAERETH_STAT_MULT = 1.25; // boss stat boost on top of max level
@@ -1918,7 +1918,7 @@ window.VIEWS = window.VIEWS || {};
             ))}
           </div>
           <button onClick={() => { setVaereth(v => { const nv = !v; if (nv) setAiMode('hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
-            title={`${BOSS_NAME}: a maximally-hard boss replaces Team B. Level 100, boosted stats, optimal team.`}
+            title={`${BOSS_NAME}: a brutally hard boss replaces Team B. Beating it is meant to be very tough.`}
             style={{ cursor: 'pointer', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
             {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
           </button>
@@ -1932,7 +1932,7 @@ window.VIEWS = window.VIEWS || {};
         {vaereth && (
           <div style={{ marginBottom: 14, padding: '10px 14px', background: 'linear-gradient(90deg, rgba(179,18,46,0.18), rgba(255,90,60,0.06))', border: '1px solid #5a2230', borderRadius: 10, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb3a0' }}>
             <strong style={{ color: '#ff7a5c', fontFamily: "'Pixelify Sans', sans-serif", letterSpacing: 1 }}>☠ BOSS ENCOUNTER — {BOSS_NAME.toUpperCase()}</strong><br />
-            Team B is now <strong>{BOSS_NAME}</strong>: a fixed top-tier roster at <strong>Level {VAERETH_LEVEL}</strong> with <strong>+{Math.round((VAERETH_STAT_MULT - 1) * 100)}% stats</strong> and optimized movesets. This is a deliberately overpowered fight — beating it is meant to be very hard. Build Team A to take it on.
+            Team B is now <strong>{BOSS_NAME}</strong> — a brutally tough boss with a hand-picked team. This fight is meant to be very hard. Build Team A to take it on.
           </div>
         )}
 
@@ -1961,7 +1961,7 @@ window.VIEWS = window.VIEWS || {};
             onChange={e => { const v = +e.target.value; setLevel(v); relevelTeams(v); }}
             style={{ flex: '1 1 220px', accentColor: '#8a5cff', cursor: 'pointer' }} />
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: '#fff', minWidth: 56, textAlign: 'right' }}>Lv. {level}</span>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to all teams — random, manual, and imported — from Lv. 1 to 100.{vaereth ? ` (${BOSS_NAME} ignores this; the boss is always Lv. 100 +25%.)` : ''}</span>
+          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to all teams — random, manual, and imported — from Lv. 1 to 100.{vaereth ? ` (${BOSS_NAME} sets its own team and ignores this slider.)` : ''}</span>
         </div>
         {buildMsg && <div style={{ marginBottom: 14, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb37a' }}>{buildMsg}</div>}
 
