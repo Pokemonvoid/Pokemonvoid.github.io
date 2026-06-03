@@ -4031,7 +4031,7 @@ window.VDEX = (function () {
       hidden: 'Moody',
       stats: { HP: 60, ATK: 50, DEF: 45, SPA: 80, SPD: 60, SPE: 75 },
       flavor: 'Gleeruption are very prideful creatures, usually getting into fights recklessly due to this; they\'re very prone to injuries.',
-      evo: { from: '104', method: 'Positive Nature' },
+      evo: { from: '104', method: 'Lv 25 (Positive Nature)' },
       levelMoves: [
         M('1', 'Heal Block'),  // REVIEW name
         M('1', 'Return'),  // REVIEW name
@@ -4074,7 +4074,7 @@ window.VDEX = (function () {
       hidden: 'Moody',
       stats: { HP: 60, ATK: 50, DEF: 45, SPA: 70, SPD: 70, SPE: 75 },
       flavor: 'Shaped by a somber past, Scorow distrust humans and often attack when confronted. Yet recent domestication efforts have begun to succeed.',
-      evo: { from: '104', method: 'Negative Nature' },
+      evo: { from: '104', method: 'Lv 25 (Negative Nature)' },
       levelMoves: [
         M('1', 'Embargo'),  // REVIEW name
         M('1', 'Frustration'),  // REVIEW name
