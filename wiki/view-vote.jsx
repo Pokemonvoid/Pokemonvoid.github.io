@@ -13,7 +13,7 @@
   // The anon key is designed to be public; row-level security on the table
   // is what keeps votes safe. Leaving these blank shows a friendly notice.
   const SUPABASE_URL = 'https://mzrwajvztpcncthstzcq.supabase.co';
-  const SUPABASE_ANON_KEY = 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'; // sb_publishable_... — keep on ONE line
+  const SUPABASE_ANON_KEY = 'sb_publishable_NzYqNoJ376FgIGdiedosqA_6T88qB9n'; // sb_publishable_... — keep on ONE line
   // ====================================================================
 
   const CONFIGURED = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
