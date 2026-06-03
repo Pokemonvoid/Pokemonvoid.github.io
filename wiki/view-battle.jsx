@@ -587,20 +587,66 @@ window.VIEWS = window.VIEWS || {};
     isActive(name) { return name && ABIL.active.has(normName(name)); },
     // the abilities this mon can switch between via Sync Band (listed + hidden, deduped)
     pool(mon) { return (mon.abilityPool && mon.abilityPool.length) ? mon.abilityPool : (mon.ability ? [mon.ability] : []); },
-    // Sync Band: pick the best ability for THIS turn from the pool.
-    // Intimidate only matters on switch-in (handled there), so for an in-place
-    // turn the useful proactive pick is Moxie (if we might KO) or Defiant
-    // (if the foe might lower our stats). We keep it simple and safe: prefer an
-    // active ability over an inert one; among active, prefer Moxie when the foe
-    // is low (likely KO), else keep the current ability. Returns a name or null.
-    syncChoice(mon, foe) {
-      const opts = ABIL.pool(mon).filter(a => ABIL.isActive(a));
-      if (opts.length === 0) return null; // nothing simulated to switch to
-      const cur = mon.ability;
-      // if foe looks KO-able this turn, Moxie is the value pick
-      const foeLow = foe && !foe.fainted && (foe.hp / foe.maxHP) <= 0.45;
-      if (foeLow && opts.some(a => normName(a) === normName('Moxie')) && !ABIL.has(mon, 'Moxie')) return 'Moxie';
-      // otherwise no clearly-better in-place swap; stay put
+    // ability that makes `mon` immune to / absorb a move of this type, if present in pool
+    typeAbsorbAbility(type) {
+      const map = { FIRE: 'Flash Fire', ELECTRIC: ['Volt Absorb', 'Motor Drive', 'Lightning Rod'], WATER: ['Water Absorb', 'Storm Drain', 'Dry Skin'], GRASS: 'Sap Sipper', GROUND: 'Levitate' };
+      const e = map[type];
+      return Array.isArray(e) ? e : (e ? [e] : []);
+    },
+    // Sync Band: pick the best ability in the pool for THIS turn, or null to just attack.
+    // Syncing COSTS the turn, so we only do it when the edge clearly beats attacking:
+    //  - defensively: swap to an ability that fully absorbs/negates the foe's likely move,
+    //    or that blocks a status the foe is about to inflict;
+    //  - offensively: swap to a clear damage-boost ability before our own big hit.
+    // `cx` may carry { foeMove } (the foe's predicted move) and { incoming } (its avg dmg).
+    syncChoice(mon, foe, cx) {
+      const pool = ABIL.pool(mon);
+      if (pool.length <= 1) return null;
+      const cur = normName(mon.ability);
+      const have = (name) => pool.some(a => normName(a) === normName(name));
+      const fm = cx && cx.foeMove;            // predicted foe move object
+      const incoming = (cx && cx.incoming) || 0; // its avg damage to us
+      const bigHit = incoming >= mon.hp * 0.45;  // the foe move would really hurt
+
+      // 1) DEFENSIVE — absorb the foe's incoming move type (only worth a turn if it'd hurt)
+      if (fm && fm.cls !== 'Status' && fm.pow && bigHit) {
+        const absorbers = ABIL.typeAbsorbAbility(fm.type);
+        for (const ab of absorbers) {
+          if (have(ab) && normName(ab) !== cur) return ab; // negates the hit entirely
+        }
+      }
+      // 2) DEFENSIVE — block an incoming status the foe move would inflict
+      if (fm) {
+        const eff = moveStatusEffect(fm);
+        if (eff && !ABIL.blocksStatus(mon, eff.code)) {
+          const guards = { SLP: ['Insomnia', 'Vital Spirit', 'Sweet Veil'], BRN: ['Water Veil', 'Thermal Exchange'], PAR: ['Limber'], FRZ: ['Magma Armor'], PSN: ['Immunity', 'Pastel Veil'], TOX: ['Immunity', 'Pastel Veil'] }[eff.code] || [];
+          const universal = ['Purifying Salt'];
+          for (const ab of [...guards, ...universal]) {
+            if (have(ab) && normName(ab) !== cur) return ab;
+          }
+        }
+      }
+      // 3) OFFENSIVE — only when we're NOT under heavy fire (a free-ish turn): swap to a
+      // clear power booster we don't already have. Conservative: needs the matchup safe.
+      if (!bigHit) {
+        // pinch boosters matter at low HP; type/power boosters always help our STAB
+        const stab = mon.types || [];
+        const offensive = [];
+        if (mon.hp <= mon.maxHP / 3) { offensive.push('Overgrow', 'Blaze', 'Torrent', 'Swarm', 'Solar Power'); }
+        offensive.push('Burning Hot', 'Steely Spirit', 'Sharpness', 'Strong Jaw', 'Technician', 'Adaptability');
+        for (const ab of offensive) {
+          if (have(ab) && normName(ab) !== cur) {
+            // require the boost to actually apply to our typing where type-specific
+            if (ab === 'Overgrow' && !stab.includes('GRASS')) continue;
+            if (ab === 'Blaze' && !stab.includes('FIRE')) continue;
+            if (ab === 'Torrent' && !stab.includes('WATER')) continue;
+            if (ab === 'Swarm' && !stab.includes('BUG')) continue;
+            if ((ab === 'Burning Hot' || ab === 'Solar Power') && !stab.includes('FIRE')) continue;
+            if (ab === 'Steely Spirit' && !stab.includes('STEEL')) continue;
+            return ab;
+          }
+        }
+      }
       return null;
     },
 
@@ -1456,17 +1502,25 @@ window.VIEWS = window.VIEWS || {};
         // a side that switched this turn has used its action — it doesn't attack
         if ((side === 'A' && aSwitched) || (side === 'B' && bSwitched)) continue;
 
-        // ---- Sync Ability (player mechanic): swap active ability once per turn ----
-        // Available to every Pokémon — no held item required. Swaps to any ability
-        // in the mon's natural pool (listed + hidden).
-        if (atk.syncUsedTurn !== turn) {
-          const pick = ABIL.syncChoice(atk, def);
+        // ---- Sync Ability (core mechanic): swap to any ability in the mon's pool.
+        // Syncing CONSUMES the turn (you sync instead of attacking). The auto-pick
+        // only fires when it gains a real edge. Entry abilities (Intimidate, weather)
+        // re-trigger on sync; the new ability persists until faint or another sync. ----
+        if (atk.syncUsedTurn !== turn && ABIL.pool(atk).length > 1) {
+          // predict the foe's move and its damage so sync can react defensively
+          const foeMv = bestMove(def, atk, { mode: 'normal' });
+          const inc = foeMv ? computeDamageAvg(def, atk, foeMv) : 0;
+          const pick = ABIL.syncChoice(atk, def, { foeMove: foeMv, incoming: inc });
           if (pick && normName(pick) !== normName(atk.ability)) {
             const from = atk.ability;
             atk.ability = pick;
             atk.syncUsedTurn = turn;
             events.push({ t: 'sync', side, name: atk.name, from, to: pick });
             log.push(`${atk.name} synced its Ability to ${pick}!`);
+            // re-trigger on-acquire (entry) effects for the new ability
+            weatherAbility(atk, side);
+            doIntimidate(atk, side, def, side === 'A' ? 'B' : 'A');
+            continue; // syncing is this mon's action for the turn — it does not also attack
           }
         }
 
@@ -2704,7 +2758,7 @@ window.VIEWS = window.VIEWS || {};
                       <div style={{ marginTop: 9, fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388' }}>
                         <div><span style={{ color: '#9a93bb' }}>Ability:</span> {abilities.length ? abilities.map((a, ai2) => <span key={ai2}>{ai2 ? ', ' : ''}{a}{ai2 === 0 && ABIL.active.has(normName(a)) ? <span style={{ color: '#5fd13c', fontSize: 9 }}> ●active</span> : ''}</span>) : '—'}{hidden ? ` (hidden: ${hidden})` : ''}</div>
                         <div style={{ marginTop: 3 }}><span style={{ color: '#9a93bb' }}>Item:</span> {m.item || '—'}</div>
-                        <div style={{ marginTop: 3, color: '#5fd13c', fontSize: 9 }}>Sync: can swap to any of its abilities once per turn</div>
+                        <div style={{ marginTop: 3, color: '#5fd13c', fontSize: 9 }}>Sync: swap to any of its abilities — costs the turn, once per turn</div>
                         <div style={{ marginTop: 3, color: '#5f5980' }}>IV / EV / Nature — not simulated yet</div>
                       </div>
                     </div>
