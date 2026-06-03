@@ -413,6 +413,22 @@ window.VIEWS = window.VIEWS || {};
   })();
   function moveStatEffect(move) { return MOVE_STAT[normName(move.name)] || null; }
 
+  // self-healing moves: restore a fraction of max HP. Weather-dependent recovery
+  // (Synthesis/Moonlight/Morning Sun) heals more in sun, less in other weather.
+  // Roost also grounds the user for the turn (handled at use). Rest = full heal + sleep.
+  const HEAL_MOVES = (() => {
+    const t = {};
+    const add = (name, frac, opts) => { t[normName(name)] = Object.assign({ frac }, opts || {}); };
+    add('Recover', 0.5); add('Roost', 0.5, { roost: true }); add('Slack Off', 0.5);
+    add('Soft-Boiled', 0.5); add('Milk Drink', 0.5); add('Heal Order', 0.5);
+    add('Life Dew', 0.25); add('Floral Healing', 0.5); add('Jungle Healing', 0.25);
+    add('Synthesis', 0.5, { weather: true }); add('Moonlight', 0.5, { weather: true });
+    add('Morning Sun', 0.5, { weather: true });
+    add('Rest', 1.0, { rest: true });
+    return t;
+  })();
+  function healMoveInfo(move) { return HEAL_MOVES[normName(move.name)] || null; }
+
   // moves that make the user faint after dealing damage (canonical self-KO).
   const SELF_KO = new Set(['explosion', 'selfdestruct', 'mistyexplosion'].map(normName));
   const isSelfKO = (move) => SELF_KO.has(normName(move.name));
@@ -985,7 +1001,34 @@ window.VIEWS = window.VIEWS || {};
         // foe must be statusable and not immune; otherwise it's near-useless.
         const eff2 = moveStatusEffect(move);
         const stat2 = moveStatEffect(move);
-        if (eff2 && STATUS.canApply(defender, eff2.code)) {
+        const heal2 = healMoveInfo(move);
+        if (heal2) {
+          // value healing smoothly (no hard cliff) as a function of how much HP is
+          // missing AND how hard the foe hits — you heal more when low and under real
+          // pressure, less when barely scratched or when a trade would do.
+          const missing = 1 - attacker.hp / attacker.maxHP;
+          if (missing < 0.12) score = 0.5;                  // basically full — don't waste the turn
+          else {
+            // threat: fraction of our max HP the foe takes per turn (default ~20%).
+            const threat = (hard && cx.foeBestDmg != null)
+              ? Math.max(0.05, Math.min(1, cx.foeBestDmg / attacker.maxHP))
+              : 0.2;
+            // smooth curve (no hard cliff): climbs with missing HP, and much faster
+            // when the foe hits hard — a low-HP mon under heavy fire should heal even
+            // if it has a strong attack, but a healthy mon or one facing a weak foe
+            // keeps attacking. Calibrated against attack scores that run ~150-250.
+            score = Math.pow(missing, 1.3) * (90 + threat * 520);
+            if (hard && cx.foeBestDmg != null) {
+              const healAmt = attacker.maxHP * (heal2.rest ? 1 : 0.5);
+              const healed = Math.min(attacker.maxHP, attacker.hp + healAmt);
+              if (cx.foeBestDmg >= healed) score *= 0.2;     // foe KOs through the heal anyway — pointless
+              if (heal2.rest && missing < 0.6) score *= 0.6; // Rest sleeps us — only when desperate
+            }
+          }
+          // anti-stall: if our own best attack can't meaningfully outpace the foe's
+          // bulk, healing only prolongs a fight we can't win — don't loop on it.
+          if (cx.myBestDmg != null && defender.hp != null && cx.myBestDmg < defender.hp * 0.16) score *= 0.1;
+        } else if (eff2 && STATUS.canApply(defender, eff2.code)) {
           // crippling statuses (PAR/SLP/TOX/BRN) are worth more than a chip move
           const weight = { SLP: 30, PAR: 26, TOX: 24, BRN: 20, FRZ: 22, PSN: 14 }[eff2.code] || 12;
           score = weight * eff2.chance;
@@ -1296,6 +1339,7 @@ window.VIEWS = window.VIEWS || {};
       const doSwitchOut = (side, outIdx) => {
         const mon = side === 'A' ? A[outIdx] : B[outIdx];
         mon.mustRecharge = false; // recharge state doesn't persist across a switch
+        mon.boosts = STAGES.fresh(); // stat-stage boosts/drops reset when a mon leaves the field
         const so = ABIL.onSwitchOut(mon);
         if (so.heal && mon.hp > 0 && mon.hp < mon.maxHP) { mon.hp = Math.min(mon.maxHP, mon.hp + so.heal); }
         if (so.cure && mon.status) { STATUS.clear(mon); }
@@ -1481,6 +1525,35 @@ window.VIEWS = window.VIEWS || {};
               events.push({ t: 'ability', side: defSide, name: def.name, ability: 'Anger Shell', boostsOf: snapshotBoosts(A, B) });
               applyStatChanges(def, defSide, [['ATK', 1], ['SPA', 1], ['SPE', 1], ['DEF', -1], ['SPD', -1]], false);
             }
+          }
+        }
+
+        // ---- self-healing moves (Recover, Roost, Synthesis, Rest, etc.) ----
+        const heal = healMoveInfo(mv);
+        if (heal) {
+          if (heal.rest) {
+            // Rest: full heal + sleep for 2 turns (only if not already full HP / can sleep)
+            if (atk.hp < atk.maxHP) {
+              atk.hp = atk.maxHP;
+              STATUS.clear(atk);
+              atk.status = 'SLP'; atk.statusTurns = 2;
+              events.push({ t: 'heal', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP });
+              events.push({ t: 'status', side, name: atk.name, code: 'SLP', statusOf: snapshotStatus(A, B) });
+              log.push(`${atk.name} went to sleep and restored its HP!`);
+            } else { log.push(`${atk.name} used ${mv.name}, but its HP is already full!`); }
+          } else {
+            let frac = heal.frac;
+            if (heal.weather) {
+              const w = curWeather();
+              if (w === 'sun') frac = 2 / 3;
+              else if (w && w !== 'sun') frac = 0.25; // reduced in non-sun weather
+            }
+            if (atk.hp < atk.maxHP) {
+              const amt = Math.max(1, Math.floor(atk.maxHP * frac));
+              atk.hp = Math.min(atk.maxHP, atk.hp + amt);
+              events.push({ t: 'heal', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP });
+              log.push(`${atk.name} restored its HP!`);
+            } else { log.push(`${atk.name} used ${mv.name}, but its HP is already full!`); }
           }
         }
 
