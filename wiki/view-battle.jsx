@@ -1867,9 +1867,9 @@ window.VIEWS = window.VIEWS || {};
 
         {/* the 2D arena */}
         {result && playback && (
-          <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', border: '1px solid #2a2350', background: 'linear-gradient(180deg, #1a1535 0%, #0f0b22 55%, #0a0816 100%)', minHeight: 320, marginBottom: 16 }}>
+          <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', border: '1px solid #2a2350', background: 'linear-gradient(180deg, #1a1535 0%, #0f0b22 55%, #0a0816 100%)', minHeight: 440, marginBottom: 16 }}>
             {/* ground line */}
-            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 70, height: 2, background: 'linear-gradient(90deg, transparent, #3a2f6e, transparent)' }} />
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 96, height: 2, background: 'linear-gradient(90deg, transparent, #3a2f6e, transparent)' }} />
             {/* turn badge */}
             <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#b08fff', letterSpacing: 1 }}>
               {playback.anim && playback.anim.t === 'end' ? '' : 'TURN ' + (playback.turn || 1)}
@@ -1973,7 +1973,7 @@ window.VIEWS = window.VIEWS || {};
     const hpPct = Math.max(0, Math.round((mon.hp / mon.maxHP) * 100));
     const hpColor = hpPct > 50 ? '#5fd13c' : hpPct > 20 ? '#ffd54a' : '#ff5f7e';
     return (
-      <div style={{ position: 'absolute', [isA ? 'left' : 'right']: '8%', bottom: isA ? 60 : 150, textAlign: 'center', width: 180 }}>
+      <div style={{ position: 'absolute', [isA ? 'left' : 'right']: '8%', bottom: isA ? 86 : 200, textAlign: 'center', width: 180 }}>
         {/* HP bar */}
         <div style={{ marginBottom: 8, background: '#0a0818cc', border: `1px solid ${accent}55`, borderRadius: 8, padding: '6px 9px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#fff' }}>
