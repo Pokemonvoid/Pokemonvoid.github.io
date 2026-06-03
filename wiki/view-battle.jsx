@@ -910,18 +910,35 @@ window.VIEWS = window.VIEWS || {};
     { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },       // Writrout [WATER/FLYING]
   ];
   const VAERETH_LEVEL = 100;
-  const VAERETH_STAT_MULT = 1.25; // boss stat boost on top of max level
+  const VAERETH_STAT_MULT = 1.25; // NORMAL boss stat boost on top of max level
+  // HARD mode uses a completely different, far stronger team (Normal's roster is a
+  // placeholder for the owner's favourites; Hard is the real gauntlet). These six
+  // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
+  // them. A smaller stat multiplier is used because the species alone are brutal;
+  // 1.05x keeps it ~99.7% vs optimized random teams while a near-perfect team can
+  // still squeak a win, matching "impossible for most, a dedicated few might win."
+  const VAERETH_HARD_MULT = 1.05;
+  const VAERETH_HARD_ROSTER = [
+    { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
+    { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
+    { dex: '051', moves: ['Swords Dance', 'Extreme Speed', 'Duality', 'Crunch'], nature: 'Jolly' },          // Equinine [LIGHT/DARK] — setup + priority
+    { dex: '073', moves: ['Rock Wrecker', 'Kowtow Cleave', 'Night Slash', 'Psycho Cut'], nature: 'Jolly' }, // Sedirogue [ROCK/DARK] — fastest
+    { dex: '092', moves: ['Bulk Up', 'Close Combat', 'Hurricane', 'Drain Punch'], nature: 'Jolly' },         // Mangmight [FLYING/FIGHTING] — bulky setup
+    { dex: '009', moves: ['Calm Mind', 'Hydro Pump', 'Meteor Beam', 'Hyper Voice'], nature: 'Modest' },      // Kodinaut [WATER/NORMAL] — special tank
+  ];
   function buildVaerethBoss(aiMode) {
     const hard = aiMode === 'hard';
-    const team = VAERETH_ROSTER.map(r => {
+    const roster = hard ? VAERETH_HARD_ROSTER : VAERETH_ROSTER;
+    const mult = hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT;
+    const team = roster.map(r => {
       const d = byDex(r.dex);
-      // normal boss: the roster's optimized 510 spread. hard boss: a perfect
-      // 560 spread (50 beyond the legal cap — a boss-only privilege).
+      // hard roster: perfect 560 spread (50 beyond the legal cap). normal roster:
+      // its hand-tuned 510 spread (or an optimized 560 when fought on hard AI).
       const evs = hard ? idealEVs(d.stats, EV_TOTAL_MAX + 50) : r.evs;
       const m = buildMon(r.dex, VAERETH_LEVEL, r.moves, undefined, { evs, ivs: maxIVs(), nature: r.nature });
       if (!m) return null;
       // flat stat buff (visible in inspector) — the boss is openly stronger
-      STAT_KEYS.forEach(k => { m.stats[k] = Math.floor(m.stats[k] * VAERETH_STAT_MULT); });
+      STAT_KEYS.forEach(k => { m.stats[k] = Math.floor(m.stats[k] * mult); });
       m.maxHP = m.stats.HP; m.hp = m.maxHP;
       m.boss = true;
       return m;
@@ -2072,7 +2089,7 @@ window.VIEWS = window.VIEWS || {};
     // current display state derived from events up to `step`
     const view = React.useRef({ a: null, b: null, aHP: {}, bHP: {}, anim: null });
     // the Vaereth boss roster for display (deterministic); built once.
-    const bossDisplay = React.useMemo(() => buildVaerethBoss(), []);
+    const bossDisplay = React.useMemo(() => buildVaerethBoss(aiMode), [aiMode]);
 
     const rollTeams = (lvl) => {
       // guard: only a finite number is a real level; a click event etc. → use state
