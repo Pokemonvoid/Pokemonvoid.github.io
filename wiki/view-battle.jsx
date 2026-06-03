@@ -15,6 +15,126 @@ window.VIEWS = window.VIEWS || {};
 
   const STAT_KEYS = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
 
+  // ---------- EV / IV / Nature system ----------
+  // Standard 25 natures. Each raises one stat 10% and lowers another 10%
+  // (the 5 "neutral" natures raise and lower the same stat = no effect).
+  // HP is never affected by nature. Keys use ATK/DEF/SPA/SPD/SPE.
+  const NATURES = {
+    Hardy:   { up: null,  down: null },
+    Lonely:  { up: 'ATK', down: 'DEF' },
+    Brave:   { up: 'ATK', down: 'SPE' },
+    Adamant: { up: 'ATK', down: 'SPA' },
+    Naughty: { up: 'ATK', down: 'SPD' },
+    Bold:    { up: 'DEF', down: 'ATK' },
+    Docile:  { up: null,  down: null },
+    Relaxed: { up: 'DEF', down: 'SPE' },
+    Impish:  { up: 'DEF', down: 'SPA' },
+    Lax:     { up: 'DEF', down: 'SPD' },
+    Timid:   { up: 'SPE', down: 'ATK' },
+    Hasty:   { up: 'SPE', down: 'DEF' },
+    Serious: { up: null,  down: null },
+    Jolly:   { up: 'SPE', down: 'SPA' },
+    Naive:   { up: 'SPE', down: 'SPD' },
+    Modest:  { up: 'SPA', down: 'ATK' },
+    Mild:    { up: 'SPA', down: 'DEF' },
+    Quiet:   { up: 'SPA', down: 'SPE' },
+    Bashful: { up: null,  down: null },
+    Rash:    { up: 'SPA', down: 'SPD' },
+    Calm:    { up: 'SPD', down: 'ATK' },
+    Gentle:  { up: 'SPD', down: 'DEF' },
+    Sassy:   { up: 'SPD', down: 'SPE' },
+    Careful: { up: 'SPD', down: 'SPA' },
+    Quirky:  { up: null,  down: null },
+  };
+  const NATURE_LIST = Object.keys(NATURES);
+  const EV_MAX = 252, EV_TOTAL_MAX = 510, IV_MAX = 31;
+
+  function natureMult(nature, statKey) {
+    if (statKey === 'HP') return 1;
+    const n = NATURES[nature];
+    if (!n) return 1;
+    if (n.up === statKey) return 1.1;
+    if (n.down === statKey) return 0.9;
+    return 1;
+  }
+  function freshEVs() { return { HP: 0, ATK: 0, DEF: 0, SPA: 0, SPD: 0, SPE: 0 }; }
+  function maxIVs() { return { HP: 31, ATK: 31, DEF: 31, SPA: 31, SPD: 31, SPE: 31 }; }
+
+  // canonical stat formula (Gen 3+):
+  //   HP    = floor((2*base + IV + floor(EV/4)) * L/100) + L + 10   (1 if base HP is 1)
+  //   other = floor( (floor((2*base + IV + floor(EV/4)) * L/100) + 5) * natureMult )
+  function computeStat(base, statKey, level, iv, ev, nature) {
+    const L = level, I = Math.max(0, Math.min(IV_MAX, iv | 0)), E = Math.max(0, Math.min(EV_MAX, ev | 0));
+    const inner = Math.floor(((2 * base + I + Math.floor(E / 4)) * L) / 100);
+    if (statKey === 'HP') return base === 1 ? 1 : inner + L + 10;
+    return Math.floor((inner + 5) * natureMult(nature, statKey));
+  }
+
+  // expose for the Team Builder so both files share one source of truth
+  window.VSTATS = window.VSTATS || {};
+  window.VSTATS.NATURES = NATURES;
+  window.VSTATS.NATURE_LIST = NATURE_LIST;
+  window.VSTATS.natureMult = natureMult;
+  window.VSTATS.computeStat = computeStat;
+  window.VSTATS.EV_MAX = EV_MAX;
+  window.VSTATS.EV_TOTAL_MAX = EV_TOTAL_MAX;
+  window.VSTATS.IV_MAX = IV_MAX;
+  window.VSTATS.freshEVs = freshEVs;
+  window.VSTATS.maxIVs = maxIVs;
+
+  // pick an "ideal" nature for a species from its base stats: boost the stronger
+  // attacking stat, drop the weaker attacking one; if it's fast and not bulky,
+  // prefer a speed-boosting nature dropping the unused attacking stat.
+  function idealNature(base) {
+    const physical = base.ATK >= base.SPA;
+    const attack = physical ? 'ATK' : 'SPA';
+    const unused = physical ? 'SPA' : 'ATK';
+    const fast = base.SPE >= 95 && base.SPE >= Math.max(base.HP, base.DEF, base.SPD);
+    if (fast) {
+      // +SPE / -unused  → Jolly (physical) or Timid (special)
+      return physical ? 'Jolly' : 'Timid';
+    }
+    // +attack / -unused → Adamant (physical) or Modest (special)
+    return physical ? 'Adamant' : 'Modest';
+  }
+
+  // a smart EV spread (<= cap total) that maxes the mon's attacking stat and
+  // Speed, putting the remainder into a relevant bulk stat. cap defaults to 510.
+  function idealEVs(base, cap) {
+    cap = cap || EV_TOTAL_MAX;
+    const physical = base.ATK >= base.SPA;
+    const attack = physical ? 'ATK' : 'SPA';
+    const evs = freshEVs();
+    let left = cap;
+    const give = (k, amt) => { const a = Math.max(0, Math.min(EV_MAX, Math.min(amt, left))); evs[k] += a; left -= a; };
+    give(attack, 252);
+    give('SPE', 252);
+    // spend the rest (incl. any boss bonus over 504) into the better defense, then HP
+    const bulk = base.DEF >= base.SPD ? 'DEF' : 'SPD';
+    give('HP', Math.min(left, 252));
+    give(bulk, Math.min(left, 252));
+    give(physical ? 'SPD' : 'DEF', Math.min(left, 252));
+    return evs;
+  }
+
+  // random IVs/EVs/nature for a given tier ('normal' | 'hard').
+  //   normal: random IVs (0-31), no EVs, random nature
+  //   hard:   max IVs, smart 510 EV spread, ideal nature
+  function randomSpec(base, tier, rng) {
+    const R = () => (rng ? rng() : Math.random());
+    if (tier === 'hard') {
+      return { ivs: maxIVs(), evs: idealEVs(base, EV_TOTAL_MAX), nature: idealNature(base) };
+    }
+    // normal tier
+    const ivs = {};
+    STAT_KEYS.forEach(k => { ivs[k] = Math.floor(R() * (IV_MAX + 1)); });
+    const nature = NATURE_LIST[Math.floor(R() * NATURE_LIST.length)];
+    return { ivs, evs: freshEVs(), nature };
+  }
+  window.VSTATS.idealNature = idealNature;
+  window.VSTATS.idealEVs = idealEVs;
+
+
   // ---------- passcode gate (Battle Sim only) ----------
   // The Battle Sim is locked behind a passcode while in preview. NOTE: like the
   // rest of a static site, this only hides the feature from normal use — the
@@ -613,21 +733,24 @@ window.VIEWS = window.VIEWS || {};
   };
 
 
-  // Level 50, neutral nature, no EV/IV in Phase 1.
   // moveNames (optional): explicit moveset (manual pick or imported share code).
   //   When omitted/empty, auto-pick the 4 strongest damaging moves (random teams).
-  function buildMon(dex, level, moveNames, rng) {
+  // spec (optional): { evs:{HP..SPE}, ivs:{HP..SPE}, nature } — defaults to
+  //   max IVs, neutral nature, no EVs (a clean level-scaled mon).
+  function buildMon(dex, level, moveNames, rng, spec) {
     const d = byDex(dex);
     if (!d) return null;
     // coerce level defensively: only a finite 1–100 number is valid, else 50.
     let L = Number(level);
     if (!Number.isFinite(L)) L = 50;
     L = Math.max(1, Math.min(100, Math.round(L)));
-    const calc = (base, isHP) => isHP
-      ? Math.floor((2 * base * L) / 100) + L + 10
-      : Math.floor((2 * base * L) / 100) + 5;
+    const ivs = (spec && spec.ivs) || maxIVs();
+    const evs = (spec && spec.evs) || freshEVs();
+    const nature = (spec && spec.nature && NATURES[spec.nature]) ? spec.nature : 'Hardy';
     const stats = {};
-    STAT_KEYS.forEach(k => { stats[k] = calc(d.stats[k], k === 'HP'); });
+    STAT_KEYS.forEach(k => {
+      stats[k] = computeStat(d.stats[k], k, L, ivs[k] == null ? 31 : ivs[k], evs[k] || 0, nature);
+    });
     let moves;
     if (moveNames && moveNames.length) {
       // explicit moveset (manual pick / import) is respected as-is, no level cap
@@ -639,6 +762,7 @@ window.VIEWS = window.VIEWS || {};
     return {
       dex: d.dex, name: d.name, types: d.types.slice(), level: L,
       maxHP: stats.HP, hp: stats.HP, stats, moves,
+      evs: { ...evs }, ivs: { ...ivs }, nature,
       fainted: false,
       status: null, statusTurns: 0, toxicN: 0,
       ability: (d.abilities && d.abilities[0]) || null,
@@ -650,11 +774,11 @@ window.VIEWS = window.VIEWS || {};
   }
 
   // build a full team (array of battlers) from share-code members:
-  //   [ { dex:'006', moves:['Flamethrower', ...] }, ... ]
+  //   [ { dex:'006', moves:['Flamethrower', ...], evs, ivs, nature }, ... ]
   function buildFromMembers(members, level) {
     const L = (typeof level === 'number' && Number.isFinite(level)) ? level : 50;
     return (members || [])
-      .map(m => buildMon(m.dex, L, m.moves))
+      .map(m => buildMon(m.dex, L, m.moves, undefined, { evs: m.evs, ivs: m.ivs, nature: m.nature }))
       .filter(Boolean)
       .slice(0, 6);
   }
@@ -700,8 +824,10 @@ window.VIEWS = window.VIEWS || {};
     } catch (e) { return null; }
   }
 
-  // a random legal team of N distinct mons
-  function randomTeam(n, rng, level) {
+  // a random legal team of N distinct mons. tier ('normal'|'hard') sets stat
+  // quality: normal = random IVs / no EVs / random nature; hard = max IVs /
+  // smart 510 EVs / ideal nature.
+  function randomTeam(n, rng, level, tier) {
     const pool = DEX.filter(d => !d.undiscovered && d.stats.HP > 0);
     const chosen = [];
     const used = new Set();
@@ -709,7 +835,7 @@ window.VIEWS = window.VIEWS || {};
       const d = pool[Math.floor(rng() * pool.length)];
       if (used.has(d.dex)) continue;
       used.add(d.dex);
-      chosen.push(buildMon(d.dex, level || 50, null, rng));
+      chosen.push(buildMon(d.dex, level || 50, null, rng, randomSpec(d.stats, tier === 'hard' ? 'hard' : 'normal', rng)));
     }
     return chosen;
   }
@@ -720,18 +846,24 @@ window.VIEWS = window.VIEWS || {};
   // multiplier and hand-picked optimal moves.
   const BOSS_NAME = 'Pokedex Fillers';
   const VAERETH_ROSTER = [
-    { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Aqua Jet', 'Brine'] },          // Sedimonk [ROCK/WATER] — Aqua Jet covers recharge turns
-    { dex: '073', moves: ['Rock Wrecker', 'Kowtow Cleave', 'Night Slash', 'Psycho Cut'] }, // Sedirogue [ROCK/DARK] — strong non-recharge STAB + coverage
-    { dex: '074', moves: ['Rock Wrecker', 'Icicle Crash', 'Ice Shard', 'Stone Axe'] },     // Sediserker [ROCK/ICE] — Ice Shard priority
-    { dex: '006', moves: ['Burn Up', 'Supernova', 'Slam', 'Ember'] },                       // Galeliadea [FIRE/COSMIC]
-    { dex: '071', moves: ['Electro Shot', 'Rock Wrecker', 'Crystalize', 'Signal Beam'] },   // Sedificer [ROCK/ELECTRIC] — Electro Shot (130, no recharge) primary
-    { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'] },        // Writrout [WATER/FLYING] — dropped Fly (2-turn)
+    // each: max IVs, 252 attacking stat / 252 Speed / 4 HP, offensive nature.
+    { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Aqua Jet', 'Brine'], nature: 'Adamant', evs: { HP: 4, ATK: 252, SPE: 252 } },          // Sedimonk [ROCK/WATER]
+    { dex: '073', moves: ['Rock Wrecker', 'Kowtow Cleave', 'Night Slash', 'Psycho Cut'], nature: 'Jolly', evs: { HP: 4, ATK: 252, SPE: 252 } }, // Sedirogue [ROCK/DARK] — fast, Jolly to outspeed
+    { dex: '074', moves: ['Rock Wrecker', 'Icicle Crash', 'Ice Shard', 'Stone Axe'], nature: 'Adamant', evs: { HP: 4, ATK: 252, SPE: 252 } },   // Sediserker [ROCK/ICE]
+    { dex: '006', moves: ['Burn Up', 'Supernova', 'Slam', 'Ember'], nature: 'Timid', evs: { HP: 4, SPA: 252, SPE: 252 } },                       // Galeliadea [FIRE/COSMIC] — fast special
+    { dex: '071', moves: ['Electro Shot', 'Rock Wrecker', 'Crystalize', 'Signal Beam'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },  // Sedificer [ROCK/ELECTRIC]
+    { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },       // Writrout [WATER/FLYING]
   ];
   const VAERETH_LEVEL = 100;
   const VAERETH_STAT_MULT = 1.25; // boss stat boost on top of max level
-  function buildVaerethBoss() {
+  function buildVaerethBoss(aiMode) {
+    const hard = aiMode === 'hard';
     const team = VAERETH_ROSTER.map(r => {
-      const m = buildMon(r.dex, VAERETH_LEVEL, r.moves);
+      const d = byDex(r.dex);
+      // normal boss: the roster's optimized 510 spread. hard boss: a perfect
+      // 560 spread (50 beyond the legal cap — a boss-only privilege).
+      const evs = hard ? idealEVs(d.stats, EV_TOTAL_MAX + 50) : r.evs;
+      const m = buildMon(r.dex, VAERETH_LEVEL, r.moves, undefined, { evs, ivs: maxIVs(), nature: r.nature });
       if (!m) return null;
       // flat stat buff (visible in inspector) — the boss is openly stronger
       STAT_KEYS.forEach(k => { m.stats[k] = Math.floor(m.stats[k] * VAERETH_STAT_MULT); });
@@ -1742,8 +1874,8 @@ window.VIEWS = window.VIEWS || {};
       // guard: only a finite number is a real level; a click event etc. → use state
       const L = (typeof lvl === 'number' && Number.isFinite(lvl)) ? lvl : level;
       const rng = mulberry32((Math.random() * 1e9) | 0);
-      setTeamA(randomTeam(6, rng, L));
-      setTeamB(randomTeam(6, rng, L));
+      setTeamA(randomTeam(6, rng, L, aiMode));
+      setTeamB(randomTeam(6, rng, L, aiMode));
       setSrcA('random'); setSrcB('random');
       setResult(null); setStep(0); setPlaying(false); setBuildMsg('');
     };
@@ -1752,7 +1884,7 @@ window.VIEWS = window.VIEWS || {};
     // and auto-moves at the new level. Does NOT re-roll which Pokémon are on the
     // team. Only touches sides that are on the Random source.
     const relevelTeams = (L) => {
-      const redo = (team) => (team || []).map(m => buildMon(m.dex, L));
+      const redo = (team) => (team || []).map(m => buildMon(m.dex, L, null, undefined, { evs: m.evs, ivs: m.ivs, nature: m.nature }));
       if (srcA === 'random') setTeamA(t => redo(t));
       if (srcB === 'random') setTeamB(t => redo(t));
       setResult(null); setStep(0); setPlaying(false);
@@ -1768,14 +1900,14 @@ window.VIEWS = window.VIEWS || {};
       let A, B, msg = '';
       if (srcA === 'manual') {
         if (manualA.length === 0) { setBuildMsg('Team A is empty — add Pokémon or switch it to Random.'); return false; }
-        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })), level);
-      } else { A = (teamA && teamA.length) ? teamA : randomTeam(6, mulberry32((Math.random() * 1e9) | 0), level); }
+        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature })), level);
+      } else { A = (teamA && teamA.length) ? teamA : randomTeam(6, mulberry32((Math.random() * 1e9) | 0), level, aiMode); }
       if (srcB === 'manual') {
         if (manualB.length === 0) { setBuildMsg('Team B is empty — add Pokémon or switch it to Random.'); return false; }
-        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })), level);
-      } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level); }
+        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature })), level);
+      } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level, aiMode); }
       // VAERETH boss mode overrides Team B entirely with the cranked boss roster.
-      if (vaereth) { B = buildVaerethBoss(); }
+      if (vaereth) { B = buildVaerethBoss(aiMode); }
       setTeamA(A); setTeamB(B); setBuildMsg(msg);
       return { A, B };
     };
@@ -1790,7 +1922,7 @@ window.VIEWS = window.VIEWS || {};
       // members → manual roster shape with resolved MOVE objects
       const roster = lo.members.map(m => {
         const resolved = resolveMoves(m.moves);
-        return { dex: m.dex, moves: resolved.length ? resolved : autoMoves(m.dex) };
+        return { dex: m.dex, moves: resolved.length ? resolved : autoMoves(m.dex), evs: m.evs, ivs: m.ivs, nature: m.nature };
       }).filter(m => byDex(m.dex));
       if (roster.length === 0) { setImportMsg('Code decoded, but no valid Pokémon were found in it.'); return; }
       const named = lo.name ? `"${lo.name}"` : 'team';
@@ -1807,7 +1939,7 @@ window.VIEWS = window.VIEWS || {};
     // the current level (so it doesn't keep showing the old manual roster).
     const chooseSource = (side, opt) => {
       if (opt === 'random') {
-        const team = randomTeam(6, mulberry32((Math.random() * 1e9 + (side === 'B' ? 7 : 0)) | 0), level);
+        const team = randomTeam(6, mulberry32((Math.random() * 1e9 + (side === 'B' ? 7 : 0)) | 0), level, aiMode);
         if (side === 'A') { setSrcA('random'); setTeamA(team); }
         else { setSrcB('random'); setTeamB(team); }
         setResult(null); setStep(0); setPlaying(false); setBuildMsg('');
@@ -1922,8 +2054,8 @@ window.VIEWS = window.VIEWS || {};
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18, paddingTop: 10, borderTop: '1px solid #1a1638' }}>
           <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#6a6388', letterSpacing: 1, marginRight: 2 }}>SETUP</span>
           <button onClick={() => rollTeams()} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600 }}>🎲 Random Teams</button>
-          <button onClick={() => { setAiMode(m => m === 'hard' ? 'normal' : 'hard'); setResult(null); setStep(0); setPlaying(false); }}
-            title={'AI difficulty. Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly (hazard- and immunity-aware). Toggle anytime.'}
+          <button onClick={() => { setAiMode(m => { const nm = m === 'hard' ? 'normal' : 'hard'; const rng = mulberry32((Math.random() * 1e9) | 0); if (srcA === 'random') setTeamA(randomTeam(6, rng, level, nm)); if (srcB === 'random' && !vaereth) setTeamB(randomTeam(6, rng, level, nm)); return nm; }); setResult(null); setStep(0); setPlaying(false); }}
+            title={'AI difficulty. Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly. Also upgrades random teams: Normal = random IVs / no EVs / random nature; Hard = max IVs / smart 510 EVs / ideal nature. Toggle anytime.'}
             style={{ cursor: 'pointer', background: aiMode === 'hard' ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26', border: aiMode === 'hard' ? '1px solid #b89bff' : '1px solid #3a3168', color: aiMode === 'hard' ? '#fff' : '#9a93bb', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
             {aiMode === 'hard' ? '🧠 AI: Hard' : '🧠 AI: Normal'}
           </button>

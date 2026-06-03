@@ -10,7 +10,18 @@ window.VIEWS = window.VIEWS || {};
   const LS_KEY = 'voiddex_team_v2';
   const OLD_KEY = 'voiddex_team_v1';
 
-  // Data model: { loadouts: [ { id, name, members: [ {dex, moves:[...] } ] } ], active: index }
+  // Data model: { loadouts: [ { id, name, members: [ {dex, moves:[...], evs, ivs, nature } ] } ], active }
+  // EV/IV/Nature default to a clean build (max IVs, neutral nature, no EVs) when absent.
+  const S = () => window.VSTATS || {};
+  function defEVs() { return (S().freshEVs ? S().freshEVs() : { HP: 0, ATK: 0, DEF: 0, SPA: 0, SPD: 0, SPE: 0 }); }
+  function defIVs() { return (S().maxIVs ? S().maxIVs() : { HP: 31, ATK: 31, DEF: 31, SPA: 31, SPD: 31, SPE: 31 }); }
+  function normMember(m) {
+    const ev = defEVs(), iv = defIVs();
+    if (m && m.evs) ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'].forEach(k => { if (Number.isFinite(m.evs[k])) ev[k] = Math.max(0, Math.min(252, m.evs[k] | 0)); });
+    if (m && m.ivs) ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'].forEach(k => { if (Number.isFinite(m.ivs[k])) iv[k] = Math.max(0, Math.min(31, m.ivs[k] | 0)); });
+    const nature = (m && typeof m.nature === 'string' && S().NATURES && S().NATURES[m.nature]) ? m.nature : 'Hardy';
+    return { dex: String(m.dex), moves: Array.isArray(m.moves) ? m.moves.slice(0, 4) : [], evs: ev, ivs: iv, nature };
+  }
   function freshLoadout(name) { return { id: 'L' + Date.now() + Math.floor(Math.random() * 1000), name: name || 'New Team', members: [] }; }
   function loadAll() {
     try {
@@ -34,7 +45,7 @@ window.VIEWS = window.VIEWS || {};
     return {
       id: l.id || ('L' + Math.random()),
       name: typeof l.name === 'string' ? l.name : 'Team',
-      members: Array.isArray(l.members) ? l.members.slice(0, MAXTEAM).map(m => ({ dex: String(m.dex), moves: Array.isArray(m.moves) ? m.moves.slice(0, 4) : [] })) : [],
+      members: Array.isArray(l.members) ? l.members.slice(0, MAXTEAM).map(normMember) : [],
     };
   }
   function saveAll(state) { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
@@ -44,6 +55,28 @@ window.VIEWS = window.VIEWS || {};
   // Each move is a 2-char base36 id from the master list; an unknown move is stored as <Name>.
   // dex is base36 (so '006' -> '6', '110' -> '32'). Still accepts old VTEAM1 codes.
   const padDex = (n) => String(n).padStart(3, '0');
+  const SKEYS = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
+  // compact spec suffix appended to a member segment only when it differs from
+  // the default build (max IVs, neutral 'Hardy' nature, no EVs). Format:
+  //   *<natureIdx b36 1ch> i<6× IV b36 1ch> e<6× EV b36 2ch>
+  // Decoders that don't understand '*' simply ignore everything after it.
+  function _isDefaultSpec(m) {
+    const nat = m.nature || 'Hardy';
+    const natList = (S().NATURE_LIST) || ['Hardy'];
+    const evs = m.evs || defEVs(), ivs = m.ivs || defIVs();
+    if (nat !== 'Hardy') return false;
+    for (const k of SKEYS) { if ((evs[k] || 0) !== 0) return false; if ((ivs[k] == null ? 31 : ivs[k]) !== 31) return false; }
+    return true;
+  }
+  function _encodeSpec(m) {
+    if (_isDefaultSpec(m)) return '';
+    const natList = (S().NATURE_LIST) || ['Hardy'];
+    const ni = Math.max(0, natList.indexOf(m.nature || 'Hardy'));
+    const ivs = m.ivs || defIVs(), evs = m.evs || defEVs();
+    const ivStr = SKEYS.map(k => (ivs[k] == null ? 31 : ivs[k]).toString(36)).join('');
+    const evStr = SKEYS.map(k => Math.max(0, Math.min(252, evs[k] | 0)).toString(36).padStart(2, '0')).join('');
+    return '*' + ni.toString(36) + 'i' + ivStr + 'e' + evStr;
+  }
   function encodeTeam(loadout) {
     try {
       const G = window.VGAME;
@@ -52,7 +85,7 @@ window.VIEWS = window.VIEWS || {};
           const id = G.moveToId(mv);
           return id ? id : '<' + mv + '>';
         }).join('');
-        return parseInt(m.dex, 10).toString(36) + '.' + ids;
+        return parseInt(m.dex, 10).toString(36) + '.' + ids + _encodeSpec(m);
       }).join(';');
       return 'VT2~' + loadout.name + '~' + parts;
     } catch (e) { return ''; }
@@ -74,6 +107,23 @@ window.VIEWS = window.VIEWS || {};
     }
     return out;
   }
+  function _parseSpec(specStr) {
+    // specStr is the part after '*':  <natB36>i<6 IV b36><e><6×2 EV b36>
+    try {
+      const natList = (S().NATURE_LIST) || ['Hardy'];
+      const iPos = specStr.indexOf('i'), ePos = specStr.indexOf('e', iPos + 1);
+      const ni = parseInt(specStr.slice(0, iPos), 36) || 0;
+      const nature = natList[ni] || 'Hardy';
+      const ivPart = specStr.slice(iPos + 1, ePos);
+      const evPart = specStr.slice(ePos + 1);
+      const ivs = {}, evs = {};
+      SKEYS.forEach((k, idx) => {
+        ivs[k] = Math.max(0, Math.min(31, parseInt(ivPart[idx] || 'v', 36) || 0));
+        evs[k] = Math.max(0, Math.min(252, parseInt(evPart.slice(idx * 2, idx * 2 + 2) || '00', 36) || 0));
+      });
+      return { nature, ivs, evs };
+    } catch (e) { return null; }
+  }
   function decodeTeam(code) {
     try {
       const raw = code.trim();
@@ -86,8 +136,14 @@ window.VIEWS = window.VIEWS || {};
         const members = rest ? rest.split(';').filter(Boolean).slice(0, MAXTEAM).map(seg => {
           const dot = seg.indexOf('.');
           const dexRaw = dot >= 0 ? seg.slice(0, dot) : seg;
-          const movesStr = dot >= 0 ? seg.slice(dot + 1) : '';
-          return { dex: padDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
+          let afterDot = dot >= 0 ? seg.slice(dot + 1) : '';
+          // split off the optional EV/IV/nature spec (after '*')
+          const star = afterDot.indexOf('*');
+          const movesStr = star >= 0 ? afterDot.slice(0, star) : afterDot;
+          const specStr = star >= 0 ? afterDot.slice(star + 1) : '';
+          const base = { dex: padDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
+          const spec = specStr ? _parseSpec(specStr) : null;
+          return spec ? { ...base, ...spec } : base;
         }) : [];
         return { id: 'L' + Date.now(), name: name || 'Imported Team', members };
       }
@@ -198,10 +254,99 @@ window.VIEWS = window.VIEWS || {};
     );
   }
 
+  function StatEditorModal({ dex, member, onSave, onClose }) {
+    const mon = byDex(dex);
+    const VS = window.VSTATS || {};
+    const NAT = VS.NATURES || {};
+    const NATLIST = VS.NATURE_LIST || ['Hardy'];
+    const EV_TOTAL = VS.EV_TOTAL_MAX || 510;
+    const SK = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
+    const SLABEL = { HP: 'HP', ATK: 'Attack', DEF: 'Defense', SPA: 'Sp. Atk', SPD: 'Sp. Def', SPE: 'Speed' };
+    const [evs, setEvs] = React.useState({ ...(member.evs || (VS.freshEVs ? VS.freshEVs() : {})) });
+    const [ivs, setIvs] = React.useState({ ...(member.ivs || (VS.maxIVs ? VS.maxIVs() : {})) });
+    const [nature, setNature] = React.useState(member.nature || 'Hardy');
+    const LEVEL = 50; // Team Builder previews stats at Lv. 50
+    const evTotal = SK.reduce((s, k) => s + (evs[k] || 0), 0);
+    const evLeft = EV_TOTAL - evTotal;
+
+    const setEv = (k, v) => {
+      let n = Math.max(0, Math.min(252, v | 0));
+      const others = evTotal - (evs[k] || 0);
+      if (others + n > EV_TOTAL) n = EV_TOTAL - others; // clamp to the 510 cap
+      setEvs(e => ({ ...e, [k]: n }));
+    };
+    const setIv = (k, v) => setIvs(i => ({ ...i, [k]: Math.max(0, Math.min(31, v | 0)) }));
+
+    const natInfo = NAT[nature] || { up: null, down: null };
+    const statColor = (k) => natInfo.up === k ? '#7ee08a' : (natInfo.down === k ? '#ff8fa6' : '#cdc6e6');
+    const computed = (k) => {
+      if (!mon || !VS.computeStat) return 0;
+      return VS.computeStat(mon.stats[k], k, LEVEL, ivs[k] == null ? 31 : ivs[k], evs[k] || 0, nature);
+    };
+    // for the bar, scale against a generous max so bars read comparatively
+    const barMax = 230;
+
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 120, background: 'rgba(5,3,12,0.82)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '50px 20px', overflowY: 'auto' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, background: 'radial-gradient(ellipse at 30% 0%, #15102e, #0a0818 70%)', border: '1px solid #2a2350', borderRadius: 18, padding: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <SpriteSlot dex={dex} name={mon ? mon.name : dex} size={40} accent={mon ? TYPES[mon.types[0]].glow : '#8a5cff'} />
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, color: '#fff' }}>{mon ? mon.name : dex}</span>
+            <span style={{ marginLeft: 'auto', fontFamily: "'Space Mono', monospace", fontSize: 12, color: evLeft < 0 ? '#ff8fa6' : (evLeft === 0 ? '#ffd54a' : '#8a83a8') }}>EVs: {evTotal}/{EV_TOTAL}</span>
+          </div>
+
+          {/* nature */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#8a83a8', minWidth: 56 }}>Nature</span>
+            <select value={nature} onChange={e => setNature(e.target.value)}
+              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: '#100c24', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, outline: 'none' }}>
+              {NATLIST.map(n => {
+                const info = NAT[n] || {};
+                const tag = info.up && info.down ? ` (+${SLABEL[info.up]} / -${SLABEL[info.down]})` : ' (neutral)';
+                return <option key={n} value={n}>{n}{tag}</option>;
+              })}
+            </select>
+          </div>
+
+          {/* per-stat rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+            {SK.map(k => (
+              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 56, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: statColor(k), fontWeight: 600 }}>{SLABEL[k]}</span>
+                <span style={{ width: 38, textAlign: 'right', fontFamily: "'Space Mono', monospace", fontSize: 14, color: '#fff' }}>{computed(k)}</span>
+                <div style={{ flex: 1, height: 8, borderRadius: 4, background: '#1a1533', overflow: 'hidden' }}>
+                  <div style={{ width: Math.min(100, Math.round((computed(k) / barMax) * 100)) + '%', height: '100%', background: 'linear-gradient(90deg,#5a2db3,#8a5cff)' }} />
+                </div>
+                <input type="range" min="0" max="252" step="4" value={evs[k] || 0} onChange={e => setEv(k, +e.target.value)}
+                  style={{ width: 96 }} title="EVs" />
+                <span style={{ width: 30, textAlign: 'right', fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#8a83a8' }}>{evs[k] || 0}</span>
+                <input type="number" min="0" max="31" value={ivs[k] == null ? 31 : ivs[k]} onChange={e => setIv(k, +e.target.value)}
+                  title="IV (0-31)"
+                  style={{ width: 42, padding: '4px 5px', borderRadius: 6, background: '#100c24', border: '1px solid #2a2545', color: '#cdc6e6', fontFamily: "'Space Mono', monospace", fontSize: 12, textAlign: 'center', outline: 'none' }} />
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#6a6388', margin: '6px 2px 0', paddingLeft: 102 }}>
+            <span>← EV slider (0-252)</span><span>IV →</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <button onClick={() => { setEvs(VS.freshEVs ? VS.freshEVs() : {}); setIvs(VS.maxIVs ? VS.maxIVs() : {}); setNature('Hardy'); }}
+              style={{ cursor: 'pointer', padding: '11px 14px', borderRadius: 10, background: 'transparent', border: '1px solid #2a2545', color: '#8a83a8', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Reset</button>
+            <button onClick={() => { onSave({ evs, ivs, nature }); onClose(); }} style={{ cursor: 'pointer', flex: 1, padding: '11px', borderRadius: 10, background: 'linear-gradient(135deg, #4a3a9a, #2d2270)', border: '1px solid #6a52c0', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Save</button>
+            <button onClick={onClose} style={{ cursor: 'pointer', padding: '11px 16px', borderRadius: 10, background: 'transparent', border: '1px solid #2a2545', color: '#8a83a8', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Cancel</button>
+          </div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388', marginTop: 10, textAlign: 'center' }}>Stats shown at Lv. 50. Green = nature boost, red = nature drop.</div>
+        </div>
+      </div>
+    );
+  }
+
   window.VIEWS.Team = function Team() {
     const [data, setData] = React.useState(loadAll);
     const [picking, setPicking] = React.useState(false);
     const [movePick, setMovePick] = React.useState(null);   // {index} of member to edit moves
+    const [statPick, setStatPick] = React.useState(null);   // index of member to edit EV/IV/nature
     const [share, setShare] = React.useState(null);          // null | 'export' | 'import'
     const [importText, setImportText] = React.useState('');
     const [copied, setCopied] = React.useState(false);
@@ -217,10 +362,11 @@ window.VIEWS = window.VIEWS || {};
       const los = d.loadouts.map((l, i) => i === d.active ? { ...l, members: fn(l.members) } : l);
       return { ...d, loadouts: los };
     });
-    const add = (dex) => { setMembers(ms => ms.length < MAXTEAM ? [...ms, { dex, moves: [] }] : ms); setPicking(false); };
+    const add = (dex) => { setMembers(ms => ms.length < MAXTEAM ? [...ms, { dex, moves: [], evs: defEVs(), ivs: defIVs(), nature: 'Hardy' }] : ms); setPicking(false); };
     const remove = (i) => setMembers(ms => ms.filter((_, idx) => idx !== i));
     const clear = () => { if (window.confirm('Clear all Pokémon from "' + active.name + '"?')) setMembers(() => []); };
     const setMoves = (i, moves) => setMembers(ms => ms.map((m, idx) => idx === i ? { ...m, moves } : m));
+    const setSpec = (i, spec) => setMembers(ms => ms.map((m, idx) => idx === i ? { ...m, ...spec } : m));
 
     // loadout management
     const switchTo = (i) => setData(d => ({ ...d, active: i }));
@@ -286,6 +432,10 @@ window.VIEWS = window.VIEWS || {};
         {movePick != null && members[movePick] && (
           <MovePickerModal dex={members[movePick].dex} current={members[movePick].moves}
             onSave={(mv) => setMoves(movePick, mv)} onClose={() => setMovePick(null)} />
+        )}
+        {statPick != null && members[statPick] && (
+          <StatEditorModal dex={members[statPick].dex} member={normMember(members[statPick])}
+            onSave={(spec) => setSpec(statPick, spec)} onClose={() => setStatPick(null)} />
         )}
         {share && (
           <div onClick={() => setShare(null)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(5,4,12,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -376,6 +526,7 @@ window.VIEWS = window.VIEWS || {};
                   ))}
                 </div>
                 <button onClick={() => setMovePick(i)} style={{ cursor: 'pointer', marginTop: 8, width: '100%', padding: '6px', borderRadius: 7, background: '#1a1238', border: '1px solid #3a2f6e', color: '#cdbfff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>{mv.length ? 'Edit Moves' : '+ Add Moves'}</button>
+                <button onClick={() => setStatPick(i)} style={{ cursor: 'pointer', marginTop: 6, width: '100%', padding: '6px', borderRadius: 7, background: '#161226', border: '1px solid #2a2545', color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>⚙ EVs / IVs / Nature</button>
               </div>
             );
           })}
