@@ -105,6 +105,13 @@ window.VIEWS = window.VIEWS || {};
     } catch (e) { return null; }
   }
 
+  // Expose the share-code codec so other views (e.g. the Battle Sim) can import
+  // a loadout without duplicating the format. Decoder returns:
+  //   { id, name, members: [ { dex:'006', moves:['Move Name', ...] } ] }
+  window.VTEAM = window.VTEAM || {};
+  window.VTEAM.decodeTeam = decodeTeam;
+  window.VTEAM.encodeTeam = encodeTeam;
+
   // a mon's learnable move names (deduped) from level/TM/egg lists
   function learnableMoves(dex) {
     const m = byDex(dex); if (!m) return [];

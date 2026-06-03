@@ -1,0 +1,1163 @@
+/* Pokémon Void — Auto-Battle Simulator (Phase 1). window.VIEWS.Battle
+   A fully client-side, math-driven 6v6 auto-battler that reads real Void data
+   (stats, types, moves, type chart). The AI picks actions by expected value;
+   the engine computes real damage (STAB, type eff, crit, accuracy, rolls,
+   priority, speed order). Battles render as a turn log + a lightweight 2D
+   animated plane with speed controls (1x–20x) and a skip-to-result mode.
+
+   This is Phase 1 of a larger plan: switching + move AI + animation + log.
+   Status, weather, abilities, items, bulk sims and analytics come later. */
+window.VIEWS = window.VIEWS || {};
+(function () {
+  const { DEX, TYPES, byDex } = window.VDEX;
+  const { MOVES, eff } = window.VGAME;
+  const { go, SpriteSlot, PageHead, TypePill, Empty } = window.VUI;
+
+  const STAT_KEYS = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
+
+  // ---------- passcode gate (Battle Sim only) ----------
+  // The Battle Sim is locked behind a passcode while in preview. NOTE: like the
+  // rest of a static site, this only hides the feature from normal use — the
+  // code ships to the browser, so a determined person can bypass it. We store a
+  // hash (not the plaintext code) so a casual "view source" doesn't reveal it.
+  const GATE_LS = 'voiddex_battle_unlocked';
+  const GATE_HASH = '1igjyhwaulm'; // cyrb53(normalized passcode, seed 7)
+  function gateHash(str) {
+    let h1 = 0xdeadbeef ^ 7, h2 = 0x41c6ce57 ^ 7;
+    for (let i = 0; i < str.length; i++) {
+      const ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+  const checkPass = (input) => gateHash(String(input).trim().toLowerCase()) === GATE_HASH;
+  const isUnlocked = () => { try { return localStorage.getItem(GATE_LS) === '1'; } catch (e) { return false; } };
+  const setUnlocked = () => { try { localStorage.setItem(GATE_LS, '1'); } catch (e) {} };
+
+  const flatMoves = MOVES.flat();
+  const moveByName = (() => {
+    const m = new Map();
+    flatMoves.forEach(mv => m.set(mv.name.toLowerCase().replace(/[^a-z0-9]/g, ''), mv));
+    return m;
+  })();
+  const findMove = (name) => moveByName.get(String(name).toLowerCase().replace(/[^a-z0-9]/g, '')) || null;
+
+  // ---------- seeded RNG (deterministic when seeded) ----------
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // names of every move a mon can legally learn (level/TM/egg), deduped.
+  // Shared by the manual move-picker and the auto-fill fallback.
+  // If `level` is given, level-up moves above that level are excluded (TM/egg
+  // moves are always considered learnable). With no level, everything is listed
+  // (the manual move-picker shows the full learnset).
+  function learnableMovesFor(dex, level) {
+    const d = byDex(dex); if (!d) return [];
+    const names = [];
+    (d.levelMoves || []).forEach(m => {
+      const nm = m.name || m; if (!nm) return;
+      const lv = m.lv == null ? null : parseInt(m.lv, 10);
+      if (level == null || lv == null || isNaN(lv) || lv <= level) names.push(nm);
+    });
+    ['tmMoves', 'eggMoves'].forEach(s => (d[s] || []).forEach(m => {
+      const nm = m.name || m; if (nm) names.push(nm);
+    }));
+    return Array.from(new Set(names));
+  }
+
+  // resolve a list of move *names* into real MOVES objects (pow/cls/type/acc).
+  // unknown names are dropped; this is the decode→resolve→battle-stats step.
+  function resolveMoves(names) {
+    const out = [];
+    (names || []).forEach(nm => { const mv = findMove(nm); if (mv && !out.some(o => o.name === mv.name)) out.push(mv); });
+    return out;
+  }
+
+  // auto-pick the 4 strongest damaging moves a mon can learn by `level`.
+  function autoMoves(dex, level) {
+    const resolved = resolveMoves(learnableMovesFor(dex, level));
+    const dmg = resolved.filter(mv => mv.cls !== 'Status' && mv.pow > 0).sort((a, b) => b.pow - a.pow);
+    let moves = dmg.slice(0, 4);
+    if (moves.length === 0) {
+      // nothing damaging learnable yet at this level — fall back to whatever it
+      // can learn, else Struggle, so very low levels still have an action.
+      const any = resolveMoves(learnableMovesFor(dex, level)).slice(0, 4);
+      moves = any.length ? any : [{ name: 'Struggle', type: 'NORMAL', cls: 'Physical', pow: 50, acc: 100, pp: 1 }];
+    }
+    return moves;
+  }
+
+  // ---------- status conditions (canonical mechanics) ----------
+  // One major status at a time. Codes: BRN PSN TOX PAR SLP FRZ.
+  // Type immunities follow standard rules; sleep/freeze gate actions;
+  // burn halves PHYSICAL damage; residual damage applies at end of turn.
+  const STATUS = {
+    label: { BRN: 'burned', PSN: 'poisoned', TOX: 'badly poisoned', PAR: 'paralyzed', SLP: 'asleep', FRZ: 'frozen solid' },
+    short: { BRN: 'BRN', PSN: 'PSN', TOX: 'TOX', PAR: 'PAR', SLP: 'SLP', FRZ: 'FRZ' },
+    color: { BRN: '#ff7a3c', PSN: '#b25fd1', TOX: '#9b3fb0', PAR: '#ffd23c', SLP: '#9aa0c2', FRZ: '#5fd6ff' },
+    // a type that CANNOT receive the given status
+    immuneType: { BRN: ['FIRE'], PAR: ['ELECTRIC'], PSN: ['POISON', 'STEEL'], TOX: ['POISON', 'STEEL'], FRZ: ['ICE'], SLP: [] },
+    // can the target receive `code`? (already-statused mons can't be re-statused)
+    canApply(target, code) {
+      if (!target || target.fainted) return false;
+      if (target.status) return false;
+      const imm = STATUS.immuneType[code] || [];
+      if (target.types.some(t => imm.includes(t))) return false;
+      return true;
+    },
+    apply(target, code, rng) {
+      target.status = code;
+      if (code === 'SLP') target.statusTurns = 1 + Math.floor(rng() * 3); // 1–3 turns asleep
+      else target.statusTurns = 0;
+      target.toxicN = code === 'TOX' ? 1 : 0;
+    },
+    clear(target) { target.status = null; target.statusTurns = 0; target.toxicN = 0; },
+    // speed after paralysis
+    speed(mon) { return mon.status === 'PAR' ? Math.floor(mon.stats.SPE * 0.5) : mon.stats.SPE; },
+    // residual end-of-turn damage; returns {dmg, frac} (0 if none)
+    residual(mon) {
+      if (!mon || mon.fainted) return 0;
+      if (mon.status === 'BRN' || mon.status === 'PSN') return Math.max(1, Math.floor(mon.maxHP / 8));
+      if (mon.status === 'TOX') return Math.max(1, Math.floor(mon.maxHP * mon.toxicN / 16));
+      return 0;
+    },
+    // burn cuts PHYSICAL damage in half
+    burnFactor(mon, move) { return (mon.status === 'BRN' && move.cls === 'Physical') ? 0.5 : 1; },
+  };
+
+  // move → status it can inflict, with canonical chance + target.
+  // Keyed by normalized move name. Moves not listed simply deal damage.
+  const normName = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+  const MOVE_STATUS = (() => {
+    const t = {};
+    const add = (name, code, chance) => { t[normName(name)] = { code, chance }; };
+    // ---- guaranteed primary-status moves (Status class) ----
+    add('Will-O-Wisp', 'BRN', 1.0); add('Toxic', 'TOX', 1.0); add('Poison Powder', 'PSN', 1.0);
+    add('Poison Gas', 'PSN', 1.0); add('Thunder Wave', 'PAR', 1.0); add('Stun Spore', 'PAR', 1.0);
+    add('Glare', 'PAR', 1.0); add('Sleep Powder', 'SLP', 1.0); add('Spore', 'SLP', 1.0);
+    add('Hypnosis', 'SLP', 1.0); add('Lovely Kiss', 'SLP', 1.0); add('Sing', 'SLP', 1.0);
+    add('Grass Whistle', 'SLP', 1.0); add('Dark Void', 'SLP', 1.0);
+    // ---- secondary-chance damaging moves (canonical rates) ----
+    add('Nuzzle', 'PAR', 1.0);
+    add('Flamethrower', 'BRN', 0.10); add('Fire Blast', 'BRN', 0.10); add('Fire Punch', 'BRN', 0.10);
+    add('Flame Wheel', 'BRN', 0.10); add('Flame Charge', 'BRN', 0.10); add('Ember', 'BRN', 0.10);
+    add('Heat Wave', 'BRN', 0.10); add('Fire Fang', 'BRN', 0.10); add('Blaze Kick', 'BRN', 0.10);
+    add('Scald', 'BRN', 0.30); add('Lava Plume', 'BRN', 0.30); add('Sacred Fire', 'BRN', 0.50);
+    add('Inferno', 'BRN', 1.0); add('Searing Shot', 'BRN', 0.30); add('Pyro Ball', 'BRN', 0.10);
+    add('Thunderbolt', 'PAR', 0.10); add('Thunder', 'PAR', 0.30); add('Thunder Punch', 'PAR', 0.10);
+    add('Thunder Shock', 'PAR', 0.10); add('Spark', 'PAR', 0.30); add('Discharge', 'PAR', 0.30);
+    add('Volt Tackle', 'PAR', 0.10); add('Zap Cannon', 'PAR', 1.0); add('Body Slam', 'PAR', 0.30);
+    add('Force Palm', 'PAR', 0.30); add('Lick', 'PAR', 0.30); add('Thunder Fang', 'PAR', 0.10);
+    add('Dragon Breath', 'PAR', 0.30); add('Bounce', 'PAR', 0.30);
+    add('Ice Beam', 'FRZ', 0.10); add('Blizzard', 'FRZ', 0.10); add('Ice Punch', 'FRZ', 0.10);
+    add('Ice Fang', 'FRZ', 0.10); add('Powder Snow', 'FRZ', 0.10); add('Freeze-Dry', 'FRZ', 0.10);
+    add('Poison Jab', 'PSN', 0.30); add('Sludge Bomb', 'PSN', 0.30); add('Sludge', 'PSN', 0.30);
+    add('Sludge Wave', 'PSN', 0.10); add('Gunk Shot', 'PSN', 0.30); add('Poison Sting', 'PSN', 0.30);
+    add('Poison Tail', 'PSN', 0.10); add('Poison Fang', 'TOX', 0.50); add('Twineedle', 'PSN', 0.20);
+    add('Smog', 'PSN', 0.40); add('Toxic Spikes', 'PSN', 0); // hazard handled later, no direct apply
+    return t;
+  })();
+  // look up a move's status effect, resolving the name against the table
+  function moveStatusEffect(move) {
+    const e = MOVE_STATUS[normName(move.name)];
+    if (!e || !e.chance) return null;
+    return e;
+  }
+
+  // Level 50, neutral nature, no EV/IV in Phase 1.
+  // moveNames (optional): explicit moveset (manual pick or imported share code).
+  //   When omitted/empty, auto-pick the 4 strongest damaging moves (random teams).
+  function buildMon(dex, level, moveNames) {
+    const d = byDex(dex);
+    if (!d) return null;
+    // coerce level defensively: only a finite 1–100 number is valid, else 50.
+    let L = Number(level);
+    if (!Number.isFinite(L)) L = 50;
+    L = Math.max(1, Math.min(100, Math.round(L)));
+    const calc = (base, isHP) => isHP
+      ? Math.floor((2 * base * L) / 100) + L + 10
+      : Math.floor((2 * base * L) / 100) + 5;
+    const stats = {};
+    STAT_KEYS.forEach(k => { stats[k] = calc(d.stats[k], k === 'HP'); });
+    let moves;
+    if (moveNames && moveNames.length) {
+      // explicit moveset (manual pick / import) is respected as-is, no level cap
+      moves = resolveMoves(moveNames).slice(0, 4);
+      if (moves.length === 0) moves = autoMoves(dex, L); // import had only unknown moves
+    } else {
+      moves = autoMoves(dex, L); // random/auto path: moves limited to what's learned by L
+    }
+    return {
+      dex: d.dex, name: d.name, types: d.types.slice(), level: L,
+      maxHP: stats.HP, hp: stats.HP, stats, moves,
+      fainted: false,
+      status: null, statusTurns: 0, toxicN: 0,
+    };
+  }
+
+  // build a full team (array of battlers) from share-code members:
+  //   [ { dex:'006', moves:['Flamethrower', ...] }, ... ]
+  function buildFromMembers(members) {
+    return (members || [])
+      .map(m => buildMon(m.dex, 50, m.moves))
+      .filter(Boolean)
+      .slice(0, 6);
+  }
+
+  // decode a VT2…/VTEAM1 share code into members, reusing the Team Builder's
+  // codec when it's loaded; falls back to a self-contained VT2 parser so the
+  // Battle Sim works even if view-team.jsx isn't present on the page.
+  function decodeShareCode(code) {
+    const G = window.VGAME;
+    if (window.VTEAM && typeof window.VTEAM.decodeTeam === 'function') {
+      return window.VTEAM.decodeTeam(code);
+    }
+    try {
+      const raw = String(code).trim();
+      const padDex = (n) => String(n).padStart(3, '0');
+      if (raw.startsWith('VT2~')) {
+        const body = raw.slice(4);
+        const sep = body.indexOf('~');
+        const name = sep >= 0 ? body.slice(0, sep) : 'Imported Team';
+        const rest = sep >= 0 ? body.slice(sep + 1) : '';
+        const parseIds = (str) => {
+          const out = []; let i = 0;
+          while (i < str.length && out.length < 4) {
+            if (str[i] === '<') { const end = str.indexOf('>', i); if (end === -1) break; out.push(str.slice(i + 1, end)); i = end + 1; }
+            else { const nm = G.idToMove(str.slice(i, i + 2)); if (nm) out.push(nm); i += 2; }
+          }
+          return out;
+        };
+        const members = rest ? rest.split(';').filter(Boolean).slice(0, 6).map(seg => {
+          const dot = seg.indexOf('.');
+          const dexRaw = dot >= 0 ? seg.slice(0, dot) : seg;
+          const movesStr = dot >= 0 ? seg.slice(dot + 1) : '';
+          return { dex: padDex(parseInt(dexRaw, 36)), moves: parseIds(movesStr) };
+        }) : [];
+        return { id: 'L' + Date.now(), name: name || 'Imported Team', members };
+      }
+      if (raw.startsWith('VTEAM1')) {
+        const d = JSON.parse(decodeURIComponent(escape(atob(raw.slice(6)))));
+        if (!d || !Array.isArray(d.m)) return null;
+        return { id: 'L' + Date.now(), name: typeof d.n === 'string' ? d.n : 'Imported Team', members: d.m.slice(0, 6).map(x => ({ dex: String(x[0]), moves: Array.isArray(x[1]) ? x[1].slice(0, 4) : [] })) };
+      }
+      return null;
+    } catch (e) { return null; }
+  }
+
+  // a random legal team of N distinct mons
+  function randomTeam(n, rng, level) {
+    const pool = DEX.filter(d => !d.undiscovered && d.stats.HP > 0);
+    const chosen = [];
+    const used = new Set();
+    while (chosen.length < n && used.size < pool.length) {
+      const d = pool[Math.floor(rng() * pool.length)];
+      if (used.has(d.dex)) continue;
+      used.add(d.dex);
+      chosen.push(buildMon(d.dex, level || 50));
+    }
+    return chosen;
+  }
+
+  // ---------- damage calc ----------
+  function typeMult(moveType, defTypes) {
+    return defTypes.reduce((m, t) => m * eff(moveType, t), 1);
+  }
+  function computeDamage(attacker, defender, move, rng) {
+    if (move.cls === 'Status' || !move.pow) return { dmg: 0, eff: 1, crit: false, missed: false };
+    // accuracy
+    if (move.acc && move.acc < 100 && rng() * 100 >= move.acc) return { dmg: 0, eff: 1, crit: false, missed: true };
+    const atkStat = move.cls === 'Physical' ? attacker.stats.ATK : attacker.stats.SPA;
+    const defStat = move.cls === 'Physical' ? defender.stats.DEF : defender.stats.SPD;
+    const L = attacker.level;
+    let base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
+    const stab = attacker.types.includes(move.type) ? 1.5 : 1;
+    const te = typeMult(move.type, defender.types);
+    const crit = rng() < (1 / 16);
+    const critMult = crit ? 1.5 : 1;
+    const roll = 0.85 + rng() * 0.15; // 0.85–1.00
+    // Phase 1 uses no EV/IV investment, which makes frail mons extremely glassy.
+    // A modest scalar lengthens battles so switching and matchups actually matter.
+    const SCALE = 0.6;
+    const burn = STATUS.burnFactor(attacker, move); // burned attacker: physical ×0.5
+    let dmg = Math.floor(base * stab * te * critMult * roll * SCALE * burn);
+    if (te > 0) dmg = Math.max(1, dmg);
+    return { dmg, eff: te, crit, missed: false };
+  }
+
+  // ---------- AI: score each move by expected value ----------
+  function bestMove(attacker, defender, level) {
+    let best = null, bestScore = -1;
+    attacker.moves.forEach(move => {
+      let score;
+      if (move.cls === 'Status' || !move.pow) {
+        // value a status move only if it would actually land something useful:
+        // foe must be statusable and not immune; otherwise it's near-useless.
+        const eff2 = moveStatusEffect(move);
+        if (eff2 && STATUS.canApply(defender, eff2.code)) {
+          // crippling statuses (PAR/SLP/TOX/BRN) are worth more than a chip move
+          const weight = { SLP: 30, PAR: 26, TOX: 24, BRN: 20, FRZ: 22, PSN: 14 }[eff2.code] || 12;
+          score = weight * eff2.chance;
+        } else {
+          score = 8; // generic status / setup baseline; a damaging move usually wins
+        }
+      } else {
+        const te = typeMult(move.type, defender.types);
+        const stab = attacker.types.includes(move.type) ? 1.5 : 1;
+        const atkStat = move.cls === 'Physical' ? attacker.stats.ATK : attacker.stats.SPA;
+        const defStat = move.cls === 'Physical' ? defender.stats.DEF : defender.stats.SPD;
+        // expected damage proxy
+        const exp = move.pow * stab * te * (atkStat / defStat) * ((move.acc || 100) / 100);
+        score = exp;
+        // bonus for a likely KO
+        if (te > 0) {
+          const approx = computeDamageAvg(attacker, defender, move);
+          if (approx >= defender.hp) score *= 1.6;
+        }
+        if (te === 0) score = 0.1;
+      }
+      if (score > bestScore) { bestScore = score; best = move; }
+    });
+    return best || attacker.moves[0];
+  }
+  // non-random average damage for AI estimation
+  function computeDamageAvg(attacker, defender, move) {
+    if (move.cls === 'Status' || !move.pow) return 0;
+    const atkStat = move.cls === 'Physical' ? attacker.stats.ATK : attacker.stats.SPA;
+    const defStat = move.cls === 'Physical' ? defender.stats.DEF : defender.stats.SPD;
+    const L = attacker.level;
+    const base = Math.floor(Math.floor((Math.floor((2 * L) / 5) + 2) * move.pow * atkStat / defStat) / 50) + 2;
+    const stab = attacker.types.includes(move.type) ? 1.5 : 1;
+    const te = typeMult(move.type, defender.types);
+    return Math.floor(base * stab * te * 0.925 * 0.6 * STATUS.burnFactor(attacker, move));
+  }
+
+  // AI switch decision: if the active mon is in deep type trouble and a much
+  // better matchup is on the bench, consider switching (basic revenge/pivot).
+  function shouldSwitch(team, activeIdx, foe, rng) {
+    const active = team[activeIdx];
+    if (active.fainted) return pickNextAlive(team, activeIdx);
+    // how bad is the foe's best hit on us, defensively
+    const foeBest = bestMove(foe, active);
+    const incoming = computeDamageAvg(foe, active, foeBest);
+    const inDanger = incoming >= active.hp * 0.8; // likely to be KO'd
+    if (!inDanger) return -1;
+    // find a benched mon that resists the foe and can hit back hard
+    let bestBench = -1, bestVal = 0;
+    team.forEach((m, i) => {
+      if (i === activeIdx || m.fainted) return;
+      const takes = computeDamageAvg(foe, m, bestMove(foe, m));
+      const deals = computeDamageAvg(m, foe, bestMove(m, foe));
+      const val = deals - takes;
+      if (val > bestVal) { bestVal = val; bestBench = i; }
+    });
+    // only switch if a bench mon is clearly better than staying in
+    return bestVal > active.hp ? bestBench : -1;
+  }
+  function pickNextAlive(team, fromIdx) {
+    for (let i = 0; i < team.length; i++) if (!team[i].fainted) return i;
+    return -1;
+  }
+
+  // ---------- the battle simulation: returns a list of events ----------
+  function simulate(teamA, teamB, seedNum) {
+    const rng = mulberry32(seedNum || (Math.random() * 1e9) | 0);
+    // deep-clone teams so the originals aren't mutated
+    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false }));
+    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false }));
+    let ai = 0, bi = 0; // active indices
+    const events = [];
+    const log = [];
+    events.push({ t: 'start', a: snapshot(A), b: snapshot(B), aiIdx: ai, biIdx: bi });
+    log.push(`Team A sent out ${A[ai].name}!  Team B sent out ${B[bi].name}!`);
+
+    let turn = 0, guard = 0;
+    while (alive(A) && alive(B) && guard++ < 400) {
+      turn++;
+      // switching phase (faint replacement handled after KO; proactive switch here)
+      const aSwitch = shouldSwitch(A, ai, B[bi], rng);
+      if (aSwitch >= 0) { events.push({ t: 'switch', side: 'A', to: aSwitch, name: A[aSwitch].name }); log.push(`Team A withdrew ${A[ai].name} and sent out ${A[aSwitch].name}.`); ai = aSwitch; }
+      const bSwitch = shouldSwitch(B, bi, A[ai], rng);
+      if (bSwitch >= 0) { events.push({ t: 'switch', side: 'B', to: bSwitch, name: B[bSwitch].name }); log.push(`Team B withdrew ${B[bi].name} and sent out ${B[bSwitch].name}.`); bi = bSwitch; }
+
+      const mA = A[ai], mB = B[bi];
+      const moveA = bestMove(mA, mB), moveB = bestMove(mB, mA);
+      // turn order by speed (paralysis halves speed; ties random)
+      const spdA = STATUS.speed(mA), spdB = STATUS.speed(mB);
+      const aFirst = spdA > spdB || (spdA === spdB && rng() < 0.5);
+      const order = aFirst ? [['A', mA, mB, moveA], ['B', mB, mA, moveB]] : [['B', mB, mA, moveB], ['A', mA, mB, moveA]];
+
+      for (const [side, atk, def, mv] of order) {
+        if (atk.fainted || def.fainted) continue;
+
+        // ---- pre-move status gate (sleep / freeze / full paralysis) ----
+        let cantAct = false, gateLine = '';
+        if (atk.status === 'SLP') {
+          if (atk.statusTurns > 0) atk.statusTurns--;
+          if (atk.statusTurns <= 0) { STATUS.clear(atk); gateLine = `${atk.name} woke up!`; }
+          else { cantAct = true; gateLine = `${atk.name} is fast asleep.`; }
+        } else if (atk.status === 'FRZ') {
+          if (rng() < 0.20) { STATUS.clear(atk); gateLine = `${atk.name} thawed out!`; }
+          else { cantAct = true; gateLine = `${atk.name} is frozen solid!`; }
+        } else if (atk.status === 'PAR') {
+          if (rng() < 0.25) { cantAct = true; gateLine = `${atk.name} is paralyzed! It can't move!`; }
+        }
+        if (gateLine) { events.push({ t: 'cantmove', side, name: atk.name, reason: gateLine, statusOf: snapshotStatus(A, B) }); log.push(gateLine); }
+        if (cantAct) continue;
+
+        const res = computeDamage(atk, def, mv, rng);
+        if (res.missed) {
+          events.push({ t: 'move', side, move: mv.name, missed: true, attacker: atk.name, target: def.name });
+          log.push(`${atk.name} used ${mv.name} — but it missed!`);
+          continue;
+        }
+        const dealt = Math.min(res.dmg, def.hp);
+        def.hp = Math.max(0, def.hp - res.dmg);
+        const pct = Math.round((dealt / def.maxHP) * 100);
+        events.push({ t: 'move', side, move: mv.name, dmg: res.dmg, hp: def.hp, maxHP: def.maxHP, eff: res.eff, crit: res.crit, attacker: atk.name, target: def.name, cls: mv.cls });
+        let line = `${atk.name} used ${mv.name}.`;
+        if (mv.cls !== 'Status' && mv.pow) {
+          line += ` ${def.name} lost ${pct}% HP.`;
+          if (res.crit) line += ' A critical hit!';
+          if (res.eff > 1) line += ' It was super effective!';
+          else if (res.eff > 0 && res.eff < 1) line += ' It was not very effective…';
+          else if (res.eff === 0) line += ` It doesn't affect ${def.name}…`;
+        }
+        log.push(line);
+
+        // ---- status application (only if the move connected and target lives) ----
+        if (def.hp > 0 && res.eff !== 0) {
+          const seff = moveStatusEffect(mv);
+          if (seff && rng() < seff.chance) {
+            if (STATUS.canApply(def, seff.code)) {
+              STATUS.apply(def, seff.code, rng);
+              events.push({ t: 'status', side: side === 'A' ? 'B' : 'A', name: def.name, code: seff.code, statusOf: snapshotStatus(A, B) });
+              log.push(`${def.name} was ${STATUS.label[seff.code]}!`);
+            }
+          }
+        }
+
+        if (def.hp <= 0) {
+          def.fainted = true;
+          STATUS.clear(def);
+          events.push({ t: 'faint', name: def.name, side: side === 'A' ? 'B' : 'A' });
+          log.push(`${def.name} fainted!`);
+          // send out replacement
+          if (side === 'A') { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); } }
+          else { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); } }
+          break; // end this turn's action exchange after a faint
+        }
+      }
+
+      // ---- end-of-turn residual damage (burn / poison / toxic) ----
+      for (const [side, mon, oppIdx] of [['A', A[ai], 'A'], ['B', B[bi], 'B']]) {
+        if (!mon || mon.fainted) continue;
+        const r = STATUS.residual(mon);
+        if (r > 0) {
+          mon.hp = Math.max(0, mon.hp - r);
+          if (mon.status === 'TOX') mon.toxicN++;
+          const verb = mon.status === 'BRN' ? 'hurt by its burn' : 'hurt by poison';
+          events.push({ t: 'statusdmg', side, name: mon.name, code: mon.status, hp: mon.hp, maxHP: mon.maxHP, dmg: r, statusOf: snapshotStatus(A, B) });
+          log.push(`${mon.name} was ${verb}! (-${Math.round((r / mon.maxHP) * 100)}%)`);
+          if (mon.hp <= 0) {
+            mon.fainted = true; STATUS.clear(mon);
+            events.push({ t: 'faint', name: mon.name, side });
+            log.push(`${mon.name} fainted!`);
+            if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); } }
+            else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); } }
+          }
+        }
+      }
+      events.push({ t: 'endturn', turn, aHP: A[ai] ? A[ai].hp : 0, bHP: B[bi] ? B[bi].hp : 0 });
+    }
+
+    const bothAlive = alive(A) && alive(B);
+    let aWin = alive(A) && !alive(B);
+    let bWin = alive(B) && !alive(A);
+    let winner = aWin ? 'A' : bWin ? 'B' : 'Draw';
+    let stalled = false;
+    // If the turn guard tripped while both teams are still standing, the battle
+    // stalled (e.g. status-only / very weak movesets). Resolve it by total
+    // remaining HP fraction rather than calling it an arbitrary draw.
+    if (bothAlive) {
+      const frac = (team) => team.reduce((s, m) => s + (m.fainted ? 0 : m.hp / m.maxHP), 0);
+      const fa = frac(A), fb = frac(B);
+      stalled = true;
+      winner = Math.abs(fa - fb) < 1e-6 ? 'Draw' : (fa > fb ? 'A' : 'B');
+    }
+    const survivorsA = A.filter(m => !m.fainted).length;
+    const survivorsB = B.filter(m => !m.fainted).length;
+    events.push({ t: 'end', winner, survivorsA, survivorsB, stalled });
+    if (stalled) {
+      log.push(winner === 'Draw'
+        ? 'The battle stalled out dead even — it’s a draw on remaining HP.'
+        : `The battle stalled out; Team ${winner} wins on remaining HP (${survivorsA} vs ${survivorsB} Pokémon left).`);
+    } else {
+      log.push(winner === 'Draw' ? 'The battle ended in a draw!' : `Team ${winner} wins with ${winner === 'A' ? survivorsA : survivorsB} Pokémon remaining!`);
+    }
+    return { winner, turns: turn, survivorsA, survivorsB, events, log, teamA: A, teamB: B, stalled };
+  }
+
+  const alive = (team) => team.some(m => !m.fainted);
+  const snapshot = (team) => team.map(m => ({ name: m.name, dex: m.dex, hp: m.hp, maxHP: m.maxHP, fainted: m.fainted, status: m.status || null }));
+  // per-team list of {idx,status} for active-mon status badges during playback
+  const snapshotStatus = (A, B) => ({
+    A: A.map(m => m.status || null),
+    B: B.map(m => m.status || null),
+  });
+
+  // ============================ team-building UI ============================
+  // Searchable dex picker (mirrors the Team Builder's filter: name or dex,
+  // excludes undiscovered + already-picked). Returns a dex string.
+  function MonPickerModal({ onPick, onClose, exclude }) {
+    const [q, setQ] = React.useState('');
+    const list = DEX.filter(d => !d.undiscovered && d.stats.HP > 0 && !exclude.includes(d.dex) &&
+      (!q.trim() || d.name.toLowerCase().includes(q.trim().toLowerCase()) || d.dex.includes(q.trim())));
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(5,3,12,0.82)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '60px 20px', overflowY: 'auto' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, background: '#0d0a1e', border: '1px solid #2a2350', borderRadius: 16, padding: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, color: '#fff' }}>Pick a Pokémon</span>
+            <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}>Close</button>
+          </div>
+          <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search by name or dex #" spellCheck={false}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 9, background: '#100c24', border: '1px solid #2a2545', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, marginBottom: 12 }} />
+          <div style={{ maxHeight: 360, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
+            {list.map(d => (
+              <button key={d.dex} onClick={() => onPick(d.dex)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 9, padding: 7, borderRadius: 10, background: '#120e28', border: '1px solid #241f44', color: '#e8e3ff', textAlign: 'left' }}>
+                <SpriteSlot dex={d.dex} name={d.name} size={34} accent="#8a5cff" />
+                <span style={{ overflow: 'hidden' }}>
+                  <span style={{ display: 'block', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{d.name}</span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#6a6388' }}>#{d.dex}</span>
+                </span>
+              </button>
+            ))}
+            {list.length === 0 && <div style={{ color: '#6a6388', fontFamily: "'Space Mono', monospace", fontSize: 13, padding: 12 }}>No matches.</div>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Move picker: choose up to 4 from a mon's real learnset.
+  function MovePickerModal({ dex, current, onSave, onClose }) {
+    const pool = React.useMemo(() => {
+      return resolveMoves(learnableMovesFor(dex)).sort((a, b) => a.name.localeCompare(b.name));
+    }, [dex]);
+    const [sel, setSel] = React.useState(() => (current || []).map(m => m.name));
+    const toggle = (name) => setSel(s => s.includes(name) ? s.filter(x => x !== name) : (s.length >= 4 ? s : [...s, name]));
+    const d = byDex(dex);
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(5,3,12,0.82)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '60px 20px', overflowY: 'auto' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, background: '#0d0a1e', border: '1px solid #2a2350', borderRadius: 16, padding: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, color: '#fff' }}>{d ? d.name : 'Moves'} — pick up to 4</span>
+            <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}>Close</button>
+          </div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#9a93bb', marginBottom: 12 }}>{sel.length}/4 selected{pool.length === 0 ? ' · no learnset data — will use Struggle' : ''}</div>
+          <div style={{ maxHeight: 360, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {pool.map(mv => {
+              const on = sel.includes(mv.name);
+              const isStatus = mv.cls === 'Status' || !(mv.pow > 0);
+              return (
+                <button key={mv.name} onClick={() => toggle(mv.name)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '8px 11px', borderRadius: 9, background: on ? '#2a1f55' : '#120e28', border: `1px solid ${on ? '#8a5cff' : '#241f44'}`, color: '#e8e3ff' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <TypePill type={mv.type} />
+                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13.5, fontWeight: 600 }}>{mv.name}</span>
+                  </span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11.5, color: '#9a93bb' }}>{isStatus ? mv.cls : `${mv.cls} · ${mv.pow}`}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
+            <button onClick={() => onSave(sel)} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', borderRadius: 10, padding: '9px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Save moves</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // editor for one side's manual roster (list of { dex, moves:[MOVE objs] })
+  function ManualRoster({ label, color, roster, setRoster, otherDexes }) {
+    const [picking, setPicking] = React.useState(false);          // mon picker open
+    const [moveFor, setMoveFor] = React.useState(-1);             // index whose moves we're editing
+    const exclude = roster.map(r => r.dex);                       // no dupes within this side
+    const addMon = (dex) => { setRoster(r => r.length >= 6 ? r : [...r, { dex, moves: autoMoves(dex) }]); setPicking(false); };
+    const removeMon = (i) => setRoster(r => r.filter((_, idx) => idx !== i));
+    const saveMoves = (i, names) => { setRoster(r => r.map((m, idx) => idx === i ? { ...m, moves: resolveMoves(names) } : m)); setMoveFor(-1); };
+    return (
+      <div style={{ borderRadius: 12, border: `1px solid ${color}44`, background: '#0c0a1c', padding: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color }}>{label.toUpperCase()} · {roster.length}/6</span>
+          <button disabled={roster.length >= 6} onClick={() => setPicking(true)} style={{ cursor: roster.length >= 6 ? 'default' : 'pointer', opacity: roster.length >= 6 ? 0.4 : 1, background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '5px 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>+ Add</button>
+        </div>
+        {roster.length === 0 && <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#6a6388', padding: '6px 2px' }}>Empty — add up to 6 Pokémon.</div>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {roster.map((m, i) => {
+            const d = byDex(m.dex);
+            return (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#120e28', border: '1px solid #241f44', borderRadius: 10, padding: '6px 9px' }}>
+                <SpriteSlot dex={m.dex} name={d ? d.name : m.dex} size={34} accent={color} />
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#e8e3ff' }}>{d ? d.name : '#' + m.dex}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10.5, color: '#8a83a8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{(m.moves || []).map(x => x.name).join(', ') || 'no moves'}</div>
+                </div>
+                <button onClick={() => setMoveFor(i)} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 7, padding: '5px 9px', fontSize: 11.5, fontFamily: "'Space Grotesk', sans-serif" }}>Moves</button>
+                <button onClick={() => removeMon(i)} style={{ cursor: 'pointer', background: '#2a1320', border: '1px solid #5a2540', color: '#ff9fb5', borderRadius: 7, padding: '5px 9px', fontSize: 11.5, fontFamily: "'Space Grotesk', sans-serif" }}>✕</button>
+              </div>
+            );
+          })}
+        </div>
+        {picking && <MonPickerModal onPick={addMon} onClose={() => setPicking(false)} exclude={exclude} />}
+        {moveFor >= 0 && roster[moveFor] && <MovePickerModal dex={roster[moveFor].dex} current={roster[moveFor].moves} onSave={(names) => saveMoves(moveFor, names)} onClose={() => setMoveFor(-1)} />}
+      </div>
+    );
+  }
+
+  // ============================ UI ============================
+  const BattleSim = function Battle() {
+    const [teamA, setTeamA] = React.useState(null);
+    const [teamB, setTeamB] = React.useState(null);
+    // team sources: 'random' | 'manual'  (import writes straight into a manual roster)
+    const [srcA, setSrcA] = React.useState('random');
+    const [srcB, setSrcB] = React.useState('random');
+    const [manualA, setManualA] = React.useState([]); // [{dex, moves:[MOVE objs]}]
+    const [manualB, setManualB] = React.useState([]);
+    const [importOpen, setImportOpen] = React.useState(false);
+    const [importText, setImportText] = React.useState('');
+    const [importInto, setImportInto] = React.useState('A'); // 'A' | 'B' | 'both'
+    const [importMsg, setImportMsg] = React.useState('');
+    const [result, setResult] = React.useState(null);
+    const [step, setStep] = React.useState(0);     // current event index during playback
+    const [playing, setPlaying] = React.useState(false);
+    const [speed, setSpeed] = React.useState(2);
+    const [skip, setSkip] = React.useState(false);
+    const [level, setLevel] = React.useState(50);   // avg level for RANDOM teams (1–100)
+    const [inspect, setInspect] = React.useState(null); // null | 'A' | 'B'
+    const [buildMsg, setBuildMsg] = React.useState('');
+    const timer = React.useRef(null);
+
+    // current display state derived from events up to `step`
+    const view = React.useRef({ a: null, b: null, aHP: {}, bHP: {}, anim: null });
+
+    const rollTeams = (lvl) => {
+      // guard: only a finite number is a real level; a click event etc. → use state
+      const L = (typeof lvl === 'number' && Number.isFinite(lvl)) ? lvl : level;
+      const rng = mulberry32((Math.random() * 1e9) | 0);
+      setTeamA(randomTeam(6, rng, L));
+      setTeamB(randomTeam(6, rng, L));
+      setSrcA('random'); setSrcB('random');
+      setResult(null); setStep(0); setPlaying(false); setBuildMsg('');
+    };
+
+    // re-level the CURRENT random teams in place: same species, recompute stats
+    // and auto-moves at the new level. Does NOT re-roll which Pokémon are on the
+    // team. Only touches sides that are on the Random source.
+    const relevelTeams = (L) => {
+      const redo = (team) => (team || []).map(m => buildMon(m.dex, L));
+      if (srcA === 'random') setTeamA(t => redo(t));
+      if (srcB === 'random') setTeamB(t => redo(t));
+      setResult(null); setStep(0); setPlaying(false);
+    };
+
+    React.useEffect(() => { rollTeams(); }, []);
+
+    // assemble the live teamA/teamB from whichever source each side is set to.
+    // Random sides use the team currently shown (set by Random Teams / the level
+    // slider) so a Simulate doesn't silently re-roll different Pokémon; we only
+    // roll a fresh one if nothing is shown yet.
+    const assembleTeams = () => {
+      let A, B, msg = '';
+      if (srcA === 'manual') {
+        if (manualA.length === 0) { setBuildMsg('Team A is empty — add Pokémon or switch it to Random.'); return false; }
+        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })));
+      } else { A = (teamA && teamA.length) ? teamA : randomTeam(6, mulberry32((Math.random() * 1e9) | 0), level); }
+      if (srcB === 'manual') {
+        if (manualB.length === 0) { setBuildMsg('Team B is empty — add Pokémon or switch it to Random.'); return false; }
+        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name) })));
+      } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level); }
+      setTeamA(A); setTeamB(B); setBuildMsg(msg);
+      return { A, B };
+    };
+
+    // import a VT2…/VTEAM1 code into the chosen side(s) as a manual roster
+    const doImport = () => {
+      const lo = decodeShareCode(importText);
+      if (!lo || !lo.members || lo.members.length === 0) {
+        setImportMsg('That code is not valid. Copy the whole thing (it starts with VT2).');
+        return;
+      }
+      // members → manual roster shape with resolved MOVE objects
+      const roster = lo.members.map(m => {
+        const resolved = resolveMoves(m.moves);
+        return { dex: m.dex, moves: resolved.length ? resolved : autoMoves(m.dex) };
+      }).filter(m => byDex(m.dex));
+      if (roster.length === 0) { setImportMsg('Code decoded, but no valid Pokémon were found in it.'); return; }
+      const named = lo.name ? `"${lo.name}"` : 'team';
+      if (importInto === 'A' || importInto === 'both') { setManualA(roster.map(r => ({ ...r }))); setSrcA('manual'); }
+      if (importInto === 'B' || importInto === 'both') { setManualB(roster.map(r => ({ ...r }))); setSrcB('manual'); }
+      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${importInto === 'both' ? 'A & B' : importInto}.`);
+      setResult(null); setStep(0); setPlaying(false);
+    };
+
+    // open the import modal pre-targeted at a side ('A' | 'B' | 'both')
+    const openImport = (into) => { setImportInto(into || 'A'); setImportText(''); setImportMsg(''); setImportOpen(true); };
+
+    // switch a side's source; entering 'random' rolls that side a fresh team at
+    // the current level (so it doesn't keep showing the old manual roster).
+    const chooseSource = (side, opt) => {
+      if (opt === 'random') {
+        const team = randomTeam(6, mulberry32((Math.random() * 1e9 + (side === 'B' ? 7 : 0)) | 0), level);
+        if (side === 'A') { setSrcA('random'); setTeamA(team); }
+        else { setSrcB('random'); setTeamB(team); }
+        setResult(null); setStep(0); setPlaying(false); setBuildMsg('');
+      } else {
+        (side === 'A' ? setSrcA : setSrcB)(opt);
+      }
+    };
+
+    const run = () => {
+      const built = assembleTeams();
+      if (!built) return;
+      const r = simulate(built.A, built.B);
+      setResult(r);
+      if (skip) { setStep(r.events.length - 1); setPlaying(false); }
+      else { setStep(0); setPlaying(true); }
+    };
+
+    // playback timer
+    React.useEffect(() => {
+      if (!playing || !result) return;
+      if (step >= result.events.length - 1) { setPlaying(false); return; }
+      const delay = Math.max(40, 900 / speed);
+      timer.current = setTimeout(() => setStep(s => Math.min(s + 1, result.events.length - 1)), delay);
+      return () => clearTimeout(timer.current);
+    }, [playing, step, speed, result]);
+
+    // reconstruct active mons + HP from events up to `step`
+    const playback = React.useMemo(() => {
+      if (!result) return null;
+      const A = result.teamA.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null }));
+      const B = result.teamB.map(m => ({ name: m.name, dex: m.dex, maxHP: m.maxHP, hp: m.maxHP, fainted: false, status: null }));
+      const applyStatusSnap = (snap) => { if (!snap) return; snap.A.forEach((s, i) => { if (A[i]) A[i].status = s; }); snap.B.forEach((s, i) => { if (B[i]) B[i].status = s; }); };
+      let ai = 0, bi = 0, lastAnim = null, turn = 0;
+      for (let i = 0; i <= step && i < result.events.length; i++) {
+        const e = result.events[i];
+        if (e.t === 'switch') { if (e.side === 'A') ai = e.to; else bi = e.to; }
+        else if (e.t === 'send') { if (e.side === 'A') ai = e.idx; else bi = e.idx; }
+        else if (e.t === 'move') {
+          const defSide = e.side === 'A' ? B : A;
+          const defIdx = e.side === 'A' ? bi : ai;
+          if (!e.missed && e.hp != null) defSide[defIdx].hp = e.hp;
+          if (i === step) lastAnim = e;
+        }
+        else if (e.t === 'status') { applyStatusSnap(e.statusOf); if (i === step) lastAnim = e; }
+        else if (e.t === 'cantmove') { applyStatusSnap(e.statusOf); if (i === step) lastAnim = e; }
+        else if (e.t === 'statusdmg') {
+          const s = e.side === 'A' ? A : B; const idx = e.side === 'A' ? ai : bi;
+          if (s[idx] && e.hp != null) s[idx].hp = e.hp;
+          applyStatusSnap(e.statusOf);
+          if (i === step) lastAnim = e;
+        }
+        else if (e.t === 'faint') { const s = e.side === 'A' ? A : B; const idx = e.side === 'A' ? ai : bi; if (s[idx]) { s[idx].fainted = true; s[idx].hp = 0; s[idx].status = null; } }
+        else if (e.t === 'endturn') turn = e.turn;
+      }
+      return { A, B, ai, bi, anim: lastAnim, turn };
+    }, [result, step]);
+
+    // visible log up to current step
+    const visibleLog = React.useMemo(() => {
+      if (!result) return [];
+      // map events to log lines roughly by counting log-producing events
+      return result.log.slice(0, logCountUpTo(result.events, step) );
+    }, [result, step]);
+
+    const copyLog = () => { try { navigator.clipboard.writeText(result.log.join('\n')); } catch (e) {} };
+
+    if (!teamA || !teamB) return <Empty label="Loading battle…" />;
+
+    return (
+      <div>
+        <PageHead kicker="BATTLE ENGINE" title="Auto-Battle Simulator" sub="Build two teams — pick them by hand from the Void dex, import a Team Builder share code, or roll them at random — then let the AI fight it out. 6v6 with switching, real Void stats and type chart, animated on a 2D plane." />
+
+        {/* controls */}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18 }}>
+          <button onClick={run} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', borderRadius: 12, padding: '12px 24px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 20 }}>⚔ Simulate Battle</button>
+          <button onClick={() => rollTeams()} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600 }}>🎲 Random Teams</button>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#9a93bb' }}>
+            <input type="checkbox" checked={skip} onChange={e => setSkip(e.target.checked)} /> Skip animation
+          </label>
+          <div style={{ display: 'inline-flex', borderRadius: 8, overflow: 'hidden', border: '1px solid #2a2545' }}>
+            {[1, 2, 5, 10, 20].map(s => (
+              <button key={s} onClick={() => setSpeed(s)} style={{ cursor: 'pointer', padding: '8px 12px', background: speed === s ? '#322663' : '#100c24', border: 'none', borderRight: s !== 20 ? '1px solid #2a2545' : 'none', color: speed === s ? '#fff' : '#9a93bb', fontFamily: "'Space Mono', monospace", fontSize: 13 }}>{s}x</button>
+            ))}
+          </div>
+        </div>
+
+        {/* team source: per-side Random / Manual / Import */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 14 }}>
+          {[['A', srcA, '#33d6ff'], ['B', srcB, '#ff7fe0']].map(([side, src, col]) => (
+            <div key={side} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: col }}>TEAM {side}</span>
+              <div style={{ display: 'inline-flex', borderRadius: 8, overflow: 'hidden', border: '1px solid #2a2545' }}>
+                {['random', 'manual', 'import'].map((opt, oi) => (
+                  <button key={opt}
+                    onClick={() => { if (opt === 'import') { openImport(side); } else { chooseSource(side, opt); } }}
+                    style={{ cursor: 'pointer', padding: '6px 13px', background: src === opt ? '#322663' : '#100c24', border: 'none', borderRight: oi < 2 ? '1px solid #2a2545' : 'none', color: src === opt ? '#fff' : '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, textTransform: 'capitalize' }}>
+                    {opt === 'import' ? '⇩ Import' : opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* level slider — governs the average level of RANDOM teams */}
+        {(srcA === 'random' || srcB === 'random') && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14, padding: '10px 14px', borderRadius: 10, background: '#0c0a1c', border: '1px solid #221d3a', flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#b08fff', whiteSpace: 'nowrap' }}>RANDOM TEAM LEVEL</span>
+            <input type="range" min={1} max={100} value={level}
+              onChange={e => { const v = +e.target.value; setLevel(v); relevelTeams(v); }}
+              style={{ flex: '1 1 220px', accentColor: '#8a5cff', cursor: 'pointer' }} />
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: '#fff', minWidth: 56, textAlign: 'right' }}>Lv. {level}</span>
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to whichever side is set to Random. Manual and imported teams battle at Lv. 50.</span>
+          </div>
+        )}
+        {buildMsg && <div style={{ marginBottom: 14, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb37a' }}>{buildMsg}</div>}
+
+        {/* manual roster editors (only when a side is set to manual) */}
+        {(srcA === 'manual' || srcB === 'manual') && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            {srcA === 'manual'
+              ? <ManualRoster label="Team A" color="#33d6ff" roster={manualA} setRoster={setManualA} />
+              : <div style={{ borderRadius: 12, border: '1px dashed #2a254566', padding: 12, fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#6a6388' }}>Team A: random</div>}
+            {srcB === 'manual'
+              ? <ManualRoster label="Team B" color="#ff7fe0" roster={manualB} setRoster={setManualB} />
+              : <div style={{ borderRadius: 12, border: '1px dashed #2a254566', padding: 12, fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#6a6388' }}>Team B: random</div>}
+          </div>
+        )}
+
+        {/* import modal */}
+        {importOpen && (
+          <div onClick={() => setImportOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(5,3,12,0.82)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '70px 20px', overflowY: 'auto' }}>
+            <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 520, background: '#0d0a1e', border: '1px solid #2a2350', borderRadius: 16, padding: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, color: '#fff' }}>Import a team</span>
+                <button onClick={() => setImportOpen(false)} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}>Close</button>
+              </div>
+              <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>Paste a share code from the Team Builder (starts with <code style={{ color: '#cdbfff' }}>VT2</code>). It loads as an editable manual roster.</p>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                {[['A', 'Into Team A'], ['B', 'Into Team B'], ['both', 'Into both']].map(([v, lbl]) => (
+                  <button key={v} onClick={() => setImportInto(v)} style={{ cursor: 'pointer', flex: 1, padding: '8px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, fontWeight: 600, background: importInto === v ? '#8a5cff22' : '#100c24', border: `1px solid ${importInto === v ? '#8a5cff' : '#2a2545'}`, color: importInto === v ? '#fff' : '#9a93bb' }}>{lbl}</button>
+                ))}
+              </div>
+              <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste a VT2… code here" spellCheck={false}
+                style={{ width: '100%', boxSizing: 'border-box', minHeight: 90, padding: '10px 12px', borderRadius: 9, background: '#100c24', border: '1px solid #2a2545', color: '#cdbfff', fontFamily: "'Space Mono', monospace", fontSize: 12.5, resize: 'vertical' }} />
+              {importMsg && <div style={{ marginTop: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: importMsg.startsWith('Imported') ? '#7fe0a0' : '#ff9fb5' }}>{importMsg}</div>}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
+                <button onClick={doImport} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', borderRadius: 10, padding: '9px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Import</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* the 2D arena */}
+        {result && playback && (
+          <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', border: '1px solid #2a2350', background: 'linear-gradient(180deg, #1a1535 0%, #0f0b22 55%, #0a0816 100%)', minHeight: 320, marginBottom: 16 }}>
+            {/* ground line */}
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 70, height: 2, background: 'linear-gradient(90deg, transparent, #3a2f6e, transparent)' }} />
+            {/* turn badge */}
+            <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#b08fff', letterSpacing: 1 }}>
+              {playback.anim && playback.anim.t === 'end' ? '' : 'TURN ' + (playback.turn || 1)}
+            </div>
+
+            <BattlerSlot mon={playback.B[playback.bi]} side="B" anim={playback.anim} />
+            <BattlerSlot mon={playback.A[playback.ai]} side="A" anim={playback.anim} />
+
+            {/* VS / result overlay */}
+            {step >= result.events.length - 1 && (
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(8,6,18,0.55)' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 11, color: '#b08fff', letterSpacing: 2 }}>RESULT</div>
+                  <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 42, color: result.winner === 'Draw' ? '#cdbfff' : '#ffd54a', textShadow: '0 0 30px #8a5cff88' }}>
+                    {result.winner === 'Draw' ? 'Draw' : 'Team ' + result.winner + ' Wins'}
+                  </div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#9a93bb', marginTop: 4 }}>{result.turns} turns · A: {result.survivorsA} left · B: {result.survivorsB} left</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* playback scrubber */}
+        {result && !skip && (
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 18, flexWrap: 'wrap' }}>
+            <button onClick={() => setStep(s => Math.max(0, s - 1))} style={ctrlBtn}>⏮ Step</button>
+            <button onClick={() => setPlaying(p => !p)} style={ctrlBtn}>{playing ? '⏸ Pause' : '▶ Play'}</button>
+            <button onClick={() => setStep(s => Math.min(result.events.length - 1, s + 1))} style={ctrlBtn}>Step ⏭</button>
+            <button onClick={() => { setStep(0); setPlaying(true); }} style={ctrlBtn}>↺ Restart</button>
+            <input type="range" min={0} max={result.events.length - 1} value={step} onChange={e => { setStep(+e.target.value); setPlaying(false); }} style={{ flex: '1 1 200px', accentColor: '#8a5cff' }} />
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#6a6388' }}>{step + 1}/{result.events.length}</span>
+          </div>
+        )}
+
+        {/* team rosters */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 18 }}>
+          <Roster team={teamA} label="Team A" color="#33d6ff" live={playback ? playback.A : null} onInspect={() => setInspect('A')} />
+          <Roster team={teamB} label="Team B" color="#ff7fe0" live={playback ? playback.B : null} onInspect={() => setInspect('B')} />
+        </div>
+
+        {inspect && (
+          <InspectModal
+            team={inspect === 'A' ? teamA : teamB}
+            label={'Team ' + inspect}
+            color={inspect === 'A' ? '#33d6ff' : '#ff7fe0'}
+            onClose={() => setInspect(null)}
+          />
+        )}
+
+        {/* battle log */}
+        {result && (
+          <div style={{ borderRadius: 14, border: '1px solid #221d3a', background: '#0c0a1c', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: '1px solid #221d3a' }}>
+              <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a83a8' }}>BATTLE LOG</span>
+              <button onClick={copyLog} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 7, padding: '5px 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12 }}>Copy</button>
+            </div>
+            <div style={{ maxHeight: 260, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {(skip ? result.log : visibleLog).map((line, i) => (
+                <div key={i} style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13.5, color: line.includes('fainted') ? '#ff8fa6' : line.includes('Wins') || line.includes('wins') ? '#ffd54a' : '#cdc6e6', lineHeight: 1.5 }}>{line}</div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ctrlBtn = { cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '8px 14px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 };
+
+  // how many log lines correspond to events up to step (log + events are roughly 1:1 for action events)
+  function logCountUpTo(events, step) {
+    let n = 0;
+    for (let i = 0; i <= step && i < events.length; i++) {
+      const t = events[i].t;
+      if (t === 'start') n += 1;
+      else if (t === 'switch' || t === 'send' || t === 'faint' || t === 'end') n += 1;
+      else if (t === 'move') n += 1;
+      else if (t === 'cantmove' || t === 'status' || t === 'statusdmg') n += 1;
+    }
+    return n;
+  }
+
+  // a single animated battler on the plane
+  function BattlerSlot({ mon, side, anim }) {
+    if (!mon) return null;
+    const isA = side === 'A';
+    const accent = mon && TYPES[byDex(mon.dex) ? byDex(mon.dex).types[0] : 'NORMAL'] ? TYPES[byDex(mon.dex).types[0]].glow : '#8a5cff';
+    // animation: did this mon just attack or get hit on the current step?
+    let transform = 'none', flash = false;
+    if (anim && anim.t === 'move') {
+      const attackerIsThis = (anim.side === side);
+      const targetIsThis = (anim.side !== side);
+      if (attackerIsThis && !anim.missed) transform = isA ? 'translateX(40px) translateY(-10px)' : 'translateX(-40px) translateY(10px)';
+      if (targetIsThis && !anim.missed && anim.dmg > 0) { transform = isA ? 'translateX(-8px)' : 'translateX(8px)'; flash = true; }
+    }
+    const hpPct = Math.max(0, Math.round((mon.hp / mon.maxHP) * 100));
+    const hpColor = hpPct > 50 ? '#5fd13c' : hpPct > 20 ? '#ffd54a' : '#ff5f7e';
+    return (
+      <div style={{ position: 'absolute', [isA ? 'left' : 'right']: '8%', bottom: isA ? 60 : 150, textAlign: 'center', width: 180 }}>
+        {/* HP bar */}
+        <div style={{ marginBottom: 8, background: '#0a0818cc', border: `1px solid ${accent}55`, borderRadius: 8, padding: '6px 9px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#fff' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {mon.name}
+              {mon.status && <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 0.5, padding: '2px 5px', borderRadius: 4, color: '#0a0816', background: STATUS.color[mon.status] || '#fff', fontWeight: 700 }}>{STATUS.short[mon.status]}</span>}
+            </span>
+            <span style={{ color: hpColor }}>{hpPct}%</span>
+          </div>
+          <div style={{ height: 7, borderRadius: 4, background: '#1a1533', overflow: 'hidden', marginTop: 4 }}>
+            <div style={{ width: hpPct + '%', height: '100%', background: hpColor, transition: 'width 0.3s ease' }} />
+          </div>
+        </div>
+        {/* sprite */}
+        <div style={{ transform: mon.fainted ? 'translateY(30px) rotate(8deg)' : transform, opacity: mon.fainted ? 0.25 : 1, transition: 'transform 0.18s ease, opacity 0.4s ease', filter: flash ? 'brightness(2.2)' : 'none', display: 'inline-block' }}>
+          <SpriteSlot dex={mon.dex} name={mon.name} size={120} accent={accent} />
+        </div>
+      </div>
+    );
+  }
+
+  function Roster({ team, label, color, live, onInspect }) {
+    const lvl = team && team[0] ? team[0].level : null;
+    return (
+      <div style={{ borderRadius: 12, border: `1px solid ${color}44`, background: '#0c0a1c', padding: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color }}>{label.toUpperCase()}</span>
+          {lvl != null && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#6a6388' }}>Lv. {lvl}</span>}
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {team.map((m, i) => {
+            const lv = live ? live[i] : null;
+            const fainted = lv ? lv.fainted : false;
+            const pct = lv ? Math.round((lv.hp / lv.maxHP) * 100) : 100;
+            return (
+              <div key={i} title={`${m.name} · Lv. ${m.level}`} style={{ width: 54, textAlign: 'center', opacity: fainted ? 0.3 : 1 }}>
+                <div style={{ filter: fainted ? 'grayscale(1)' : 'none' }}>
+                  <SpriteSlot dex={m.dex} name={m.name} size={44} accent={color} />
+                </div>
+                <div style={{ height: 3, borderRadius: 2, background: '#1a1533', overflow: 'hidden', marginTop: 2 }}>
+                  <div style={{ width: pct + '%', height: '100%', background: pct > 50 ? '#5fd13c' : pct > 20 ? '#ffd54a' : '#ff5f7e' }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {team && team.length > 0 && (
+          <button onClick={onInspect} style={{ cursor: 'pointer', marginTop: 12, width: '100%', background: '#15112a', border: `1px solid ${color}55`, color: '#cdbfff', borderRadius: 9, padding: '8px 14px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>🔍 Inspect {label}</button>
+        )}
+      </div>
+    );
+  }
+
+  // full breakdown of a team's mons: stats, abilities, moves, and an honest
+  // note on what isn't simulated yet (IV/EV/nature/items).
+  function InspectModal({ team, label, color, onClose }) {
+    const STAT_ROWS = [['HP', 'HP'], ['ATK', 'Atk'], ['DEF', 'Def'], ['SPA', 'SpA'], ['SPD', 'SpD'], ['SPE', 'Spe']];
+    const statMax = 255; // base-stat reference for the mini bars
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 120, background: 'rgba(5,3,12,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '50px 16px', overflowY: 'auto' }}>
+        <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 760, background: '#0d0a1e', border: `1px solid ${color}55`, borderRadius: 16, padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 24, color: '#fff' }}>Inspect {label}</span>
+            <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '6px 13px', fontSize: 13 }}>Close</button>
+          </div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: '#8a83a8', marginBottom: 16, lineHeight: 1.5 }}>
+            Everything below is exactly what the engine uses to fight. Stats are computed at Lv. {team[0] ? team[0].level : 50} from base stats — the sim runs neutral nature with no IVs, EVs, or held items yet, and abilities are shown but don't affect battle until that phase lands.
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {team.map((m, i) => {
+              const d = byDex(m.dex);
+              const abilities = d ? (d.abilities || []) : [];
+              const hidden = d ? d.hidden : null;
+              return (
+                <div key={i} style={{ borderRadius: 12, border: '1px solid #241f44', background: '#100c24', padding: 14 }}>
+                  {/* header: sprite, name, types, level */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+                    <SpriteSlot dex={m.dex} name={m.name} size={48} accent={color} />
+                    <div style={{ flex: 1, minWidth: 140 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 19, color: '#fff' }}>{m.name}</span>
+                        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#6a6388' }}>#{m.dex} · Lv. {m.level}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 5, marginTop: 5 }}>
+                        {m.types.map(t => <TypePill key={t} type={t} />)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    {/* stats column */}
+                    <div>
+                      <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#8a83a8', marginBottom: 7 }}>STATS (LV. {m.level})</div>
+                      {STAT_ROWS.map(([k, lbl]) => {
+                        const v = m.stats[k];
+                        const base = d ? d.stats[k] : v;
+                        return (
+                          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                            <span style={{ width: 30, fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#9a93bb' }}>{lbl}</span>
+                            <span style={{ width: 34, textAlign: 'right', fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, color: '#fff' }}>{v}</span>
+                            <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#1a1533', overflow: 'hidden' }}>
+                              <div style={{ width: Math.min(100, (base / statMax) * 100) + '%', height: '100%', background: color }} />
+                            </div>
+                            <span style={{ width: 48, fontFamily: "'Space Mono', monospace", fontSize: 9.5, color: '#5f5980' }}>base {base}</span>
+                          </div>
+                        );
+                      })}
+                      <div style={{ marginTop: 9, fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388' }}>
+                        <div><span style={{ color: '#9a93bb' }}>Ability:</span> {abilities.length ? abilities.join(', ') : '—'}{hidden ? ` (hidden: ${hidden})` : ''}</div>
+                        <div style={{ marginTop: 3, color: '#5f5980' }}>IV / EV / Nature / Item — not simulated yet</div>
+                      </div>
+                    </div>
+
+                    {/* moves column */}
+                    <div>
+                      <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#8a83a8', marginBottom: 7 }}>MOVES</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                        {m.moves.map((mv, j) => {
+                          const se = moveStatusEffect(mv);
+                          const isStatus = mv.cls === 'Status' || !(mv.pow > 0);
+                          return (
+                            <div key={j} style={{ background: '#0c0a1c', border: '1px solid #221d3a', borderRadius: 8, padding: '6px 9px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <TypePill type={mv.type} />
+                                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#e8e3ff' }}>{mv.name}</span>
+                                </span>
+                                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10.5, color: '#9a93bb' }}>{isStatus ? mv.cls : `${mv.cls} · ${mv.pow}/${mv.acc}`}</span>
+                              </div>
+                              {se && <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: STATUS.color[se.code] || '#9a93bb', marginTop: 3 }}>{Math.round(se.chance * 100)}% {STATUS.label[se.code]}</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- gatekeeper: passcode prompt → real sim ----------
+  function BattleGate() {
+    const [unlocked, setUnlockedState] = React.useState(isUnlocked());
+    const [entry, setEntry] = React.useState('');
+    const [error, setError] = React.useState(false);
+
+    if (unlocked) return <BattleSim />;
+
+    const tryUnlock = () => {
+      if (checkPass(entry)) { setUnlocked(); setUnlockedState(true); setError(false); }
+      else { setError(true); }
+    };
+
+    return (
+      <div>
+        <PageHead kicker="BATTLE ENGINE" title="Auto-Battle Simulator" sub="This feature is in private preview and locked with a passcode. If you have one, enter it below to unlock the simulator on this device." />
+        <div style={{ maxWidth: 460, margin: '40px auto', textAlign: 'center', borderRadius: 18, border: '1px solid #2a2350', background: 'linear-gradient(180deg, #14102b 0%, #0d0a1e 100%)', padding: '36px 28px' }}>
+          <div style={{ fontSize: 46, marginBottom: 6 }}>🔒</div>
+          <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 11, color: '#b08fff', letterSpacing: 2, marginBottom: 18 }}>LOCKED</div>
+          <input
+            type="password"
+            value={entry}
+            autoFocus
+            onChange={e => { setEntry(e.target.value); setError(false); }}
+            onKeyDown={e => { if (e.key === 'Enter') tryUnlock(); }}
+            placeholder="Enter passcode"
+            spellCheck={false}
+            style={{ width: '100%', boxSizing: 'border-box', textAlign: 'center', padding: '12px 14px', borderRadius: 10, background: '#100c24', border: `1px solid ${error ? '#ff5f7e' : '#2a2545'}`, color: '#fff', fontFamily: "'Space Mono', monospace", fontSize: 15, letterSpacing: 1, marginBottom: 12 }}
+          />
+          {error && <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ff8fa6', marginBottom: 12 }}>That passcode isn't right. Check with whoever shared this.</div>}
+          <button onClick={tryUnlock} style={{ cursor: 'pointer', width: '100%', background: 'linear-gradient(135deg, #6a3df0, #b08fff)', border: '1px solid #c4a8ff', color: '#fff', borderRadius: 12, padding: '12px', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 18 }}>Unlock</button>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', marginTop: 16, lineHeight: 1.5 }}>Once unlocked, it stays unlocked on this device.</div>
+        </div>
+      </div>
+    );
+  }
+
+  window.VIEWS.Battle = BattleGate;
+})();

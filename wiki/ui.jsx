@@ -168,6 +168,7 @@
     ['Compare', '#/compare'],
     ['Living Dex', '#/living'], ['Catch Calculator', '#/catch'],
     ['Damage Calculator', '#/damage'], ['Nuzlocke Randomizer', '#/nuzlocke'],
+    ['Battle Sim', '#/battle'],
     // ['Trainers', '#/trainers'],
   ];
   function NavBar({ route, query, setQuery }) {

@@ -105,6 +105,7 @@
 <script type="text/babel" src="wiki/view-catch.jsx"></script>
 <script type="text/babel" src="wiki/view-nuzlocke.jsx"></script>
 <script type="text/babel" src="wiki/view-riddles.jsx"></script>
+<script type="text/babel" src="wiki/view-battle.jsx"></script>
 <script type="text/babel" src="wiki/view-damage.jsx"></script>
 
 <script type="text/babel">
@@ -157,6 +158,7 @@
       case 'catch': content = <V.Catch />; break;
       case 'nuzlocke': content = <V.Nuzlocke />; break;
       case 'riddles': content = <V.Riddles />; break;
+      case 'battle': content = <V.Battle />; break;
       case 'pokedex':
       default: content = <V.Pokedex query={query} />;
     }

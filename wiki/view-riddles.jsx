@@ -36,7 +36,7 @@ window.VIEWS = window.VIEWS || {};
       { q: "I emerge when my pre-evolution absorbs ice from a snowstorm, unleashing freeze lightning. Who am I?", a: 'Capibarron', hint: "Electric/Ice." },
       { q: "A Cosmic-type said to act as a bridge between worlds, transmitting unknown energy. Who am I?", a: 'Orbalink', hint: "Cosmic/Fairy." },
       { q: "The stars in my tail are stars not yet born; when their time comes, they ignite. Who am I?", a: 'Warrpen', hint: "Fire/Cosmic, middle stage." },
-      { q: "During droughts I carry aquatic Pokémon to safer waters; my age is measured by my rings. Who am I?", a: 'Writrout', hint: "Water/Flying, a 'Fly Fish'." },
+      { q: "During droughts I carry aquatic Pokémon to safer waters; my age is measured by my wingspan. Who am I?", a: 'Writrout', hint: "Water/Flying, a 'Fly Fish'." },
     ],
     Hard: [
       { q: "Once part of a giant, I split away and rose to the mesosphere; legends tie me to a shooting star.", a: 'Corelet' },
