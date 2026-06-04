@@ -996,7 +996,7 @@ window.VIEWS = window.VIEWS || {};
     { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },       // Writrout [WATER/FLYING]
   ];
   const VAERETH_LEVEL = 100;
-  const VAERETH_STAT_MULT = 0.85; // NORMAL boss: rebalanced as the accessible tier — a real fight but winnable (~30-40% for a good team), clearly easier than Hard
+  const VAERETH_STAT_MULT = 1.00; // NORMAL boss multiplier
   // HARD mode uses a completely different, far stronger team (Normal's roster is a
   // placeholder for the owner's favourites; Hard is the real gauntlet). These six
   // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
@@ -1004,7 +1004,7 @@ window.VIEWS = window.VIEWS || {};
   // 1.20x + boss status immunity (see STATUS.canApply) closes the paralysis-stall
   // exploit that let ~10 players clear the old version. Best known team now wins
   // ~0.5%, random optimized teams ~0.1% — a true "almost nobody" gauntlet.
-  const VAERETH_HARD_MULT = 1.00; // tuned vs OPTIMIZED cheese (not just random): with status immunity + expert AI + smart switching, 1.00x lands strong setup/stall teams ~20-26% and priority spam ~7%, random teams ~0.3%. A fair "good players can crack it" middle tier. Below ~1.00 the boss gets out-sped and cheese jumps toward ~100% (sharp cliff), so this is the stable floor.
+  const VAERETH_HARD_MULT = 1.10; // HARD boss multiplier
   const VAERETH_HARD_ROSTER = [
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
@@ -1017,7 +1017,7 @@ window.VIEWS = window.VIEWS || {};
   // level 125, attacks always roll max damage (see maxRoll in damage calc), and a
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
   const VAERETH_NIGHTMARE_LEVEL = 125;
-  const VAERETH_NIGHTMARE_MULT = 1.10; // raised from 0.92 on top of L125 + max rolls + status immunity + 600 EVs + 2-ply AI. The best counter team found wins 0-in-40000 at this setting (was ~1-in-60000 at 0.92x), so this is effectively unbeatable — if a winning line exists it is rarer than 1-in-40000 and could not be demonstrated in testing.
+  const VAERETH_NIGHTMARE_MULT = 1.30; // NIGHTMARE boss multiplier
   // Nightmare gets its OWN default roster — a hard counter to the dominant community
   // meta team (Kodinaut/Equinine/Cerbament/Colapsore/Sediserker/Mangmight), built
   // around Water + Fighting + Grass + Light STAB that punishes that exact lineup,
@@ -1552,7 +1552,12 @@ window.VIEWS = window.VIEWS || {};
   // better matchup is on the bench, consider switching (basic revenge/pivot).
   // `recentlySwitched` blocks an immediate re-switch (prevents infinite pivot loops).
   function shouldSwitch(team, activeIdx, foe, rng, recentlySwitched, mode, hazardsOnMe) {
-    const hard = mode === 'hard' || mode === 'nightmare'; // smart switching on both tough tiers
+    const hard = mode === 'hard' || mode === 'nightmare'; // full expert switching on the tough tiers (boss side)
+    // The player side (and Normal) uses a lighter "safe switching" pass: it keeps the
+    // basic hazard/resist guards so it stops walking fresh mons into hazard death or
+    // an obviously bad matchup, but it does NOT get the boss's sweeper-check / boosted-
+    // hit logic — Hard & Nightmare stay about team-building, not autopilot brilliance.
+    const safe = !hard;
     const active = team[activeIdx];
     if (active.fainted) return pickNextAlive(team, activeIdx);
     if (recentlySwitched) return -1; // just came in — commit to at least one action
@@ -1562,10 +1567,10 @@ window.VIEWS = window.VIEWS || {};
     const inDanger = incoming >= active.hp * 0.8; // likely to be KO'd
     if (!inDanger) return -1;
 
-    // estimate hazard chip a benched mon would take on entry (Hard only) so we
-    // don't pivot a frail teammate straight into Stealth Rock + Spikes death.
+    // estimate hazard chip a benched mon would take on entry so we don't pivot a
+    // frail teammate straight into Stealth Rock + Spikes death. (Both boss and player.)
     const hazardChip = (m) => {
-      if (!hard || !hazardsOnMe) return 0;
+      if (!hazardsOnMe) return 0;
       let frac = 0;
       if (hazardsOnMe.rock) {
         const weak = typeMult('ROCK', m.types); // SR scales with Rock effectiveness
@@ -1605,12 +1610,25 @@ window.VIEWS = window.VIEWS || {};
           if (boostedTake < effHP) val += active.maxHP * 0.6; // genuinely survives the boosted hit
           else val -= active.maxHP * 0.4;                     // gets KO'd anyway — don't sack it
         }
+      } else if (safe) {
+        // player-side safe guards (no expert/sweeper logic): reward a clean resist/
+        // immunity so it pivots somewhere sensible, and always subtract hazard chip so
+        // it stops walking fresh mons into Stealth Rock / Spikes death.
+        const inMult = aiTypeMult(foe, m, foeBest);
+        if (inMult === 0) val += active.maxHP * 0.6;
+        else if (inMult <= 0.5) val += active.maxHP * 0.3;
+        val -= chip;
+        // don't pivot into a mon that just gets KO'd on entry's following hit either
+        if (takes >= effHP) val -= active.maxHP * 0.5;
       }
       if (val > bestVal) { bestVal = val; bestBench = i; }
     });
-    // switch if a bench mon is clearly better than staying in. Bar is lower when the
-    // foe is set up (we urgently need our check in) and higher otherwise (avoid churn).
-    const bar = foeBoostAtk > 0 ? active.hp * 0.6 : active.hp;
+    // switch only if a bench mon is clearly better than staying in. The player side
+    // uses a HIGHER bar (1.3x current HP) so it doesn't churn/pivot aimlessly and feed
+    // the foe free turns + status — it switches only for a genuinely better matchup.
+    const bar = hard
+      ? (foeBoostAtk > 0 ? active.hp * 0.6 : active.hp)
+      : active.hp * 1.3;
     return bestVal > bar ? bestBench : -1;
   }
   function pickNextAlive(team, fromIdx) {
@@ -1748,7 +1766,14 @@ window.VIEWS = window.VIEWS || {};
       // both sides decide their switch against the SAME pre-switch state, so B
       // doesn't get to react to A's switch (that was a slot-based information edge).
       const preA = A[ai], preB = B[bi];
-      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1, aiMode, field.hazards.A);
+      // Switching brains are asymmetric on purpose: the BOSS side (Team B on the
+      // Vaereth tiers) gets the full expert switching; the PLAYER side (Team A) always
+      // uses the lighter "safe" switching regardless of tier, so Hard & Nightmare stay
+      // about team-building rather than the autopilot out-playing the boss. In plain
+      // AI-vs-AI (no boss), both sides use the same aiMode.
+      const bossOnB = B[bi] && B[bi].boss;
+      const aMode = bossOnB ? 'normal' : aiMode;   // player side never gets expert switching vs the boss
+      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1, aMode, field.hazards.A);
       const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1, aiMode, field.hazards.B);
       // switch-out abilities (Regenerator heal, Natural Cure) on the OUTGOING mon
       const doSwitchOut = (side, outIdx) => {
