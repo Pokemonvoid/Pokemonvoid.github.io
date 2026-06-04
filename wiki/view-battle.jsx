@@ -1272,6 +1272,91 @@ window.VIEWS = window.VIEWS || {};
     return Math.floor(base * stab * te * ateMult * 0.925 * 0.6 * STATUS.burnFactor(attacker, move));
   }
 
+  // ---- HARD BOSS "expert" planner --------------------------------------------
+  // A unique decision layer for the Vaereth Hard boss. Instead of greedily taking
+  // the highest-immediate-value move, it looks one ply ahead: for each candidate it
+  // estimates the resulting position (its HP, the foe's HP, KOs, who's faster) and
+  // the foe's best reply, then scores the position with expert heuristics the
+  // greedy AI lacks — converting KOs, not wasting overkill, setting up only in safe
+  // windows, valuing speed control, and preserving its own healthiest threat.
+  // Falls back to bestMove's pick if nothing scores better. Sub-1s: 1 ply, no RNG.
+  function hardBossPlan(me, foe, cx) {
+    if (!me || !foe || !me.moves || me.moves.length === 0) return bestMove(me, foe, cx);
+    const myMaxKO = (target, mv) => computeDamageAvg(me, target, mv);
+    const foeMoves = foe.moves || [];
+    // foe's best expected damage into a hypothetical version of me with `hp`
+    const foeRetal = (myHpAfter) => {
+      let worst = 0;
+      foeMoves.forEach(fm => { const d = computeDamageAvg(foe, me, fm); if (d > worst) worst = d; });
+      return worst;
+    };
+    const iAmFaster = (cx && cx.mySpeed != null && cx.foeSpeed != null) ? cx.mySpeed >= cx.foeSpeed : true;
+    const foeRetalNow = (cx && cx.foeBestDmg != null) ? cx.foeBestDmg : foeRetal(me.hp);
+    let best = null, bestScore = -Infinity;
+    me.moves.forEach(mv => {
+      let score = 0;
+      const isStatus = mv.cls === 'Status' || !mv.pow;
+      if (!isStatus) {
+        const dmg = myMaxKO(foe, mv);
+        if (dmg <= 0) { // foe immune — essentially worthless
+          score = -50;
+        } else {
+          const kos = dmg >= foe.hp;
+          // reward damage as a fraction of the foe's remaining HP, but DON'T reward
+          // overkill: a move that does 3x lethal is no better than one that just KOs.
+          const effectiveDmg = Math.min(dmg, foe.hp);
+          score = (effectiveDmg / Math.max(1, foe.hp)) * 100;
+          if (kos) {
+            score += 120; // removing a threat from the board is worth a lot
+            // KOing also means we take no retaliation from THIS foe this turn if we're faster
+            if (iAmFaster) score += 30;
+          } else {
+            // not a KO: we'll likely eat the foe's reply — subtract its expected bite
+            score -= (foeRetalNow / Math.max(1, me.maxHP)) * 45;
+          }
+          // tempo: prefer a move that 2HKOs from full over chip that never closes
+          if (!kos && dmg * 2 >= foe.hp) score += 12;
+        }
+      } else {
+        // status / setup / heal: lean on bestMove's own nuanced status scoring by
+        // giving these a baseline, then adjust for safety. We re-use the engine's
+        // valuation by asking bestMove to score in isolation is overkill; instead:
+        const stat = moveStatEffect(mv);
+        const heal = healMoveInfo(mv);
+        if (heal) {
+          const missing = 1 - me.hp / me.maxHP;
+          // heal only when it actually buys survival: meaningful HP missing AND the
+          // foe can't just KO through it next turn.
+          const healAmt = me.maxHP * (heal.rest ? 1 : (heal.frac || 0.5));
+          const after = Math.min(me.maxHP, me.hp + healAmt);
+          if (missing < 0.3) score = -10;                       // barely hurt — don't waste it
+          else if (foeRetalNow >= after) score = -5;            // foe KOs through the heal — pointless
+          else score = 40 + missing * 60;                       // real sustain
+        } else if (stat && stat.target === 'self') {
+          // setup: only valuable if (a) we survive the foe's hit comfortably and
+          // (b) the foe can't threaten a KO back, so the boost actually converts.
+          const safe = foeRetalNow < me.hp * 0.5;
+          const totalStages = stat.changes.reduce((s, [, d]) => s + d, 0);
+          score = safe ? 30 + totalStages * 14 : -20;
+          // don't set up if the foe is near death (just KO it) or we're already low
+          if (foe.hp <= foe.maxHP * 0.35) score -= 40;
+          if (me.hp <= me.maxHP * 0.4) score -= 30;
+        } else {
+          // other status (Thunder Wave/Will-O etc.): valuable vs a healthy foe that
+          // isn't immune; near-useless vs a low foe we should just hit.
+          const eff = moveStatusEffect(mv);
+          if (eff && STATUS.canApply(foe, eff.code)) score = foe.hp > foe.maxHP * 0.5 ? 35 : 8;
+          else score = -10;
+        }
+      }
+      if (score > bestScore) { bestScore = score; best = mv; }
+    });
+    // safety net: if our planner's pick somehow scored terribly, defer to bestMove
+    const greedy = bestMove(me, foe, cx);
+    if (best == null) return greedy;
+    return best;
+  }
+
   // AI switch decision: if the active mon is in deep type trouble and a much
   // better matchup is on the bench, consider switching (basic revenge/pivot).
   // `recentlySwitched` blocks an immediate re-switch (prevents infinite pivot loops).
@@ -1481,7 +1566,11 @@ window.VIEWS = window.VIEWS || {};
         mySpeed: spB0, foeSpeed: spA0, foeBestDmg: dmgAtoB, myBestDmg: dmgBtoA,
         foeBestPhysical: foeBestVsB && foeBestVsB.cls === 'Physical',
       };
-      const moveA = bestMove(mA, mB, ctxA), moveB = bestMove(mB, mA, ctxB);
+      // Team B's move: the Vaereth Hard boss uses the expert planner (lookahead +
+      // KO/setup/tempo reasoning); everyone else uses the standard greedy bestMove.
+      const moveA = bestMove(mA, mB, ctxA);
+      const bossBrain = (aiMode === 'hard' && mB && mB.boss);
+      const moveB = bossBrain ? hardBossPlan(mB, mA, ctxB) : bestMove(mB, mA, ctxB);
       // turn order by speed (paralysis halves speed; ties random)
       const wx = curWeather();
       const wspeed = (m) => {
