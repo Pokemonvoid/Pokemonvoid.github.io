@@ -367,6 +367,38 @@ window.VIEWS = window.VIEWS || {};
     return e;
   }
 
+  // move → flinch chance (only matters when the user moves first; the engine's
+  // existing flinch plumbing — atk.flinched — handles the lost turn). Canonical rates.
+  const MOVE_FLINCH = (() => {
+    const t = {};
+    const add = (name, chance) => { t[normName(name)] = chance; };
+    // 30% flinch
+    ['Air Slash', 'Iron Head', 'Zen Headbutt', 'Rock Slide', 'Bite', 'Dragon Rush', 'Headbutt', 'Stomp', 'Extrasensory', 'Astonish', 'Needle Arm', 'Bone Club', 'Hyper Fang', 'Heart Stamp', 'Steamroller', 'Icicle Crash', 'Zing Zap', 'Dark Pulse', 'Twilight Pulse', 'Double Iron Bash', 'Waterfall', 'Rolling Kick', 'Snore'].forEach(n => add(n, 0.30));
+    // 20% flinch (the elemental fangs)
+    ['Thunder Fang', 'Fire Fang', 'Ice Fang'].forEach(n => add(n, 0.20));
+    // special cases
+    add('Fake Out', 1.0);     // always flinches (only works turn 1, but we approximate: flinch on use)
+    add('Sky Attack', 0.30);
+    add('Twister', 0.20);
+    add('Fiery Wrath', 0.20);
+    add('Icicle Crash', 0.30);
+    return t;
+  })();
+  const moveFlinch = (move) => MOVE_FLINCH[normName(move.name)] || 0;
+
+  // multi-hit moves → number of hits. 'twoToFive' = the 2-5 distribution; an integer
+  // = fixed hit count; 'twoToFiveSkill' = always 5 (Skill Link style).
+  const MULTIHIT = (() => {
+    const t = {};
+    const set = (name, v) => { t[normName(name)] = v; };
+    ['Pin Missile', 'Bullet Seed', 'Bone Rush', 'Icicle Spear', 'Tail Slap', 'Spike Cannon', 'Comet Punch', 'Fury Swipes', 'Barrage', 'Double Slap', 'Fury Attack', 'Rock Blast', 'Arm Thrust', 'Scale Shot'].forEach(n => set(n, 'twoToFive'));
+    ['Double Hit', 'Dual Chop', 'Dual Wingbeat', 'Twin Beam', 'Double Kick', 'Twineedle', 'Tachyon Cutter', 'Twin Beam'].forEach(n => set(n, 2));
+    ['Surging Strikes', 'Triple Dive', 'Triple Kick', 'Triple Axel'].forEach(n => set(n, 3));
+    set('Water Shuriken', 'twoToFive');
+    set('Population Bomb', 'twoToFiveSkill'); // up to 10 in canon; we cap at 5 to avoid OHKO-everything
+    return t;
+  })();
+
   // move → stat-stage change(s). target: 'self' | 'foe'. chance defaults to 1.
   // changes: array of [statKey, delta]. Keyed by normalized move name.
   const MOVE_STAT = (() => {
@@ -1917,6 +1949,20 @@ window.VIEWS = window.VIEWS || {};
           log.push(`${atk.name} used ${mv.name} — but it missed!`);
           continue;
         }
+        // ---- multi-hit moves: resolve the number of hits and scale the damage ----
+        // Implemented as a single resolution scaled by hit count (faithful total,
+        // avoids re-running recoil/drain/flinch hooks N times). 2-5 moves use the
+        // canonical 2/2/3/3/4/5 distribution (~3.1 avg); fixed-count moves use theirs.
+        let hitCount = 1;
+        {
+          const mh = MULTIHIT[normName(mv.name)];
+          if (mh) {
+            if (mh === 'twoToFive') { const r = rng(); hitCount = r < 0.35 ? 2 : r < 0.70 ? 3 : r < 0.85 ? 4 : 5; }
+            else if (mh === 'twoToFiveSkill') { hitCount = 5; } // Skill Link-style fixed 5 (e.g. Surging Strikes is 3)
+            else hitCount = mh; // a fixed integer (2, 3, etc.)
+            if (hitCount > 1) res.dmg = res.dmg * hitCount;
+          }
+        }
         const dealt = Math.min(res.dmg, def.hp);
         const defHpBefore = def.hp;
         def.hp = Math.max(0, def.hp - res.dmg);
@@ -1925,6 +1971,7 @@ window.VIEWS = window.VIEWS || {};
         let line = `${atk.name} used ${mv.name}.`;
         if (mv.cls !== 'Status' && mv.pow) {
           line += ` ${def.name} lost ${pct}% HP.`;
+          if (hitCount > 1) line += ` Hit ${hitCount} times!`;
           if (res.crit) line += ' A critical hit!';
           if (res.eff > 1) line += ' It was super effective!';
           else if (res.eff > 0 && res.eff < 1) line += ' It was not very effective…';
@@ -1968,8 +2015,10 @@ window.VIEWS = window.VIEWS || {};
 
         // ---- reactive defender abilities on a connecting damaging hit ----
         if (res.dmg > 0 && res.eff !== 0 && def.hp > 0) {
-          // King's Rock: 10% chance the target flinches (only matters if it hasn't acted yet)
-          if (normName(atk.item || '') === normName("King's Rock") && rng() < 0.10) {
+          // flinch: move's own flinch chance OR King's Rock (10%). Only bites if the
+          // defender hasn't acted yet this turn (the end-of-turn reset clears it).
+          const flinchChance = Math.max(moveFlinch(mv), normName(atk.item || '') === normName("King's Rock") ? 0.10 : 0);
+          if (flinchChance > 0 && rng() < flinchChance && !ABIL.has(def, 'Inner Focus')) {
             def.flinched = true;
           }
         }
