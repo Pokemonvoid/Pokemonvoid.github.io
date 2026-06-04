@@ -1056,7 +1056,7 @@ window.VIEWS = window.VIEWS || {};
     { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },       // Writrout [WATER/FLYING]
   ];
   const PFLRS_LEVEL = 100;
-  const PFLRS_STAT_MULT = 1.00; // NORMAL boss multiplier
+  const PFLRS_STAT_MULT = 0.88; // NORMAL boss multiplier (tuned for ~20-30% win vs strong teams)
   // HARD mode uses a completely different, far stronger team (Normal's roster is a
   // placeholder for the owner's favourites; Hard is the real gauntlet). These six
   // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
