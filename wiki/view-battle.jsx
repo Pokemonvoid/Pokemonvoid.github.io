@@ -1036,7 +1036,7 @@ window.VIEWS = window.VIEWS || {};
   // boss is visibly buffed. Strongest legal roster at level 100 with a flat stat
   // multiplier and hand-picked optimal moves.
   const BOSS_NAME = 'Pokedex Fillers';
-  const VAERETH_ROSTER = [
+  const PFLRS_ROSTER = [
     // each: max IVs, 252 attacking stat / 252 Speed / 4 HP, offensive nature.
     { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Aqua Jet', 'Brine'], nature: 'Adamant', evs: { HP: 4, ATK: 252, SPE: 252 } },          // Sedimonk [ROCK/WATER]
     { dex: '073', moves: ['Rock Wrecker', 'Kowtow Cleave', 'Night Slash', 'Psycho Cut'], nature: 'Jolly', evs: { HP: 4, ATK: 252, SPE: 252 } }, // Sedirogue [ROCK/DARK] — fast, Jolly to outspeed
@@ -1045,8 +1045,8 @@ window.VIEWS = window.VIEWS || {};
     { dex: '071', moves: ['Electro Shot', 'Rock Wrecker', 'Crystalize', 'Signal Beam'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },  // Sedificer [ROCK/ELECTRIC]
     { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },       // Writrout [WATER/FLYING]
   ];
-  const VAERETH_LEVEL = 100;
-  const VAERETH_STAT_MULT = 1.00; // NORMAL boss multiplier
+  const PFLRS_LEVEL = 100;
+  const PFLRS_STAT_MULT = 1.00; // NORMAL boss multiplier
   // HARD mode uses a completely different, far stronger team (Normal's roster is a
   // placeholder for the owner's favourites; Hard is the real gauntlet). These six
   // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
@@ -1054,8 +1054,8 @@ window.VIEWS = window.VIEWS || {};
   // 1.20x + boss status immunity (see STATUS.canApply) closes the paralysis-stall
   // exploit that let ~10 players clear the old version. Best known team now wins
   // ~0.5%, random optimized teams ~0.1% — a true "almost nobody" gauntlet.
-  const VAERETH_HARD_MULT = 1.10; // HARD boss multiplier
-  const VAERETH_HARD_ROSTER = [
+  const PFLRS_HARD_MULT = 1.10; // HARD boss multiplier
+  const PFLRS_HARD_ROSTER = [
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
     { dex: '051', moves: ['Swords Dance', 'Extreme Speed', 'Duality', 'Crunch'], nature: 'Jolly' },          // Equinine [LIGHT/DARK] — setup + priority
@@ -1066,14 +1066,14 @@ window.VIEWS = window.VIEWS || {};
   // Nightmare: the ultimate tier. Same brutal Hard roster + expert AI, but at
   // level 125, attacks always roll max damage (see maxRoll in damage calc), and a
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
-  const VAERETH_NIGHTMARE_LEVEL = 125;
-  const VAERETH_NIGHTMARE_MULT = 1.10; // NIGHTMARE boss multiplier
+  const PFLRS_NIGHTMARE_LEVEL = 125;
+  const PFLRS_NIGHTMARE_MULT = 1.00; // NIGHTMARE boss multiplier
   // Nightmare gets its OWN default roster — a hard counter to the dominant community
   // meta team (Kodinaut/Equinine/Cerbament/Colapsore/Sediserker/Mangmight), built
   // around Water + Fighting + Grass + Light STAB that punishes that exact lineup,
   // while still testing ~0% vs generic optimized teams. The adaptive system shifts
   // movesets further from here as the meta moves.
-  const VAERETH_NIGHTMARE_ROSTER = [
+  const PFLRS_NIGHTMARE_ROSTER = [
     { dex: '099', moves: ['Water Spout', 'Air Slash', 'Work Up', 'Dive'], nature: 'Modest' },           // Writrout [WATER/FLYING] — Water Spout nuke + Flying STAB (all legal)
     { dex: '028', moves: ['Close Combat', 'Seed Bomb', 'High Horsepower', 'Growth'], nature: 'Adamant' }, // Peaknight [GRASS/FIGHTING] — punishes Kodinaut/Sediserker/Cerbament
     { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Ancient Power', 'Work Up'], nature: 'Adamant' }, // Sedimonk [ROCK/WATER] — Rock/Water STAB vs Mangmight/Cerbament
@@ -1139,18 +1139,18 @@ window.VIEWS = window.VIEWS || {};
     return out.slice(0, 4);
   }
 
-  function buildVaerethBoss(aiMode, meta) {
+  function buildPflrsBoss(aiMode, meta) {
     const hard = aiMode === 'hard';
     const nightmare = aiMode === 'nightmare';
     const tough = hard || nightmare; // both get the 560 spread
-    let roster = nightmare ? VAERETH_NIGHTMARE_ROSTER : (hard ? VAERETH_HARD_ROSTER : VAERETH_ROSTER);
+    let roster = nightmare ? PFLRS_NIGHTMARE_ROSTER : (hard ? PFLRS_HARD_ROSTER : PFLRS_ROSTER);
     // Nightmare adapts each mon's MOVESET to counter the recent meta (roster fixed).
     if (nightmare && meta) {
       const threats = metaThreatTypes(meta);
       if (threats.length) roster = roster.map(r => ({ ...r, moves: adaptMoveset(r.dex, r.moves, threats, meta.archetype) }));
     }
-    const mult = nightmare ? VAERETH_NIGHTMARE_MULT : (hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT);
-    const level = nightmare ? VAERETH_NIGHTMARE_LEVEL : VAERETH_LEVEL;
+    const mult = nightmare ? PFLRS_NIGHTMARE_MULT : (hard ? PFLRS_HARD_MULT : PFLRS_STAT_MULT);
+    const level = nightmare ? PFLRS_NIGHTMARE_LEVEL : PFLRS_LEVEL;
     // Legitimacy guard: drop any move a mon can't actually learn, so a hardcoded
     // roster typo can never give the boss an illegal move (players notice, and it's
     // unfair). buildMon's auto-fill backfills the slot from the legal learnset.
@@ -1473,7 +1473,7 @@ window.VIEWS = window.VIEWS || {};
   }
 
   // ---- HARD BOSS "expert" planner --------------------------------------------
-  // A unique decision layer for the Vaereth Hard boss. Instead of greedily taking
+  // A unique decision layer for the Pflrs Hard boss. Instead of greedily taking
   // the highest-immediate-value move, it looks one ply ahead: for each candidate it
   // estimates the resulting position (its HP, the foe's HP, KOs, who's faster) and
   // the foe's best reply, then scores the position with expert heuristics the
@@ -1715,7 +1715,7 @@ window.VIEWS = window.VIEWS || {};
     // The difficulty toggle controls two SEPARATE things:
     //   - AI thinking: expert planner + 2-ply lookahead + smart switching
     //   - stat buffs : max damage rolls + status immunity (Nightmare only)
-    // Rules (opts.srcA/srcB are 'manual' | 'random'; .boss is the Vaereth boss):
+    // Rules (opts.srcA/srcB are 'manual' | 'random'; .boss is the Pflrs boss):
     //   * Boss fight  : only the boss side gets thinking + buffs. Player untouched.
     //   * 1 manual + 1 random : the manual side is the PLAYER (no thinking, no buff);
     //     the random side is the OPPONENT (gets thinking + buffs per the toggle).
@@ -2645,7 +2645,7 @@ window.VIEWS = window.VIEWS || {};
     const [level, setLevel] = React.useState(50);   // avg level for RANDOM teams (1–100)
     const [inspect, setInspect] = React.useState(null); // null | 'A' | 'B'
     const [buildMsg, setBuildMsg] = React.useState('');
-    const [vaereth, setVaereth] = React.useState(false); // VAERETH boss mode (Team B becomes a cranked boss)
+    const [pflrs, setPflrs] = React.useState(false); // PFLRS boss mode (Team B becomes a cranked boss)
     const [aiMode, setAiMode] = React.useState('normal'); // 'normal' | 'hard' AI difficulty
     const [cert, setCert] = React.useState(null); // {tier:'normal'|'hard', team:[{dex,name}]} when a fresh boss win earns a certificate
     const [certName, setCertName] = React.useState(''); // player-entered name for the certificate
@@ -2713,7 +2713,7 @@ window.VIEWS = window.VIEWS || {};
     // ---- Adaptive Nightmare: meta fetch + attempt logging --------------------
     // The Nightmare boss adapts its movesets to the recent community meta. We pull
     // the last ~50 attempts on load, tally the player types people bring, and feed
-    // that to buildVaerethBoss. Every Nightmare attempt is logged (win or loss).
+    // that to buildPflrsBoss. Every Nightmare attempt is logged (win or loss).
     const [nightmareMeta, setNightmareMeta] = React.useState(null);
     const loadNightmareMeta = React.useCallback(() => {
       if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return;
@@ -2775,8 +2775,8 @@ window.VIEWS = window.VIEWS || {};
         }).catch(() => {});
       } catch (e) { /* ignore */ }
     };
-    // the Vaereth boss roster for display (deterministic); built once.
-    const bossDisplay = React.useMemo(() => buildVaerethBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null), [aiMode, nightmareMeta]);
+    // the Pflrs boss roster for display (deterministic); built once.
+    const bossDisplay = React.useMemo(() => buildPflrsBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null), [aiMode, nightmareMeta]);
 
     const rollTeams = (lvl) => {
       // guard: only a finite number is a real level; a click event etc. → use state
@@ -2814,8 +2814,8 @@ window.VIEWS = window.VIEWS || {};
         if (manualB.length === 0) { setBuildMsg('Team B is empty — add Pokémon or switch it to Random.'); return false; }
         B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature, ability: m.ability })), level);
       } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level, aiMode); }
-      // VAERETH boss mode overrides Team B entirely with the cranked boss roster.
-      if (vaereth) { B = buildVaerethBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null); }
+      // PFLRS boss mode overrides Team B entirely with the cranked boss roster.
+      if (pflrs) { B = buildPflrsBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null); }
       setTeamA(A); setTeamB(B); setBuildMsg(msg);
       return { A, B };
     };
@@ -2830,12 +2830,12 @@ window.VIEWS = window.VIEWS || {};
       }).filter(m => byDex(m.dex));
       if (roster.length === 0) return false;
       const named = lo.name ? `"${lo.name}"` : 'team';
-      // In boss mode, Team B is the Vaereth boss and can't be imported into. If a stale
+      // In boss mode, Team B is the Pflrs boss and can't be imported into. If a stale
       // target points at B, redirect the import to A so the player's team isn't lost.
-      const target = vaereth && (importInto === 'B' || importInto === 'both') ? 'A' : importInto;
+      const target = pflrs && (importInto === 'B' || importInto === 'both') ? 'A' : importInto;
       if (target === 'A' || target === 'both') { setManualA(roster.map(r => ({ ...r }))); setSrcA('manual'); }
       if (target === 'B' || target === 'both') { setManualB(roster.map(r => ({ ...r }))); setSrcB('manual'); }
-      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${target === 'both' ? 'A & B' : target}.${(vaereth && (importInto === 'B' || importInto === 'both')) ? ' (Team B is the boss, so it went into Team A.)' : ''}`);
+      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${target === 'both' ? 'A & B' : target}.${(pflrs && (importInto === 'B' || importInto === 'both')) ? ' (Team B is the boss, so it went into Team A.)' : ''}`);
       setResult(null); setStep(0); setPlaying(false);
       return true;
     };
@@ -2857,7 +2857,7 @@ window.VIEWS = window.VIEWS || {};
     // open the import modal pre-targeted at a side ('A' | 'B' | 'both')
     const openImport = (into) => {
       // boss mode: Team B is the boss, so any import must target A
-      const tgt = vaereth ? 'A' : (into || 'A');
+      const tgt = pflrs ? 'A' : (into || 'A');
       setImportInto(tgt); setImportText(''); setImportMsg('');
       try { setSavedLoadouts((window.VTEAM && window.VTEAM.listLoadouts) ? window.VTEAM.listLoadouts() : []); }
       catch (e) { setSavedLoadouts([]); }
@@ -2885,13 +2885,13 @@ window.VIEWS = window.VIEWS || {};
       setResult(r);
       // Adaptive Nightmare: log this attempt (win or loss) so the boss can adapt
       // its movesets to the community meta. Uses the player's actual Team A.
-      if (vaereth && aiMode === 'nightmare') {
+      if (pflrs && aiMode === 'nightmare') {
         const bossKOs = (r.teamB ? r.teamB.length : 6) - (r.survivorsB || 0);
         logNightmareAttempt(built.A, r.winner === 'A', bossKOs);
       }
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
       // 6-species team, tracked separately per difficulty, persisted across sessions.
-      if (vaereth && r.winner === 'A') {
+      if (pflrs && r.winner === 'A') {
         const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
         const key = certTeamKey(team);
@@ -2977,7 +2977,7 @@ window.VIEWS = window.VIEWS || {};
 
     const copyLog = () => { try { navigator.clipboard.writeText(result.log.join('\n')); } catch (e) {} };
 
-    if (!teamA || (!teamB && !vaereth)) return <Empty label="Loading battle…" />;
+    if (!teamA || (!teamB && !pflrs)) return <Empty label="Loading battle…" />;
 
     return (
       <div>
@@ -3000,19 +3000,19 @@ window.VIEWS = window.VIEWS || {};
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18, paddingTop: 10, borderTop: '1px solid #1a1638' }}>
           <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#6a6388', letterSpacing: 1, marginRight: 2 }}>SETUP</span>
           <button onClick={() => rollTeams()} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600 }}>🎲 Random Teams</button>
-          <button onClick={() => { setAiMode(m => { const nm = m === 'normal' ? 'hard' : (m === 'hard' ? 'nightmare' : 'normal'); const rng = mulberry32((Math.random() * 1e9) | 0); if (srcA === 'random') setTeamA(randomTeam(6, rng, level, nm === 'nightmare' ? 'hard' : nm)); if (srcB === 'random' && !vaereth) setTeamB(randomTeam(6, rng, level, nm === 'nightmare' ? 'hard' : nm)); return nm; }); setResult(null); setStep(0); setPlaying(false); }}
+          <button onClick={() => { setAiMode(m => { const nm = m === 'normal' ? 'hard' : (m === 'hard' ? 'nightmare' : 'normal'); const rng = mulberry32((Math.random() * 1e9) | 0); if (srcA === 'random') setTeamA(randomTeam(6, rng, level, nm === 'nightmare' ? 'hard' : nm)); if (srcB === 'random' && !pflrs) setTeamB(randomTeam(6, rng, level, nm === 'nightmare' ? 'hard' : nm)); return nm; }); setResult(null); setStep(0); setPlaying(false); }}
             title={'AI difficulty (cycles Normal \u2192 Hard \u2192 Nightmare). Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, switches cleverly. Nightmare: same expert AI but the boss is Level 125, immune to status, and every attack rolls maximum damage \u2014 meant for almost no one. Random teams also upgrade: Normal = random IVs/no EVs; Hard/Nightmare = max IVs/smart EVs/ideal nature.'}
             style={{ cursor: 'pointer', background: aiMode === 'nightmare' ? 'linear-gradient(135deg, #2a0a0a, #b3122e)' : (aiMode === 'hard' ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26'), border: aiMode === 'nightmare' ? '1px solid #ff5a5a' : (aiMode === 'hard' ? '1px solid #b89bff' : '1px solid #3a3168'), color: aiMode === 'normal' ? '#9a93bb' : '#fff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
             {aiMode === 'nightmare' ? '💀 AI: Nightmare' : (aiMode === 'hard' ? '🧠 AI: Hard' : '🧠 AI: Normal')}
           </button>
-          <button onClick={() => { setVaereth(v => { const nv = !v; if (nv) setAiMode('hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
+          <button onClick={() => { setPflrs(v => { const nv = !v; if (nv) setAiMode(m => m === 'nightmare' ? 'nightmare' : 'hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
             title={`${BOSS_NAME}: a brutally hard boss replaces Team B. Beating it is meant to be very tough.`}
-            style={{ cursor: 'pointer', marginLeft: 'auto', background: vaereth ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: vaereth ? '1px solid #ff8a6a' : '1px solid #5a2230', color: vaereth ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
-            {vaereth ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
+            style={{ cursor: 'pointer', marginLeft: 'auto', background: pflrs ? 'linear-gradient(135deg, #b3122e, #ff5a3c)' : '#1a0f16', border: pflrs ? '1px solid #ff8a6a' : '1px solid #5a2230', color: pflrs ? '#fff' : '#e06a78', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
+            {pflrs ? `☠ ${BOSS_NAME}: ON` : `☠ Challenge ${BOSS_NAME}`}
           </button>
         </div>
 
-        {vaereth && (
+        {pflrs && (
           <div style={{ marginBottom: 14, padding: '10px 14px', background: aiMode === 'nightmare' ? 'linear-gradient(90deg, rgba(255,42,42,0.2), rgba(255,90,60,0.06))' : 'linear-gradient(90deg, rgba(179,18,46,0.18), rgba(255,90,60,0.06))', border: aiMode === 'nightmare' ? '1px solid #ff3b3b' : '1px solid #5a2230', borderRadius: 10, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb3a0' }}>
             <strong style={{ color: aiMode === 'nightmare' ? '#ff4d4d' : '#ff7a5c', fontFamily: "'Pixelify Sans', sans-serif", letterSpacing: 1 }}>{aiMode === 'nightmare' ? `💀 NIGHTMARE — ${BOSS_NAME.toUpperCase()}` : `☠ BOSS ENCOUNTER — ${BOSS_NAME.toUpperCase()}`}</strong><br />
             {aiMode === 'nightmare'
@@ -3024,9 +3024,9 @@ window.VIEWS = window.VIEWS || {};
         {/* team source: per-side Random / Manual / Import */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 14 }}>
           {[['A', srcA, '#33d6ff'], ['B', srcB, '#ff7fe0']].map(([side, src, col]) => {
-            // In boss mode, Team B IS the Vaereth boss — its source can't be chosen
+            // In boss mode, Team B IS the Pflrs boss — its source can't be chosen
             // (importing/picking a B team would just be discarded). Show it locked.
-            const bossLocked = vaereth && side === 'B';
+            const bossLocked = pflrs && side === 'B';
             return (
             <div key={side} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', opacity: bossLocked ? 0.6 : 1 }}>
               <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: col }}>TEAM {side}</span>
@@ -3055,7 +3055,7 @@ window.VIEWS = window.VIEWS || {};
             onChange={e => { const v = +e.target.value; setLevel(v); relevelTeams(v); }}
             style={{ flex: '1 1 220px', accentColor: '#8a5cff', cursor: 'pointer' }} />
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: '#fff', minWidth: 56, textAlign: 'right' }}>Lv. {level}</span>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to all teams — random, manual, and imported — from Lv. 1 to 100.{vaereth ? ` (${BOSS_NAME} sets its own team and ignores this slider.)` : ''}</span>
+          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#6a6388', flexBasis: '100%' }}>Applies to all teams — random, manual, and imported — from Lv. 1 to 100.{pflrs ? ` (${BOSS_NAME} sets its own team and ignores this slider.)` : ''}</span>
         </div>
         {buildMsg && <div style={{ marginBottom: 14, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb37a' }}>{buildMsg}</div>}
 
@@ -3083,7 +3083,7 @@ window.VIEWS = window.VIEWS || {};
               <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
                 {[['A', 'Into Team A'], ['B', 'Into Team B'], ['both', 'Into both']].map(([v, lbl]) => {
                   // In boss mode, Team B is the boss — only allow importing into A.
-                  const blocked = vaereth && (v === 'B' || v === 'both');
+                  const blocked = pflrs && (v === 'B' || v === 'both');
                   return (
                   <button key={v} disabled={blocked} title={blocked ? 'Team B is the boss in this mode' : undefined}
                     onClick={() => { if (!blocked) setImportInto(v); }}
@@ -3179,12 +3179,12 @@ window.VIEWS = window.VIEWS || {};
         {/* team rosters */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 18 }}>
           <Roster team={teamA} label="Team A" color="#33d6ff" live={playback ? playback.A : null} onInspect={() => setInspect('A')} />
-          <Roster team={vaereth ? bossDisplay : teamB} label={vaereth ? `☠ ${BOSS_NAME}` : 'Team B'} color="#ff7fe0" live={playback ? playback.B : null} onInspect={() => setInspect('B')} />
+          <Roster team={pflrs ? bossDisplay : teamB} label={pflrs ? `☠ ${BOSS_NAME}` : 'Team B'} color="#ff7fe0" live={playback ? playback.B : null} onInspect={() => setInspect('B')} />
         </div>
 
         {inspect && (
           <InspectModal
-            team={inspect === 'A' ? teamA : (vaereth ? bossDisplay : teamB)}
+            team={inspect === 'A' ? teamA : (pflrs ? bossDisplay : teamB)}
             label={'Team ' + inspect}
             color={inspect === 'A' ? '#33d6ff' : '#ff7fe0'}
             onClose={() => setInspect(null)}
