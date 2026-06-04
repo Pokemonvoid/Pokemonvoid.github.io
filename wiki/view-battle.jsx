@@ -3068,7 +3068,9 @@ window.VIEWS = window.VIEWS || {};
             <button onClick={onClose} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 8, padding: '6px 13px', fontSize: 13 }}>Close</button>
           </div>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: '#8a83a8', marginBottom: 16, lineHeight: 1.5 }}>
-            Everything below is exactly what the engine uses to fight. Stats are computed at Lv. {team[0] ? team[0].level : 50} from base stats — the sim runs neutral nature with no IVs, EVs, or held items yet. A few abilities are now active in battle (Intimidate, Moxie, Defiant); the rest are shown but don't affect battle until later phases.
+            {team[0] && team[0].boss
+              ? <>Everything below is exactly what the engine uses to fight. This boss is computed at Lv. {team[0].level} with max IVs, a fully optimized EV spread, and an ideal nature — these stats already include its investment. Abilities like Intimidate, Moxie and Defiant are active in battle; others are shown but not yet wired in.</>
+              : <>Everything below is exactly what the engine uses to fight. Stats are computed at Lv. {team[0] ? team[0].level : 50} from base stats. IVs, EVs and nature are applied where the team specifies them. A few abilities are active in battle (Intimidate, Moxie, Defiant); the rest are shown but don't affect battle yet.</>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {team.map((m, i) => {
@@ -3113,7 +3115,9 @@ window.VIEWS = window.VIEWS || {};
                         <div><span style={{ color: '#9a93bb' }}>Ability:</span> {abilities.length ? abilities.map((a, ai2) => <span key={ai2}>{ai2 ? ', ' : ''}{a}{ai2 === 0 && ABIL.active.has(normName(a)) ? <span style={{ color: '#5fd13c', fontSize: 9 }}> ●active</span> : ''}</span>) : '—'}{hidden ? ` (hidden: ${hidden})` : ''}</div>
                         <div style={{ marginTop: 3 }}><span style={{ color: '#9a93bb' }}>Item:</span> {m.item || '—'}</div>
                         <div style={{ marginTop: 3, color: '#5fd13c', fontSize: 9 }}>Sync: swap to any of its abilities — costs the turn, once per turn</div>
-                        <div style={{ marginTop: 3, color: '#5f5980' }}>IV / EV / Nature — not simulated yet</div>
+                        {m.boss
+                          ? <div style={{ marginTop: 3, color: '#9a93bb' }}>Nature: <span style={{ color: '#cdbfff' }}>{m.nature || 'ideal'}</span> · IVs maxed · EVs {m.evs ? STAT_KEYS.reduce((s, k) => s + ((m.evs[k]) || 0), 0) : 'optimized'}</div>
+                          : <div style={{ marginTop: 3, color: '#5f5980' }}>Nature: {m.nature || '—'}{m.evs ? ` · EVs ${STAT_KEYS.reduce((s, k) => s + ((m.evs[k]) || 0), 0)}` : ''}</div>}
                       </div>
                     </div>
 
