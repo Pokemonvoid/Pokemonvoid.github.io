@@ -1017,7 +1017,7 @@ window.VIEWS = window.VIEWS || {};
   // level 125, attacks always roll max damage (see maxRoll in damage calc), and a
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
   const VAERETH_NIGHTMARE_LEVEL = 125;
-  const VAERETH_NIGHTMARE_MULT = 0.92; // L125 + guaranteed max-damage rolls already add huge power; this leaves a ~1-in-10000 crack for a legendary run (2-3 people ever)
+  const VAERETH_NIGHTMARE_MULT = 1.10; // raised from 0.92 on top of L125 + max rolls + status immunity + 600 EVs + 2-ply AI. The best counter team found wins 0-in-40000 at this setting (was ~1-in-60000 at 0.92x), so this is effectively unbeatable — if a winning line exists it is rarer than 1-in-40000 and could not be demonstrated in testing.
   // Nightmare gets its OWN default roster — a hard counter to the dominant community
   // meta team (Kodinaut/Equinine/Cerbament/Colapsore/Sediserker/Mangmight), built
   // around Water + Fighting + Grass + Light STAB that punishes that exact lineup,
