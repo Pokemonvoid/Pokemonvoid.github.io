@@ -983,6 +983,19 @@ window.VIEWS = window.VIEWS || {};
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
   const VAERETH_NIGHTMARE_LEVEL = 125;
   const VAERETH_NIGHTMARE_MULT = 0.92; // L125 + guaranteed max-damage rolls already add huge power; this leaves a ~1-in-10000 crack for a legendary run (2-3 people ever)
+  // Nightmare gets its OWN default roster — a hard counter to the dominant community
+  // meta team (Kodinaut/Equinine/Cerbament/Colapsore/Sediserker/Mangmight), built
+  // around Water + Fighting + Grass + Light STAB that punishes that exact lineup,
+  // while still testing ~0% vs generic optimized teams. The adaptive system shifts
+  // movesets further from here as the meta moves.
+  const VAERETH_NIGHTMARE_ROSTER = [
+    { dex: '099', moves: ['Water Spout', 'Hurricane', 'Hydro Pump', 'Ice Beam'], nature: 'Modest' },   // Writrout [WATER/FLYING] — fast special spout, hits 4 of the meta
+    { dex: '028', moves: ['Swords Dance', 'Close Combat', 'Seed Bomb', 'Mach Punch'], nature: 'Adamant' }, // Peaknight [GRASS/FIGHTING] — punishes Kodinaut/Sediserker/Cerbament + priority
+    { dex: '069', moves: ['Shell Smash', 'Hydro Pump', 'Rock Wrecker', 'Ice Beam'], nature: 'Modest' },  // Sedimonk [ROCK/WATER] — Shell Smash sweeper, Rock vs Mangmight/Cerbament
+    { dex: '070', moves: ['Energy Ball', 'Power Whip', 'Rock Wrecker', 'Earth Power'], nature: 'Modest' }, // Sedruid [ROCK/GRASS] — Grass coverage vs the Water/Normal/Rock mons
+    { dex: '051', moves: ['Swords Dance', 'Extreme Speed', 'Duality', 'Crunch'], nature: 'Jolly' },       // Equinine [LIGHT/DARK] — Light vs Colapsore/Mangmight + priority pickoff
+    { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Heat Wave'], nature: 'Modest' },   // Colapsore [COSMIC/LIGHT] — BST550 nuke anchor
+  ];
 
   // ---- Adaptive Nightmare boss (moveset-only) ------------------------------
   // The Nightmare boss keeps its fixed, hand-tuned 6 mons (so it stays strong) but
@@ -995,28 +1008,48 @@ window.VIEWS = window.VIEWS || {};
     if (!meta || !meta.typeCounts) return [];
     return Object.entries(meta.typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => e[0]);
   }
+  // priority attacks the engine actually implements (used to revenge-KO setup sweepers)
+  const PRIORITY_MOVES = ['Extreme Speed', 'Fake Out', 'First Impression', 'Quick Attack', 'Aqua Jet', 'Bullet Punch', 'Mach Punch', 'Ice Shard', 'Shadow Sneak', 'Sucker Punch', 'Vacuum Wave', 'Accelerock', 'Jet Punch'];
   // choose up to 4 moves for a boss mon: keep its strongest STAB/setup, then fill
-  // with the best coverage moves against the meta threat types.
-  function adaptMoveset(dex, baseMoves, threats) {
+  // with the best coverage vs the meta types — and bias by the community's dominant
+  // ARCHETYPE using only mechanics the engine truly implements:
+  //   setup-heavy meta  → ensure a PRIORITY move so the boss revenge-KOs sweepers
+  //   stall-heavy meta   → prefer the highest raw-power coverage to break walls
+  //   offense/mixed      → standard best-coverage
+  function adaptMoveset(dex, baseMoves, threats, archetype) {
     if (!threats.length) return baseMoves;
     const learn = learnableMovesFor(dex).map(n => findMove(n)).filter(Boolean);
     if (!learn.length) return baseMoves;
-    // score each learnable damaging move by its best effectiveness vs the meta
+    const stallMeta = archetype === 'stall';
+    // score each learnable damaging move by effectiveness vs meta (and, vs stall,
+    // weight raw power more so walls get broken rather than chipped).
     const coverage = learn.filter(m => m.pow && m.pow > 1).map(m => {
       let best = 0;
       threats.forEach((t, i) => { const e = eff(m.type, t) / (i + 1); if (e > best) best = e; });
-      return { m, cover: best, pow: m.pow };
-    }).filter(x => x.cover > 1).sort((a, b) => (b.cover - a.cover) || (b.pow - a.pow));
-    if (!coverage.length) return baseMoves; // nothing super-effective available
-    // keep the mon's first 2 base moves (its identity: usually setup + main STAB),
-    // then add up to 2 best coverage moves not already present.
+      const powScore = stallMeta ? (m.pow / 40) : 0; // vs stall, favour heavy hits
+      return { m, cover: best, pow: m.pow, rank: best + powScore };
+    }).filter(x => x.cover > 1).sort((a, b) => (b.rank - a.rank) || (b.pow - a.pow));
     const keep = baseMoves.slice(0, 2);
-    const out = keep.slice();
+    let out = keep.slice();
     for (const c of coverage) {
       if (out.length >= 4) break;
       if (!out.some(n => normName(n) === normName(c.m.name))) out.push(c.m.name);
     }
-    // top up from the remaining base moves if we didn't fill 4
+    // vs a setup-heavy meta: guarantee a priority move if this mon can learn one and
+    // doesn't already have it, swapping out the weakest non-STAB slot. Priority lets
+    // the boss pick off +1/+2 sweepers before they sweep.
+    if (archetype === 'setup') {
+      const hasPriority = out.some(n => PRIORITY_MOVES.some(p => normName(p) === normName(n)));
+      if (!hasPriority) {
+        const learnable = PRIORITY_MOVES.map(p => findMove(p)).filter(pm => pm && learn.some(l => normName(l.name) === normName(pm.name)));
+        if (learnable.length) {
+          // strongest learnable priority move (prefers STAB-ish high power)
+          learnable.sort((a, b) => (b.pow || 0) - (a.pow || 0));
+          if (out.length >= 4) out[3] = learnable[0].name; else out.push(learnable[0].name);
+        }
+      }
+    }
+    // top up from remaining base moves if short
     for (const bm of baseMoves) { if (out.length >= 4) break; if (!out.some(n => normName(n) === normName(bm))) out.push(bm); }
     return out.slice(0, 4);
   }
@@ -1024,12 +1057,12 @@ window.VIEWS = window.VIEWS || {};
   function buildVaerethBoss(aiMode, meta) {
     const hard = aiMode === 'hard';
     const nightmare = aiMode === 'nightmare';
-    const tough = hard || nightmare; // both use the strong roster + 560 spread
-    let roster = tough ? VAERETH_HARD_ROSTER : VAERETH_ROSTER;
+    const tough = hard || nightmare; // both get the 560 spread
+    let roster = nightmare ? VAERETH_NIGHTMARE_ROSTER : (hard ? VAERETH_HARD_ROSTER : VAERETH_ROSTER);
     // Nightmare adapts each mon's MOVESET to counter the recent meta (roster fixed).
     if (nightmare && meta) {
       const threats = metaThreatTypes(meta);
-      if (threats.length) roster = roster.map(r => ({ ...r, moves: adaptMoveset(r.dex, r.moves, threats) }));
+      if (threats.length) roster = roster.map(r => ({ ...r, moves: adaptMoveset(r.dex, r.moves, threats, meta.archetype) }));
     }
     const mult = nightmare ? VAERETH_NIGHTMARE_MULT : (hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT);
     const level = nightmare ? VAERETH_NIGHTMARE_LEVEL : VAERETH_LEVEL;
@@ -1052,6 +1085,20 @@ window.VIEWS = window.VIEWS || {};
       }
       return m;
     }).filter(Boolean);
+    // Tell (#2): when adapting, the boss LEADS with the mon best suited to the meta —
+    // a visible behavioural change. Lead pick = best offensive matchup vs the top
+    // threat types. This makes the adaptation noticeable from turn one.
+    if (nightmare && meta) {
+      const threats = metaThreatTypes(meta);
+      if (threats.length) {
+        const leadScore = (m) => {
+          let s = 0;
+          threats.forEach((t, i) => { let best = 1; (m.types || []).forEach(at => { const e = eff(at, t); if (e > best) best = e; }); s += best / (i + 1); });
+          return s;
+        };
+        team.sort((a, b) => leadScore(b) - leadScore(a));
+      }
+    }
     return team;
   }
 
@@ -1418,6 +1465,48 @@ window.VIEWS = window.VIEWS || {};
       }
       if (score > bestScore) { bestScore = score; best = mv; }
     });
+    // ---- Nightmare 2-ply refinement -----------------------------------------
+    // For Nightmare only (cx.deep), re-rank the top candidates by looking one layer
+    // deeper: play the move, let the foe make its best reply, and check whether the
+    // boss is left able to KO (or safely continue) on the FOLLOWING turn. This is a
+    // bounded, no-RNG, no-recursion estimate (a few cheap arithmetic passes), so it
+    // stays well within the speed budget. It only ADJUSTS scores; the 1-ply result
+    // is the floor, so a bug here can't make the boss play worse than Hard.
+    if (cx && cx.deep && me.moves.length > 1) {
+      const foeBestDmgInto = (hp) => { let w = 0; foeMoves.forEach(fm => { const d = computeDamageAvg(foe, me, fm); if (d > w) w = d; }); return w; };
+      let bestDeep = null, bestDeepScore = -Infinity;
+      me.moves.forEach(mv => {
+        const isStatus = mv.cls === 'Status' || !mv.pow;
+        // base on the same 1-ply intuition, then add a depth term
+        let s = 0;
+        const dmg = isStatus ? 0 : myMaxKO(foe, mv);
+        const acc = (mv.acc == null ? 100 : mv.acc) / 100;
+        const foeHpAfter = Math.max(0, foe.hp - dmg);
+        const foeFaints = !isStatus && dmg >= foe.hp;
+        // turn 2: if foe survives, it hits us; do we then still KO it next turn?
+        if (foeFaints) {
+          s += 200 * acc; // clean removal — strongest outcome
+        } else {
+          const incoming = foeBestDmgInto(me.hp);
+          const myHpAfter = Math.max(0, me.hp - incoming);
+          const iSurvive = myHpAfter > 0;
+          // my best follow-up damage next turn (from my likely-reduced HP we still
+          // attack at full power; HP only gates whether I'm alive to do it)
+          let myFollowup = 0; me.moves.forEach(m2 => { const d2 = computeDamageAvg(me, foe, m2) * ((m2.acc == null ? 100 : m2.acc) / 100); if (d2 > myFollowup) myFollowup = d2; });
+          const twoTurnKO = (dmg + myFollowup) >= foe.hp;
+          s += (Math.min(dmg, foe.hp) / Math.max(1, foe.hp)) * 100 * acc;
+          if (iSurvive && twoTurnKO) s += 40;      // I outlast and close the KO next turn
+          if (!iSurvive) s -= 60;                   // this line gets me KO'd — avoid
+          // setup is good at depth only if I clearly survive the reply
+          if (isStatus) {
+            const stat = moveStatEffect(mv);
+            if (stat && stat.target === 'self') s += iSurvive && incoming < me.hp * 0.4 ? 50 : -30;
+          }
+        }
+        if (s > bestDeepScore) { bestDeepScore = s; bestDeep = mv; }
+      });
+      if (bestDeep) return bestDeep;
+    }
     // safety net: if our planner's pick somehow scored terribly, defer to bestMove
     const greedy = bestMove(me, foe, cx);
     if (best == null) return greedy;
@@ -1647,6 +1736,7 @@ window.VIEWS = window.VIEWS || {};
         mode: aiMode, weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.A, foeBench: benchCount(A, ai),
         mySpeed: spB0, foeSpeed: spA0, foeBestDmg: dmgAtoB, myBestDmg: dmgBtoA,
         foeBestPhysical: foeBestVsB && foeBestVsB.cls === 'Physical',
+        deep: aiMode === 'nightmare', // 2-ply lookahead for the Nightmare boss only
       };
       // Team B's move: the Vaereth Hard boss uses the expert planner (lookahead +
       // KO/setup/tempo reasoning); everyone else uses the standard greedy bestMove.
@@ -2382,32 +2472,61 @@ window.VIEWS = window.VIEWS || {};
     const [nightmareMeta, setNightmareMeta] = React.useState(null);
     const loadNightmareMeta = React.useCallback(() => {
       if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return;
-      const url = LB_URL.replace(/\/$/, '') + '/rest/v1/nightmare_attempts?select=team&order=created_at.desc&limit=50';
+      const url = LB_URL.replace(/\/$/, '') + '/rest/v1/nightmare_attempts?select=team,kos,archetype,won&order=created_at.desc&limit=50';
       fetch(url, { headers: { apikey: LB_KEY, Authorization: 'Bearer ' + LB_KEY } })
         .then(r => r.ok ? r.json() : [])
         .then(rows => {
           const typeCounts = {};
+          const archCounts = {};
           (rows || []).forEach(row => {
+            // weight each attempt by how close it came: a team that KO'd 4 boss mons
+            // (or won) tells us far more about a real threat than one that KO'd 0.
+            const kos = Math.max(0, Math.min(6, row.kos | 0));
+            const weight = 1 + kos + (row.won ? 4 : 0); // near-wins & wins dominate the meta
             (row.team || []).forEach(mon => {
-              (mon.types || []).forEach(t => { typeCounts[t] = (typeCounts[t] || 0) + 1; });
+              (mon.types || []).forEach(t => { typeCounts[t] = (typeCounts[t] || 0) + weight; });
             });
+            if (row.archetype) archCounts[row.archetype] = (archCounts[row.archetype] || 0) + weight;
           });
-          if (Object.keys(typeCounts).length) setNightmareMeta({ typeCounts });
+          const dominantArch = Object.entries(archCounts).sort((a, b) => b[1] - a[1])[0];
+          if (Object.keys(typeCounts).length) {
+            setNightmareMeta({ typeCounts, archetype: dominantArch ? dominantArch[0] : null });
+          }
         })
         .catch(() => { /* offline — boss uses its default roster */ });
     }, []);
     React.useEffect(() => { loadNightmareMeta(); }, [loadNightmareMeta]);
 
-    const logNightmareAttempt = (playerTeam, won) => {
+    // classify a team's strategy from its movesets (setup / stall / offense / mixed)
+    const SETUP_MOVES = ['swords dance', 'calm mind', 'bulk up', 'dragon dance', 'nasty plot', 'quiver dance', 'work up', 'growth', 'shell smash', 'coil', 'agility', 'rock polish', 'iron defense', 'amnesia', 'cosmic power', 'curse'];
+    const STALL_MOVES = ['protect', 'detect', 'recover', 'roost', 'synthesis', 'moonlight', 'morning sun', 'soft-boiled', 'rest', 'toxic', 'leech seed', 'substitute', 'will-o-wisp', 'wish', 'pain split', 'slack off'];
+    const classifyArchetype = (team) => {
+      let setup = 0, stall = 0, atk = 0, n = 0;
+      (team || []).forEach(m => (m.moves || []).forEach(mv => {
+        const nm = String(mv.name || mv).toLowerCase(); n++;
+        if (SETUP_MOVES.includes(nm)) setup++;
+        else if (STALL_MOVES.includes(nm)) stall++;
+        else atk++;
+      }));
+      if (!n) return 'mixed';
+      if (stall / n >= 0.35) return 'stall';
+      if (setup / n >= 0.25) return 'setup';
+      if (atk / n >= 0.75) return 'offense';
+      return 'mixed';
+    };
+
+    const logNightmareAttempt = (playerTeam, won, bossKOs) => {
       if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return;
       const team = (playerTeam || []).map(m => ({ dex: m.dex, types: (m.types || []).slice() }));
       if (!team.length) return;
       const dexes = team.map(m => m.dex).slice().sort().join('-');
+      const moves = (playerTeam || []).map(m => (m.moves || []).map(x => x.name || x));
+      const archetype = classifyArchetype(playerTeam);
       try {
         fetch(LB_URL.replace(/\/$/, '') + '/rest/v1/nightmare_attempts', {
           method: 'POST',
           headers: { apikey: LB_KEY, Authorization: 'Bearer ' + LB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-          body: JSON.stringify({ team, dexes, won: !!won, voter_id: lbVoterId() }),
+          body: JSON.stringify({ team, dexes, moves, kos: bossKOs | 0, archetype, won: !!won, voter_id: lbVoterId() }),
         }).catch(() => {});
       } catch (e) { /* ignore */ }
     };
@@ -2517,7 +2636,8 @@ window.VIEWS = window.VIEWS || {};
       // Adaptive Nightmare: log this attempt (win or loss) so the boss can adapt
       // its movesets to the community meta. Uses the player's actual Team A.
       if (vaereth && aiMode === 'nightmare') {
-        logNightmareAttempt(built.A, r.winner === 'A');
+        const bossKOs = (r.teamB ? r.teamB.length : 6) - (r.survivorsB || 0);
+        logNightmareAttempt(built.A, r.winner === 'A', bossKOs);
       }
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
       // 6-species team, tracked separately per difficulty, persisted across sessions.
@@ -2643,9 +2763,11 @@ window.VIEWS = window.VIEWS || {};
         </div>
 
         {vaereth && (
-          <div style={{ marginBottom: 14, padding: '10px 14px', background: 'linear-gradient(90deg, rgba(179,18,46,0.18), rgba(255,90,60,0.06))', border: '1px solid #5a2230', borderRadius: 10, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb3a0' }}>
-            <strong style={{ color: '#ff7a5c', fontFamily: "'Pixelify Sans', sans-serif", letterSpacing: 1 }}>☠ BOSS ENCOUNTER — {BOSS_NAME.toUpperCase()}</strong><br />
-            Team B is now <strong>{BOSS_NAME}</strong> — a brutally tough boss with a hand-picked team. This fight is meant to be very hard. Build Team A to take it on.
+          <div style={{ marginBottom: 14, padding: '10px 14px', background: aiMode === 'nightmare' ? 'linear-gradient(90deg, rgba(255,42,42,0.2), rgba(255,90,60,0.06))' : 'linear-gradient(90deg, rgba(179,18,46,0.18), rgba(255,90,60,0.06))', border: aiMode === 'nightmare' ? '1px solid #ff3b3b' : '1px solid #5a2230', borderRadius: 10, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#ffb3a0' }}>
+            <strong style={{ color: aiMode === 'nightmare' ? '#ff4d4d' : '#ff7a5c', fontFamily: "'Pixelify Sans', sans-serif", letterSpacing: 1 }}>{aiMode === 'nightmare' ? `💀 NIGHTMARE — ${BOSS_NAME.toUpperCase()}` : `☠ BOSS ENCOUNTER — ${BOSS_NAME.toUpperCase()}`}</strong><br />
+            {aiMode === 'nightmare'
+              ? <>Level 125. Status-proof. Every blow lands at its hardest. This is the cruelest the region has to offer.{nightmareMeta && (nightmareMeta.archetype || (nightmareMeta.typeCounts && Object.keys(nightmareMeta.typeCounts).length)) ? <><br /><span style={{ color: '#ff8f7a' }}>It has been studying recent challengers{(() => { const t = nightmareMeta.typeCounts ? Object.entries(nightmareMeta.typeCounts).sort((a, b) => b[1] - a[1])[0] : null; const arch = nightmareMeta.archetype; const bits = []; if (t) bits.push(`${t[0].toLowerCase()}-types`); if (arch && arch !== 'mixed') bits.push(`${arch} teams`); return bits.length ? ` — it has tuned itself against ${bits.join(' and ')}.` : '.'; })()}</span></> : null}</>
+              : <>Team B is now <strong>{BOSS_NAME}</strong> — a brutally tough boss with a hand-picked team. This fight is meant to be very hard. Build Team A to take it on.</>}
           </div>
         )}
 
