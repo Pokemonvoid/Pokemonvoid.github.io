@@ -969,7 +969,7 @@ window.VIEWS = window.VIEWS || {};
   // 1.20x + boss status immunity (see STATUS.canApply) closes the paralysis-stall
   // exploit that let ~10 players clear the old version. Best known team now wins
   // ~0.5%, random optimized teams ~0.1% — a true "almost nobody" gauntlet.
-  const VAERETH_HARD_MULT = 0.95; // rebalanced below Nightmare: with status immunity + the expert AI already making Hard brutal, 0.95x lands the best teams at ~2-3% — tough but fair "dedicated few", clearly beatable unlike Nightmare (~0%)
+  const VAERETH_HARD_MULT = 1.00; // tuned vs OPTIMIZED cheese (not just random): with status immunity + expert AI + smart switching, 1.00x lands strong setup/stall teams ~20-26% and priority spam ~7%, random teams ~0.3%. A fair "good players can crack it" middle tier. Below ~1.00 the boss gets out-sped and cheese jumps toward ~100% (sharp cliff), so this is the stable floor.
   const VAERETH_HARD_ROSTER = [
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
@@ -1517,7 +1517,7 @@ window.VIEWS = window.VIEWS || {};
   // better matchup is on the bench, consider switching (basic revenge/pivot).
   // `recentlySwitched` blocks an immediate re-switch (prevents infinite pivot loops).
   function shouldSwitch(team, activeIdx, foe, rng, recentlySwitched, mode, hazardsOnMe) {
-    const hard = mode === 'hard';
+    const hard = mode === 'hard' || mode === 'nightmare'; // smart switching on both tough tiers
     const active = team[activeIdx];
     if (active.fainted) return pickNextAlive(team, activeIdx);
     if (recentlySwitched) return -1; // just came in — commit to at least one action
@@ -1544,6 +1544,9 @@ window.VIEWS = window.VIEWS || {};
 
     // find a benched mon that handles the foe well and can hit back hard
     let bestBench = -1, bestVal = 0;
+    // is the foe a threat that's already set up? (boosted attack stages) — if so we
+    // need a mon that survives its BOOSTED hit, not its base hit.
+    const foeBoostAtk = foe.boosts ? Math.max(foe.boosts.ATK || 0, foe.boosts.SPA || 0) : 0;
     team.forEach((m, i) => {
       if (i === activeIdx || m.fainted) return;
       const chip = hazardChip(m);
@@ -1559,11 +1562,21 @@ window.VIEWS = window.VIEWS || {};
         if (inMult === 0) val += active.maxHP;         // hard wall / immunity
         else if (inMult <= 0.5) val += active.maxHP * 0.5;
         val -= chip;                                   // penalize hazard damage taken
+        // vs a set-up sweeper: heavily favor a mon that SURVIVES the boosted hit and
+        // can threaten back — switching a check into a +2 sweeper is how you stop a
+        // sweep cold. Scale the incoming estimate by the foe's boost level.
+        if (foeBoostAtk > 0) {
+          const boostedTake = takes * (1 + 0.5 * foeBoostAtk);
+          if (boostedTake < effHP) val += active.maxHP * 0.6; // genuinely survives the boosted hit
+          else val -= active.maxHP * 0.4;                     // gets KO'd anyway — don't sack it
+        }
       }
       if (val > bestVal) { bestVal = val; bestBench = i; }
     });
-    // only switch if a bench mon is clearly better than staying in
-    return bestVal > active.hp ? bestBench : -1;
+    // switch if a bench mon is clearly better than staying in. Bar is lower when the
+    // foe is set up (we urgently need our check in) and higher otherwise (avoid churn).
+    const bar = foeBoostAtk > 0 ? active.hp * 0.6 : active.hp;
+    return bestVal > bar ? bestBench : -1;
   }
   function pickNextAlive(team, fromIdx) {
     for (let i = 0; i < team.length; i++) if (!team[i].fainted) return i;
@@ -2413,14 +2426,15 @@ window.VIEWS = window.VIEWS || {};
     const certStoreKey = (tier) => 'voidmon_fillers_certs_' + tier;
 
     // --- one-time go-live reset: when this version ships, wipe any previously
-    // stored certificate data so everyone starts fresh alongside the new
-    // leaderboard. Bump LEADERBOARD_EPOCH to force another fresh start later. ---
-    const LEADERBOARD_EPOCH = 'lb_v1';
+    // stored "team already used" memory so every team is available to score with
+    // again. The memory is PER TIER (a team can score once on each of normal/hard/
+    // nightmare; repeats on the SAME tier earn nothing). Bump LEADERBOARD_EPOCH to
+    // trigger another fresh start on a future patch. ---
+    const LEADERBOARD_EPOCH = 'lb_v2'; // bumped for today's patch — clears used-team memory
     (function resetCertsOnGoLive() {
       try {
         if (localStorage.getItem('voidmon_lb_epoch') === LEADERBOARD_EPOCH) return;
-        localStorage.removeItem('voidmon_fillers_certs_normal');
-        localStorage.removeItem('voidmon_fillers_certs_hard');
+        ['normal', 'hard', 'nightmare'].forEach(t => localStorage.removeItem('voidmon_fillers_certs_' + t));
         localStorage.setItem('voidmon_lb_epoch', LEADERBOARD_EPOCH);
       } catch (e) { /* storage unavailable — nothing to reset */ }
     })();
