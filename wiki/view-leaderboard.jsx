@@ -39,19 +39,38 @@
   // medal/rank glyph
   function rankGlyph(i) { return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : String(i + 1); }
 
+  // how many Pokémon two team-keys share (keys are sorted dex lists joined by '-')
+  function sharedCount(keyA, keyB) {
+    const a = String(keyA).split('-'); const b = new Set(String(keyB).split('-'));
+    let n = 0; a.forEach(d => { if (b.has(d)) n++; }); return n;
+  }
+
   // build a top-10 board from raw rows for one difficulty.
-  // groups by player_name (case-insensitive), score = # of distinct team_keys.
+  // groups by player_name (case-insensitive). A team only earns a point if it
+  // differs by at least 5 Pokémon (shares AT MOST 1) from every team already
+  // counted for that player — this stops one-slot-swap teams from each scoring.
   function buildBoard(rows, difficulty) {
     const byPlayer = {};
     rows.filter(r => r.difficulty === difficulty).forEach(r => {
-      const key = (r.player_name || 'Anonymous').trim() || 'Anonymous';
-      const k = key.toLowerCase();
-      if (!byPlayer[k]) byPlayer[k] = { name: key, teams: {}, first: r.created_at };
-      // de-dupe by team_key (DB also enforces this, but be safe on display)
-      byPlayer[k].teams[r.team_key] = r.team;
+      const named = (r.player_name || '').trim();
+      // a named player groups by name (case-insensitive, so their wins combine).
+      // a blank name groups by voter_id instead, so two different unnamed people
+      // each get their own "Anonymous" line rather than merging into one entry.
+      const k = named ? ('name:' + named.toLowerCase()) : ('anon:' + (r.voter_id || Math.random()));
+      const display = named || 'Anonymous';
+      if (!byPlayer[k]) byPlayer[k] = { name: display, wins: [], first: r.created_at };
+      byPlayer[k].wins.push({ team_key: r.team_key, team: r.team, at: r.created_at });
     });
     return Object.values(byPlayer)
-      .map(p => ({ name: p.name, score: Object.keys(p.teams).length, teams: Object.values(p.teams), first: p.first }))
+      .map(p => {
+        // accept teams oldest-first; a new team must share <=1 mon with every
+        // already-counted team to earn a point (differ by 5 of 6).
+        const counted = [];
+        p.wins.sort((a, b) => new Date(a.at) - new Date(b.at)).forEach(w => {
+          if (counted.every(c => sharedCount(w.team_key, c.team_key) <= 1)) counted.push(w);
+        });
+        return { name: p.name, score: counted.length, teams: counted.map(c => c.team), first: p.first };
+      })
       .sort((a, b) => (b.score - a.score) || (new Date(a.first) - new Date(b.first)))
       .slice(0, 10);
   }
@@ -77,7 +96,7 @@
           <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 22, color: accent }}>{title}</span>
         </div>
         <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#8a83a8', marginBottom: 14 }}>
-          Points = different teams you've won with. Tap a name to see their teams.
+          Points = genuinely different teams you've won with (each must share at most 1 Pokémon with your others). Tap a name to see their teams.
         </div>
         {board.length === 0 && (
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13.5, color: '#9a93bb', padding: '18px 0', textAlign: 'center' }}>
@@ -85,7 +104,7 @@
           </div>
         )}
         {board.map((p, i) => (
-          <div key={p.name} style={{ borderBottom: i < board.length - 1 ? '1px solid #1d1838' : 'none' }}>
+          <div key={i} style={{ borderBottom: i < board.length - 1 ? '1px solid #1d1838' : 'none' }}>
             <div onClick={() => setOpenIdx(openIdx === i ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', cursor: 'pointer' }}>
               <div style={{ width: 30, textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontSize: i < 3 ? 20 : 15, color: i < 3 ? accent : '#6a6388' }}>{rankGlyph(i)}</div>
               <div style={{ flex: 1, minWidth: 0, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#fff', fontSize: 16, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>

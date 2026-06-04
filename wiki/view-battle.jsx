@@ -267,6 +267,9 @@ window.VIEWS = window.VIEWS || {};
     canApply(target, code) {
       if (!target || target.fainted) return false;
       if (target.status) return false;
+      // boss mons are fully immune to major status (the gauntlet plays clean) —
+      // this closes the one strategy that beats it: status/paralysis stalling.
+      if (target.boss) return false;
       const imm = STATUS.immuneType[code] || [];
       if (target.types.some(t => imm.includes(t))) return false;
       if (ABIL.blocksStatus(target, code)) return false; // ability immunity (Insomnia, Limber, etc.)
@@ -961,11 +964,10 @@ window.VIEWS = window.VIEWS || {};
   // placeholder for the owner's favourites; Hard is the real gauntlet). These six
   // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
   // them. The species alone are brutal; the multiplier is a fine-tune on top.
-  // 1.15x keeps it ~99.9% vs optimized random teams. Paired with the Hard AI tweak
-  // below (a paralyzed boss stops setting up and keeps attacking), this pushes the
-  // best counter back toward the "dedicated few" target after the community found a
-  // strong paralysis strategy and 10 players cleared it.
-  const VAERETH_HARD_MULT = 1.15;
+  // 1.20x + boss status immunity (see STATUS.canApply) closes the paralysis-stall
+  // exploit that let ~10 players clear the old version. Best known team now wins
+  // ~0.5%, random optimized teams ~0.1% — a true "almost nobody" gauntlet.
+  const VAERETH_HARD_MULT = 1.20;
   const VAERETH_HARD_ROSTER = [
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke

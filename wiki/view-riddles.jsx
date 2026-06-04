@@ -51,28 +51,28 @@ window.VIEWS = window.VIEWS || {};
       { q: "A thin prism over a carbon mirror; when light strikes me I become a dance floor — but name my final, grandest self.", a: 'Armadisco' },
     ],
     Expert: [
-      { q: "Devotion kneels where the heavens fall silent; my plating drinks the dark between prayers, and the crown I wear burns a colour mourning wears. I am the third devotion, neither monk nor mancer.", a: 'Sedivout' },
-      { q: "Among kin hewn from breathing stone, I am the one who turns the knife inward — a heart that curses its own beat, choosing the alley over the altar.", a: 'Sedirogue' },
-      { q: "The first light does not comfort me; it whets me. I drink the morning and loose a shot that, the legends insist, has never once needed a second.", a: 'Sediranger' },
-      { q: "A wish meant to wound its own maker, made flesh; yet the hand raised to strike now folds the eyes of the fallen shut. I am the bleaker of two things a stray's sorrow can become.", a: 'Fellsum' },
-      { q: "The deck was cut, the hand was dealt, and from the deepest water I rose as the reading made true — vast, unseen, and certain. Read my suit and name me.", a: 'Garcana' },
-      { q: "I am winter that feeds on warmth and never warms; the larger I swell the colder I keep, a crimson glow that ends as a shiver around itself.", a: 'Gigantrum' },
-      { q: "I broke the surface and asked the sky a question with no answer — bird, or vessel, or neither — then leapt the seam between two worlds, laughing.", a: 'Brooskip' },
-      { q: "Storm-born thunder set in ice; the tempest my gentler self only dreamt of woke fully in me when the snow finally came down.", a: 'Capibarron' },
-      { q: "When my wings unfold, the field forgets the sun; from heights that swallow sound I read the small and the slow, and end the watcher's bloodline.", a: 'Ocurage' },
-      { q: "Discipline sharpened in solitude until the air itself obeyed me; I listen with what others only flap, and I cut the wind on command.", a: 'Mangmight' },
+      { q: "Third in a vow carved from living rock, I am neither the still mind nor the shaper of shades. I kneel where the heavens go quiet, my shell drinking the dark, and the fire at my brow wears the shade a widow wears.", a: 'Sedivout' },
+      { q: "Of the kin quarried from breathing stone, I turned my edge inward — a pulse that damns its own rhythm. Where my siblings chose the shrine, I chose the unlit lane.", a: 'Sedirogue' },
+      { q: "Morning is my whetstone, not my comfort. I swallow the first light and let fly a single answer the old tales swear has never once asked for a second.", a: 'Sediranger' },
+      { q: "A wish curdled to harm its own dreamer, given a body — yet the fist it raised now closes the eyes of the fallen with care. I am the darker of the two sorrows a lost stray may yet become.", a: 'Fellsum' },
+      { q: "Cut, dealt, and made true: I surfaced from the unlit deep as the reading foretold, vast and unseen. The major's number is mine, the arcanum complete — read my suit.", a: 'Garcana' },
+      { q: "I am the frost that eats warmth and is never warmed; the more I take, the colder I keep, a swelling ember that ends as a shudder folded around itself.", a: 'Gigantrum' },
+      { q: "I broke a seam and put a question to the heights that has no answer — wing, or hull, or neither — then vaulted the line between the two worlds, delighted.", a: 'Brooskip' },
+      { q: "Thunder cradled in ice; the storm my milder self could only sleep and dream of broke awake in me the day the white came down.", a: 'Capibarron' },
+      { q: "Unfurl me and the ground forgets the sun. From a height that drinks all sound I mark the small and the slow — and I am the dread that closed the watcher's line for good.", a: 'Ocurage' },
+      { q: "Alone, I honed myself until the very air bent to my will; I hear with what others merely beat, and on a word I carve the wind.", a: 'Mangmight' },
     ],
     Nightmare: [
-      { q: "What is freely given, I never surrender; I guard the gift as gospel. Patient and last of a threefold ascent that cradles its own boulder, I am the atlas that holds, not the world, but the stone.", a: 'Terratlus' },
-      { q: "I once swore fealty to the heavens and broke it; now stardust crowns a keeper of puzzles who weighs the worthy. Provoke the lock and the calm becomes a verdict.", a: 'Sedilock' },
-      { q: "Before two minds folded into one that wears your face, there was only the ungoverned hue. Do not name the mirror, nor its reflection — name the raw and rainbowed clay it was thrown from.", a: 'Karmold' },
-      { q: "A star dies in three acts; I am neither the falling nor the spark reborn, but the swollen middle that hoards every ember and is left, for all its hunger, cold.", a: 'Gigantrum' },
-      { q: "Harvested by the bushel, devotion earned only by those who wait — I spin my loyalty into thread and bind it to the patient hand. Name the one who weaves, never the weave.", a: 'Grantula' },
-      { q: "Thrice over I burn: a hero's three trials, a beast of three natures, a fire only the unstained may behold. Count to three and you have already half-named me.", a: 'Cerbament' },
-      { q: "When a lonely road's wish turns from harming itself to shielding others, two ghosts may be born of one stray's grief; I am the gentler twin, the family found rather than the fate feared.", a: 'Foundsum' },
-      { q: "Prism laid on a mirror of carbon; I am not the light nor the spark, but the hall where both go to dance once the casing seals and the rhythm starts. Name the ballroom, not the beam.", a: 'Armadisco' },
-      { q: "I am the river-stone that sits in thought before any blade is drawn — neither dawn's marksman, dusk's silence, nor the curse-hearted alley-walker, but the single will from which a saint, a seer, and a sinner each diverge.", a: 'Sedimonk' },
-      { q: "I am the hush at the seam of day and night, walking with both at once. Rare is my sighting, and I head the pack only when sun and moon align — yet I am no grandmaster, merely the hound that comes before the wolf.", a: 'Twilycan' },
+      { q: "What is freely given I never return; I keep the gift as gospel. A titan condemned to bear a burden hides his name in mine — find the one who shoulders the sky, then set him on a stone instead. Last and most patient of three.", a: 'Terratlus' },
+      { q: "I swore to the firmament and broke the oath; now dust of stars crowns a warden of puzzles who weighs the worthy. My name is a fastening and a seal both — turn it, and the calm becomes a sentence.", a: 'Sedilock' },
+      { q: "Two minds will one day fold into a single face that mirrors yours — but I am the before. Not the glass, not what it throws back: the raw, ungoverned hue still wet on the wheel. A potter's word hides in my making.", a: 'Karmold' },
+      { q: "A dying star plays three acts; I am neither the plunge nor the reborn spark, but the bloated middle that hoards every ember and is left, for all its gluttony, cold to the touch.", a: 'Gigantrum' },
+      { q: "Gathered by the bushel across the region, my devotion is earned only by the patient. I draw my loyalty into thread and knot it to the one who waited. Name the spinner, never the spun.", a: 'Grantula' },
+      { q: "Three trials of a hero, three throats of a hound, a fire only the unstained may witness — I am all of them at once. The number three is written through me; count it and you are halfway to my name.", a: 'Cerbament' },
+      { q: "When a roadside grief turns its wish from self-harm to shelter, one stray's sorrow may split into two specters. I am the kinder — not the dreaded end, but the household gathered after; the one who was sought and so was discovered.", a: 'Foundsum' },
+      { q: "A prism set upon a mirror of carbon; I am neither the beam nor the glint, but the sealed hall where both go to revel once the shell snaps shut and the beat begins. Name the ballroom, not the light that fills it.", a: 'Armadisco' },
+      { q: "I am the river-stone sat in thought before any edge is bared — not dawn's marksman, not dusk's silence, not the curse-hearted one who walks unlit lanes. I am the single still will from which a saint, a seer, and a sinner each later part.", a: 'Sedimonk' },
+      { q: "I am the hush stitched into the seam of day and night, keeping company with both. Seldom seen, I take the head of the pack only when the two lights meet — yet crown me no grandmaster; I am merely the hound that walks ahead of the wolf.", a: 'Twilycan' },
     ],
   };
 
@@ -105,14 +105,30 @@ window.VIEWS = window.VIEWS || {};
   }
   function saveSolved(set) { try { localStorage.setItem(LS_KEY, JSON.stringify([...set])); } catch (e) {} }
 
-  // Verification passphrase: first letter of every answer, in tier order, grouped.
-  // Deterministic and derived from the real answers — a player can only produce it
-  // by having actually solved all 50. Computed at runtime so it stays correct if
-  // riddles are ever edited, and never sits in the source as a plain string.
-  function rewardPhrase() {
-    const order = ['Easy', 'Medium', 'Hard', 'Expert', 'Nightmare'];
-    const groups = order.map(t => RIDDLES[t].map(r => r.a.toUpperCase().replace(/[^A-Z0-9]/g, '')[0]).join(''));
-    return 'VOID-' + groups.join('-');
+  // ---- Nightmare lockout: 10 total wrong Nightmare guesses = 24h lockout ----
+  const NM_FAILS_KEY = 'voiddex_riddles_nm_fails';
+  const NM_LOCK_KEY = 'voiddex_riddles_nm_lockuntil';
+  const NM_FAIL_LIMIT = 10;
+  const NM_LOCK_MS = 24 * 60 * 60 * 1000;
+  function nmFails() { try { return parseInt(localStorage.getItem(NM_FAILS_KEY) || '0', 10) || 0; } catch (e) { return 0; } }
+  function nmLockUntil() { try { return parseInt(localStorage.getItem(NM_LOCK_KEY) || '0', 10) || 0; } catch (e) { return 0; } }
+  function nmLocked() { return Date.now() < nmLockUntil(); }
+  function nmAddFail() {
+    let f = nmFails() + 1;
+    try {
+      if (f >= NM_FAIL_LIMIT) {
+        localStorage.setItem(NM_LOCK_KEY, String(Date.now() + NM_LOCK_MS));
+        localStorage.setItem(NM_FAILS_KEY, '0'); // reset counter when lock triggers
+        return { locked: true, fails: 0 };
+      }
+      localStorage.setItem(NM_FAILS_KEY, String(f));
+    } catch (e) {}
+    return { locked: false, fails: f };
+  }
+  function fmtRemaining(ms) {
+    const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
+    if (h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
   }
 
   window.VIEWS.Riddles = function Riddles() {
@@ -124,11 +140,21 @@ window.VIEWS = window.VIEWS || {};
     const [wrongCount, setWrongCount] = React.useState(0);
     const [solved, setSolved] = React.useState(loadSolved); // Set of "Tier#idx" keys
     const [reward, setReward] = React.useState(false);       // show the 50/50 popup
+    const [lockUntil, setLockUntil] = React.useState(nmLockUntil); // Nightmare lockout timestamp
+    const [now, setNow] = React.useState(Date.now());
+    const [justLocked, setJustLocked] = React.useState(false);
+
+    // tick every 30s so the lockout countdown updates while the page is open
+    React.useEffect(() => {
+      const id = setInterval(() => setNow(Date.now()), 30000);
+      return () => clearInterval(id);
+    }, []);
 
     const tierObj = TIERS.find(t => t.name === tier);
     const pool = tier ? RIDDLES[tier] : [];
     const riddle = pool[idx];
     const key = tier ? tier + '#' + idx : null;
+    const nightmareLocked = lockUntil > now;
 
     const solvedCount = solved.size;
     const tierSolved = (tn) => RIDDLES[tn].reduce((n, _, i) => n + (solved.has(tn + '#' + i) ? 1 : 0), 0);
@@ -141,13 +167,23 @@ window.VIEWS = window.VIEWS || {};
     };
 
     const reset = () => { setGuess(''); setStatus(null); setShowHint(false); setWrongCount(0); };
-    const openTier = (name) => { setTier(name); setIdx(0); reset(); };
+    const openTier = (name) => {
+      if (name === 'Nightmare' && nmLocked()) { setLockUntil(nmLockUntil()); setTier('Nightmare'); setIdx(0); reset(); return; }
+      setTier(name); setIdx(0); reset();
+    };
     const nextRiddle = () => { setIdx(i => (i + 1) % pool.length); reset(); };
 
     const submit = () => {
       if (!guess.trim()) return;
+      if (tier === 'Nightmare' && nightmareLocked) return; // safety: no guessing while locked
       if (norm(guess) === norm(riddle.a)) { setStatus('right'); markSolved(key); }
-      else { setStatus('wrong'); setWrongCount(c => c + 1); }
+      else {
+        setStatus('wrong'); setWrongCount(c => c + 1);
+        if (tier === 'Nightmare') {
+          const r = nmAddFail();
+          if (r.locked) { setLockUntil(nmLockUntil()); setJustLocked(true); }
+        }
+      }
     };
 
     // ---- tier select screen ----
@@ -186,9 +222,34 @@ window.VIEWS = window.VIEWS || {};
       );
     }
 
+    // ---- Nightmare lockout screen ----
+    if (tier === 'Nightmare' && nightmareLocked) {
+      const remain = lockUntil - now;
+      return (
+        <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, justifyContent: 'flex-start' }}>
+            <button onClick={() => setTier(null)} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#9a93bb', borderRadius: 8, padding: '7px 13px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>← Tiers</button>
+            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 26, color: '#ff1f5a' }}>Nightmare</span>
+          </div>
+          <div style={{ padding: '40px 28px', borderRadius: 18, background: 'radial-gradient(ellipse at 50% 0%, #2a000d, #0a0816 75%)', border: '1px solid #ff1f5a66' }}>
+            <div style={{ fontSize: 44, marginBottom: 10 }}>🔒</div>
+            <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: '#ff1f5a', marginBottom: 12 }}>THE LAIR HAS SEALED ITSELF</div>
+            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#e9c4cf', lineHeight: 1.6, margin: '0 0 18px' }}>
+              You've failed the Nightmare trials too many times. Sedilock has barred the way. The path reopens in:
+            </p>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 30, fontWeight: 700, color: '#ff6f8f' }}>{fmtRemaining(remain)}</div>
+            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#7a6f88', marginTop: 16 }}>
+              The other tiers remain open while you wait.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     // ---- riddle screen ----
     const answerMon = status === 'right' ? findMon(riddle.a) : null;
     const alreadySolved = solved.has(key);
+    const nmRemaining = tier === 'Nightmare' ? (NM_FAIL_LIMIT - nmFails()) : null;
     return (
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         {reward && <RewardPopup onClose={() => setReward(false)} />}
@@ -197,6 +258,7 @@ window.VIEWS = window.VIEWS || {};
           <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 26, color: tierObj.color, textShadow: `0 0 16px ${tierObj.color}66` }}>{tier}</span>
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#6a6388' }}>Riddle {idx + 1} / {pool.length}</span>
           {alreadySolved && <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#5fd13c', border: '1px solid #2f8f4a', borderRadius: 6, padding: '3px 8px' }}>✓ SOLVED</span>}
+          {tier === 'Nightmare' && <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: nmRemaining <= 3 ? '#ff5f7e' : '#7a6f88', border: '1px solid #3a2545', borderRadius: 6, padding: '3px 8px' }}>{nmRemaining} GUESS{nmRemaining === 1 ? '' : 'ES'} LEFT</span>}
         </div>
 
         {/* the riddle */}
@@ -253,23 +315,15 @@ window.VIEWS = window.VIEWS || {};
     );
   };
   function RewardPopup({ onClose }) {
-    const [copied, setCopied] = React.useState(false);
     return (
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(5,4,12,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
         <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, textAlign: 'center', borderRadius: 20, padding: '34px 28px', background: 'radial-gradient(ellipse at 50% 0%, #2a1d00, #0a0818 75%)', border: '1px solid #ffd54a', boxShadow: '0 0 50px #ffb30055' }}>
           <div style={{ fontSize: 46, marginBottom: 6 }}>🏆</div>
           <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: '#ffd54a', marginBottom: 10 }}>ALL 50 RIDDLES SOLVED</div>
           <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 30, color: '#fff', lineHeight: 1.1, marginBottom: 14, textShadow: '0 0 24px #ffb30066' }}>Master of the Void Riddles</div>
-          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#e9e0c4', lineHeight: 1.6, margin: '0 0 18px' }}>
-            You've cracked every riddle in the chamber — Easy through Nightmare. That's no small feat.
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#e9e0c4', lineHeight: 1.6, margin: '0 0 22px' }}>
+            You've cracked every riddle in the Lair — Easy through Nightmare. Sedilock itself would be impressed. That's no small feat.
           </p>
-          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#fff', lineHeight: 1.6, margin: '0 0 18px', fontWeight: 600 }}>
-            Contact <span style={{ color: '#ffd54a' }}>Vaereth</span> to claim your reward — send the verification phrase below so I know you truly cracked all 50.
-          </p>
-          <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 1, color: '#8a83a8', marginBottom: 6 }}>VERIFICATION PHRASE</div>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#ffd54a', background: '#0a0818', border: '1px solid #ffd54a55', borderRadius: 10, padding: '12px 14px', wordBreak: 'break-all', marginBottom: 12 }}>{rewardPhrase()}</div>
-          <button onClick={() => { try { navigator.clipboard.writeText(rewardPhrase()); setCopied(true); } catch (e) {} }} style={{ cursor: 'pointer', background: copied ? '#0f3320' : '#1a1533', border: '1px solid #ffd54a55', color: copied ? '#7ad17a' : '#ffd54a', borderRadius: 10, padding: '9px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, marginBottom: 18 }}>{copied ? '✓ Copied' : 'Copy Phrase'}</button>
-          <div />
           <button onClick={onClose} style={{ cursor: 'pointer', background: 'linear-gradient(135deg,#ffb300,#ff7a00)', border: '1px solid #ffd54a', color: '#2a1800', borderRadius: 12, padding: '12px 28px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700 }}>Close</button>
         </div>
       </div>
