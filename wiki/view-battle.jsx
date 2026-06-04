@@ -635,6 +635,16 @@ window.VIEWS = window.VIEWS || {};
   })();
   const moveFieldEffect = (move) => MOVE_FIELD[normName(move.name)] || null;
 
+  // Protect family: status moves that block all damage for the turn. Some also punish
+  // contact (Spiky Shield chips, King's Shield drops Attack, Baneful Bunker poisons),
+  // but we implement the core block first — that's what the AI needs to value it.
+  const PROTECT_MOVES = (() => {
+    const t = {};
+    ['Protect', 'Detect', 'Spiky Shield', "King's Shield", 'Baneful Bunker', 'Obstruct', 'Silk Trap', 'Max Guard'].forEach(n => { t[normName(n)] = true; });
+    return t;
+  })();
+  const isProtectMove = (move) => !!PROTECT_MOVES[normName(move.name)];
+
   // move base priority bracket (canonical). Most moves are 0.
   const MOVE_PRIORITY = (() => {
     const t = {}; const p = (n, v) => { t[normName(n)] = v; };
@@ -1093,6 +1103,33 @@ window.VIEWS = window.VIEWS || {};
     if (!meta || !meta.typeCounts) return [];
     return Object.entries(meta.typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => e[0]);
   }
+  // LIVE COUNTER: derive the top threat types from the specific team the boss is about
+  // to face. Counts each foe mon's types, then ranks the types the boss most needs
+  // coverage against. Returns up to 4 types (same shape metaThreatTypes returns), so
+  // it drops straight into adaptMoveset. This makes the Nightmare boss tailor its
+  // movesets to YOUR team, not just the community meta.
+  function foeThreatTypes(foeTeam) {
+    if (!Array.isArray(foeTeam) || !foeTeam.length) return [];
+    const counts = {};
+    foeTeam.forEach(m => (m.types || []).forEach(t => { if (t) counts[t] = (counts[t] || 0) + 1; }));
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => e[0]);
+  }
+  // classify a foe team's archetype from its movesets, mirroring the community
+  // classifier, so the live counter can also react to setup/stall/offense play.
+  function foeArchetype(foeTeam) {
+    const SETUP = ['swords dance', 'calm mind', 'bulk up', 'dragon dance', 'nasty plot', 'quiver dance', 'work up', 'growth', 'shell smash', 'coil', 'agility', 'rock polish', 'iron defense', 'amnesia', 'cosmic power', 'curse'];
+    const STALL = ['protect', 'detect', 'recover', 'roost', 'synthesis', 'moonlight', 'morning sun', 'soft-boiled', 'rest', 'toxic', 'leech seed', 'substitute', 'will-o-wisp', 'wish', 'pain split', 'slack off'];
+    let setup = 0, stall = 0, atk = 0, n = 0;
+    (foeTeam || []).forEach(m => (m.moves || []).forEach(mv => {
+      const nm = String(mv && (mv.name || mv)).toLowerCase(); n++;
+      if (SETUP.includes(nm)) setup++; else if (STALL.includes(nm)) stall++; else atk++;
+    }));
+    if (!n) return 'mixed';
+    if (stall / n >= 0.35) return 'stall';
+    if (setup / n >= 0.25) return 'setup';
+    if (atk / n >= 0.75) return 'offense';
+    return 'mixed';
+  }
   // priority attacks the engine actually implements (used to revenge-KO setup sweepers)
   const PRIORITY_MOVES = ['Extreme Speed', 'Fake Out', 'First Impression', 'Quick Attack', 'Aqua Jet', 'Bullet Punch', 'Mach Punch', 'Ice Shard', 'Shadow Sneak', 'Sucker Punch', 'Vacuum Wave', 'Accelerock', 'Jet Punch'];
   // choose up to 4 moves for a boss mon: keep its strongest STAB/setup, then fill
@@ -1139,15 +1176,24 @@ window.VIEWS = window.VIEWS || {};
     return out.slice(0, 4);
   }
 
-  function buildPflrsBoss(aiMode, meta) {
+  function buildPflrsBoss(aiMode, meta, foeTeam) {
     const hard = aiMode === 'hard';
     const nightmare = aiMode === 'nightmare';
     const tough = hard || nightmare; // both get the 560 spread
     let roster = nightmare ? PFLRS_NIGHTMARE_ROSTER : (hard ? PFLRS_HARD_ROSTER : PFLRS_ROSTER);
-    // Nightmare adapts each mon's MOVESET to counter the recent meta (roster fixed).
-    if (nightmare && meta) {
-      const threats = metaThreatTypes(meta);
-      if (threats.length) roster = roster.map(r => ({ ...r, moves: adaptMoveset(r.dex, r.moves, threats, meta.archetype) }));
+    // Nightmare adapts each mon's MOVESET. Two layers, live team takes priority:
+    //   (a) LIVE COUNTER — reads the specific team it's facing and tailors coverage
+    //       to that team's types/archetype (the strongest signal, when available).
+    //   (b) COMMUNITY META — falls back to the recent-attempts meta when no live team
+    //       is known (e.g. the inspector preview) or to fill remaining threat slots.
+    if (nightmare) {
+      const liveThreats = foeThreatTypes(foeTeam);
+      const metaThreats = metaThreatTypes(meta);
+      // live threats first, then any meta threats not already covered (cap 4)
+      const threats = [];
+      [...liveThreats, ...metaThreats].forEach(t => { if (t && threats.indexOf(t) < 0 && threats.length < 4) threats.push(t); });
+      const arch = (foeTeam && foeTeam.length) ? foeArchetype(foeTeam) : (meta && meta.archetype);
+      if (threats.length) roster = roster.map(r => ({ ...r, moves: adaptMoveset(r.dex, r.moves, threats, arch) }));
     }
     const mult = nightmare ? PFLRS_NIGHTMARE_MULT : (hard ? PFLRS_HARD_MULT : PFLRS_STAT_MULT);
     const level = nightmare ? PFLRS_NIGHTMARE_LEVEL : PFLRS_LEVEL;
@@ -1178,11 +1224,15 @@ window.VIEWS = window.VIEWS || {};
       }
       return m;
     }).filter(Boolean);
-    // Tell (#2): when adapting, the boss LEADS with the mon best suited to the meta —
-    // a visible behavioural change. Lead pick = best offensive matchup vs the top
-    // threat types. This makes the adaptation noticeable from turn one.
-    if (nightmare && meta) {
-      const threats = metaThreatTypes(meta);
+    // Tell (#2): when adapting, the boss LEADS with the mon best suited to what it's
+    // facing — a visible behavioural change. Lead pick = best offensive matchup vs the
+    // top threat types (live foe team first, community meta as fallback). Makes the
+    // adaptation noticeable from turn one.
+    if (nightmare) {
+      const liveThreats = foeThreatTypes(foeTeam);
+      const metaThreats = metaThreatTypes(meta);
+      const threats = [];
+      [...liveThreats, ...metaThreats].forEach(t => { if (t && threats.indexOf(t) < 0 && threats.length < 4) threats.push(t); });
       if (threats.length) {
         const leadScore = (m) => {
           let s = 0;
@@ -1304,6 +1354,33 @@ window.VIEWS = window.VIEWS || {};
       let score;
       if (move.cls === 'Status' || !move.pow) {
         const hard = cx.mode === 'hard';
+        // ---- Protect family ----
+        // Value Protect as a real option: it stalls a turn (scouting, end-of-turn
+        // chip on the foe, and crucially letting the USER's end-of-turn boosts tick —
+        // Speed Boost / Poison Heal / Leftovers-style strats). Discourage spamming it
+        // (the successive-use penalty makes repeats fail), and don't pick it when it
+        // does nothing useful (full HP, no end-of-turn engine, foe can't hurt us).
+        if (isProtectMove(move)) {
+          const streak = attacker.protectStreak || 0;
+          const succeedOdds = 1 / Math.pow(3, streak); // matches the in-battle fail curve
+          let s = 8; // baseline: scouting / stalling has minor value
+          const hasSpeedBoost = ABIL.has(attacker, 'Speed Boost');
+          const hasEotHeal = ABIL.has(attacker, 'Poison Heal') || normName(attacker.item || '') === normName('Leftovers');
+          // big incentive when the user GAINS from buying a turn: Speed Boost climbing,
+          // passive healing, or the foe is badly off (poisoned/burned ticking down).
+          if (hasSpeedBoost) {
+            const spd = (attacker.boosts && attacker.boosts.SPE) || 0;
+            if (spd < 6) s += 60 - spd * 8; // first few protects are very strong, tapers as it caps
+          }
+          if (hasEotHeal && attacker.hp < attacker.maxHP * 0.85) s += 30;
+          if (defender.status === 'TOX' || defender.status === 'PSN' || defender.status === 'BRN') s += 14;
+          // dampen if it'll likely just fail from repeated use, or if pointless
+          s *= succeedOdds;
+          if (attacker.hp >= attacker.maxHP && !hasSpeedBoost && !hasEotHeal && !defender.status) s *= 0.3;
+          score = Math.max(0.5, s);
+          if (score > bestScore) { bestScore = score; best = move; }
+          return; // done scoring this move
+        }
         // value a status move only if it would actually land something useful:
         // foe must be statusable and not immune; otherwise it's near-useless.
         const eff2 = moveStatusEffect(move);
@@ -1700,8 +1777,8 @@ window.VIEWS = window.VIEWS || {};
     opts = opts || {};
     const rng = mulberry32(seedNum || (Math.random() * 1e9) | 0);
     // deep-clone teams so the originals aren't mutated (fresh boosts per battle)
-    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
-    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
+    const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, protectedThisTurn: false, protectStreak: 0, abilityPool: (m.abilityPool || []).slice() }));
+    const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, protectedThisTurn: false, protectStreak: 0, abilityPool: (m.abilityPool || []).slice() }));
     // Disambiguate the battle log when both teams field the same species: the foe's
     // copy (Team B) is shown as "Foe <name>" so lines like "Mangmight used X. Mangmight
     // lost Y%" can't read as a mon hitting itself. Only triggers on an actual collision;
@@ -1864,6 +1941,7 @@ window.VIEWS = window.VIEWS || {};
       const doSwitchOut = (side, outIdx) => {
         const mon = side === 'A' ? A[outIdx] : B[outIdx];
         mon.mustRecharge = false; // recharge state doesn't persist across a switch
+        mon.protectedThisTurn = false; mon.protectStreak = 0; // protect chain breaks on switch
         mon.boosts = STAGES.fresh(); // stat-stage boosts/drops reset when a mon leaves the field
         const so = ABIL.onSwitchOut(mon);
         if (so.heal && mon.hp > 0 && mon.hp < mon.maxHP) { mon.hp = Math.min(mon.maxHP, mon.hp + so.heal); }
@@ -1973,6 +2051,24 @@ window.VIEWS = window.VIEWS || {};
         if (gateLine) { events.push({ t: 'cantmove', side, name: atk.name, reason: gateLine, statusOf: snapshotStatus(A, B) }); log.push(gateLine); }
         if (cantAct) continue;
 
+        // ---- Protect family: blocks all damage this turn; fails more if used in a
+        // row (canonical successive-use penalty: 1, 1/3, 1/9, ...). Consumes the turn.
+        if (isProtectMove(mv)) {
+          const streak = atk.protectStreak || 0;
+          const succeed = rng() < (1 / Math.pow(3, streak));
+          if (succeed) {
+            atk.protectedThisTurn = true;
+            atk.protectStreak = streak + 1;
+            events.push({ t: 'protect', side, name: atk.name, move: mv.name });
+            log.push(`${atk.name} protected itself!`);
+          } else {
+            atk.protectStreak = 0;
+            events.push({ t: 'move', side, move: mv.name, attacker: atk.name, failed: true });
+            log.push(`${atk.name} used ${mv.name}, but it failed!`);
+          }
+          continue; // using Protect is this mon's action for the turn
+        }
+
         // Protean / Libero: before attacking, the user's type becomes the move's type
         if (ABIL.protean(atk) && mv.cls !== 'Status' && mv.pow) {
           const ate = ABIL.ateType(atk, mv);
@@ -1982,6 +2078,16 @@ window.VIEWS = window.VIEWS || {};
             events.push({ t: 'ability', side, name: atk.name, ability: 'Protean', boostsOf: snapshotBoosts(A, B) });
             log.push(`${atk.name} transformed into the ${newType} type!`);
           }
+        }
+
+        // ---- Protect: if the target guarded this turn, the move is blocked. Applies
+        // to damaging moves and foe-targeting status moves; self/field moves are
+        // unaffected (they don't hit the protected foe anyway).
+        if (def.protectedThisTurn && (mv.pow || (mv.cls === 'Status' && !moveFieldEffect(mv) && !(moveStatEffect(mv) && moveStatEffect(mv).target === 'self')))) {
+          events.push({ t: 'move', side, move: mv.name, attacker: atk.name, target: def.name, blocked: true });
+          log.push(`${atk.name} used ${mv.name}, but ${def.name} protected itself!`);
+          // Spiky Shield / contact-punish variants could chip here later; core block only for now.
+          continue;
         }
 
         const res = computeDamage(atk, def, mv, rng, { weather: curWeather(), terrain: field.terrain.kind });
@@ -2378,6 +2484,9 @@ window.VIEWS = window.VIEWS || {};
 
       if (A[ai]) A[ai].flinched = false;
       if (B[bi]) B[bi].flinched = false;
+      // Protect bookkeeping: a mon that did NOT successfully protect this turn loses its
+      // consecutive-use streak; then clear the per-turn guard so it only lasts one turn.
+      [A[ai], B[bi]].forEach(m => { if (!m) return; if (!m.protectedThisTurn) m.protectStreak = 0; m.protectedThisTurn = false; });
       events.push({ t: 'endturn', turn, aHP: A[ai] ? A[ai].hp : 0, bHP: B[bi] ? B[bi].hp : 0, weather: field.weather.kind, terrain: field.terrain.kind });
 
       // dynamic stall detector: if neither team's total HP has changed for many
@@ -2815,7 +2924,8 @@ window.VIEWS = window.VIEWS || {};
         B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature, ability: m.ability })), level);
       } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level, aiMode); }
       // PFLRS boss mode overrides Team B entirely with the cranked boss roster.
-      if (pflrs) { B = buildPflrsBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null); }
+      // Nightmare additionally reads Team A and tailors its movesets/lead to counter it.
+      if (pflrs) { B = buildPflrsBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null, aiMode === 'nightmare' ? A : null); }
       setTeamA(A); setTeamB(B); setBuildMsg(msg);
       return { A, B };
     };
