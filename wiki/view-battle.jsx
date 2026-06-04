@@ -431,6 +431,17 @@ window.VIEWS = window.VIEWS || {};
     // damaging moves that boost the USER (canonical chances)
     add('Scale Shot', 'self', [['SPE', 1], ['DEF', -1]]);
     add('Aqua Step', 'self', [['SPE', 1]]);
+    // damaging moves that DROP the user's own stats after hitting (canonical self-debuffs)
+    add('Close Combat', 'self', [['DEF', -1], ['SPD', -1]]);
+    add('Superpower', 'self', [['ATK', -1], ['DEF', -1]]);
+    add('Draco Meteor', 'self', [['SPA', -2]]);
+    add('Leaf Storm', 'self', [['SPA', -2]]);
+    add('Overheat', 'self', [['SPA', -2]]);
+    add('Fleur Cannon', 'self', [['SPA', -2]]);
+    add('Psycho Boost', 'self', [['SPA', -2]]);
+    add('Make It Rain', 'self', [['SPA', -1]]);
+    add('Dragon Ascent', 'self', [['DEF', -1], ['SPD', -1]]);
+    add('V-create', 'self', [['DEF', -1], ['SPD', -1], ['SPE', -1]]);
     add('Torch Song', 'self', [['SPA', 1]]);
     add('Mystical Power', 'self', [['SPA', 1]]);
     add('Psyshield Bash', 'self', [['DEF', 1]]);
@@ -1056,10 +1067,10 @@ window.VIEWS = window.VIEWS || {};
   // while still testing ~0% vs generic optimized teams. The adaptive system shifts
   // movesets further from here as the meta moves.
   const VAERETH_NIGHTMARE_ROSTER = [
-    { dex: '099', moves: ['Water Spout', 'Hurricane', 'Hydro Pump', 'Ice Beam'], nature: 'Modest' },   // Writrout [WATER/FLYING] — fast special spout, hits 4 of the meta
-    { dex: '028', moves: ['Swords Dance', 'Close Combat', 'Seed Bomb', 'Mach Punch'], nature: 'Adamant' }, // Peaknight [GRASS/FIGHTING] — punishes Kodinaut/Sediserker/Cerbament + priority
-    { dex: '069', moves: ['Shell Smash', 'Hydro Pump', 'Rock Wrecker', 'Ice Beam'], nature: 'Modest' },  // Sedimonk [ROCK/WATER] — Shell Smash sweeper, Rock vs Mangmight/Cerbament
-    { dex: '070', moves: ['Energy Ball', 'Power Whip', 'Rock Wrecker', 'Earth Power'], nature: 'Modest' }, // Sedruid [ROCK/GRASS] — Grass coverage vs the Water/Normal/Rock mons
+    { dex: '099', moves: ['Water Spout', 'Air Slash', 'Work Up', 'Dive'], nature: 'Modest' },           // Writrout [WATER/FLYING] — Water Spout nuke + Flying STAB (all legal)
+    { dex: '028', moves: ['Close Combat', 'Seed Bomb', 'High Horsepower', 'Growth'], nature: 'Adamant' }, // Peaknight [GRASS/FIGHTING] — punishes Kodinaut/Sediserker/Cerbament
+    { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Ancient Power', 'Work Up'], nature: 'Adamant' }, // Sedimonk [ROCK/WATER] — Rock/Water STAB vs Mangmight/Cerbament
+    { dex: '070', moves: ['Rock Wrecker', 'Wood Hammer', 'Energy Ball', 'Work Up'], nature: 'Adamant' },   // Sedruid [ROCK/GRASS] — Grass coverage vs the Water/Normal/Rock mons
     { dex: '051', moves: ['Swords Dance', 'Extreme Speed', 'Duality', 'Crunch'], nature: 'Jolly' },       // Equinine [LIGHT/DARK] — Light vs Colapsore/Mangmight + priority pickoff
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Heat Wave'], nature: 'Modest' },   // Colapsore [COSMIC/LIGHT] — BST550 nuke anchor
   ];
@@ -1133,6 +1144,14 @@ window.VIEWS = window.VIEWS || {};
     }
     const mult = nightmare ? VAERETH_NIGHTMARE_MULT : (hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT);
     const level = nightmare ? VAERETH_NIGHTMARE_LEVEL : VAERETH_LEVEL;
+    // Legitimacy guard: drop any move a mon can't actually learn, so a hardcoded
+    // roster typo can never give the boss an illegal move (players notice, and it's
+    // unfair). buildMon's auto-fill backfills the slot from the legal learnset.
+    roster = roster.map(r => {
+      const legal = new Set(learnableMovesFor(r.dex).map(n => normName(n)));
+      const kept = (r.moves || []).filter(mv => legal.has(normName(mv)));
+      return kept.length === (r.moves || []).length ? r : { ...r, moves: kept };
+    });
     const team = roster.map(r => {
       const d = byDex(r.dex);
       // tough tiers run beyond the legal 510 EV cap. Hard: 560 (+50). Nightmare: 600
