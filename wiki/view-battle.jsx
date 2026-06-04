@@ -1068,9 +1068,9 @@ window.VIEWS = window.VIEWS || {};
     const level = nightmare ? VAERETH_NIGHTMARE_LEVEL : VAERETH_LEVEL;
     const team = roster.map(r => {
       const d = byDex(r.dex);
-      // tough tiers: perfect 560 spread (50 beyond the legal cap). normal roster:
-      // its hand-tuned 510 spread (or an optimized 560 when fought on hard AI).
-      const evs = tough ? idealEVs(d.stats, EV_TOTAL_MAX + 50) : r.evs;
+      // tough tiers run beyond the legal 510 EV cap. Hard: 560 (+50). Nightmare: 600
+      // (+90) — an extra spread on top of its L125/max-roll edge. Normal: its hand set.
+      const evs = tough ? idealEVs(d.stats, EV_TOTAL_MAX + (nightmare ? 90 : 50)) : r.evs;
       const m = buildMon(r.dex, level, r.moves, undefined, { evs, ivs: maxIVs(), nature: r.nature, allowOverLevel: true });
       if (!m) return null;
       // flat stat buff (visible in inspector) — the boss is openly stronger
