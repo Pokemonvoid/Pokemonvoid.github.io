@@ -1669,8 +1669,9 @@ window.VIEWS = window.VIEWS || {};
   }
 
   // ---------- the battle simulation: returns a list of events ----------
-  function simulate(teamA, teamB, seedNum, aiMode) {
+  function simulate(teamA, teamB, seedNum, aiMode, opts) {
     aiMode = aiMode || 'normal';
+    opts = opts || {};
     const rng = mulberry32(seedNum || (Math.random() * 1e9) | 0);
     // deep-clone teams so the originals aren't mutated (fresh boosts per battle)
     const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
@@ -1683,13 +1684,41 @@ window.VIEWS = window.VIEWS || {};
       const aSpecies = new Set(A.map(m => m.name));
       B.forEach(m => { if (aSpecies.has(m.name)) m.name = 'Foe ' + m.name; });
     })();
-    // In Nightmare mode, the AI-controlled side (Team B) inherits the boss's edge
-    // even in regular (non-boss) battles: max damage rolls + status immunity (applied
-    // in STATUS.canApply via the aiSide flag) + the expert planner. The player's own
-    // side (A) plays normally so their sleep/paralysis still work against the AI.
-    if (aiMode === 'nightmare') {
-      B.forEach(m => { if (!m.boss) { m.maxRoll = true; m.aiSide = true; } });
+
+    // ---- who gets AI thinking vs stat buffs (by SOURCE, not slot) --------------
+    // The difficulty toggle controls two SEPARATE things:
+    //   - AI thinking: expert planner + 2-ply lookahead + smart switching
+    //   - stat buffs : max damage rolls + status immunity (Nightmare only)
+    // Rules (opts.srcA/srcB are 'manual' | 'random'; .boss is the Vaereth boss):
+    //   * Boss fight  : only the boss side gets thinking + buffs. Player untouched.
+    //   * 1 manual + 1 random : the manual side is the PLAYER (no thinking, no buff);
+    //     the random side is the OPPONENT (gets thinking + buffs per the toggle).
+    //   * 2 manual    : both sides get AI thinking (per toggle) but NO buffs — a clean
+    //     expert-vs-expert match where neither team is statistically cheated.
+    //   * 2 random    : even playing field — no thinking edge, no buffs.
+    const bossB = B.some(m => m.boss);
+    const srcA = opts.srcA || 'random';
+    const srcB = bossB ? 'boss' : (opts.srcB || 'random');
+    const tough = aiMode === 'hard' || aiMode === 'nightmare';
+    const nightmare = aiMode === 'nightmare';
+    // determine per-side roles
+    let thinkA = false, thinkB = false, buffA = false, buffB = false;
+    if (bossB) {
+      // boss fight: boss side only
+      thinkB = tough; buffB = nightmare;
+    } else if (srcA === 'manual' && srcB === 'manual') {
+      // expert vs expert: thinking both sides, no buffs
+      thinkA = thinkB = tough;
+    } else if (srcA === 'manual' && srcB === 'random') {
+      // player imported A; B is the buffed opponent
+      thinkB = tough; buffB = nightmare;
+    } else if (srcB === 'manual' && srcA === 'random') {
+      // player imported B; A is the buffed opponent
+      thinkA = tough; buffA = nightmare;
     }
+    // else: 2 random → even, nothing applied
+    if (buffA) A.forEach(m => { if (!m.boss) { m.maxRoll = true; m.aiSide = true; } });
+    if (buffB) B.forEach(m => { if (!m.boss) { m.maxRoll = true; m.aiSide = true; } });
     let ai = 0, bi = 0; // active indices
     const events = [];
     const log = [];
@@ -1798,15 +1827,13 @@ window.VIEWS = window.VIEWS || {};
       // both sides decide their switch against the SAME pre-switch state, so B
       // doesn't get to react to A's switch (that was a slot-based information edge).
       const preA = A[ai], preB = B[bi];
-      // Switching brains are asymmetric on purpose: the BOSS side (Team B on the
-      // Vaereth tiers) gets the full expert switching; the PLAYER side (Team A) always
-      // uses the lighter "safe" switching regardless of tier, so Hard & Nightmare stay
-      // about team-building rather than the autopilot out-playing the boss. In plain
-      // AI-vs-AI (no boss), both sides use the same aiMode.
-      const bossOnB = B[bi] && B[bi].boss;
-      const aMode = bossOnB ? 'normal' : aiMode;   // player side never gets expert switching vs the boss
-      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1, aMode, field.hazards.A);
-      const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1, aiMode, field.hazards.B);
+      // Switching brains follow the per-side AI-thinking flags computed up top:
+      // a side with thinking gets the full expert switching; a side without it uses
+      // the lighter "safe" switching (avoids hazard/matchup death but won't out-play).
+      // This is sourced by role (player vs opponent vs boss), never by slot position.
+      const expertMode = (think) => think ? (nightmare ? 'nightmare' : 'hard') : 'normal';
+      const aSwitch = shouldSwitch(A, ai, preB, rng, lastSwitchTurn.A === turn - 1, expertMode(thinkA), field.hazards.A);
+      const bSwitch = shouldSwitch(B, bi, preA, rng, lastSwitchTurn.B === turn - 1, expertMode(thinkB), field.hazards.B);
       // switch-out abilities (Regenerator heal, Natural Cure) on the OUTGOING mon
       const doSwitchOut = (side, outIdx) => {
         const mon = side === 'A' ? A[outIdx] : B[outIdx];
@@ -1833,21 +1860,21 @@ window.VIEWS = window.VIEWS || {};
       const dmgBtoA = computeDamageAvg(mB, mA, foeBestVsA);
       const dmgAtoB = computeDamageAvg(mA, mB, foeBestVsB);
       const ctxA = {
-        mode: aiMode, weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.B, foeBench: benchCount(B, bi),
+        mode: thinkA ? aiMode : 'normal', weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.B, foeBench: benchCount(B, bi),
         mySpeed: spA0, foeSpeed: spB0, foeBestDmg: dmgBtoA, myBestDmg: dmgAtoB,
         foeBestPhysical: foeBestVsA && foeBestVsA.cls === 'Physical',
+        deep: thinkA && nightmare, // 2-ply only for a thinking side on Nightmare
       };
       const ctxB = {
-        mode: aiMode, weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.A, foeBench: benchCount(A, ai),
+        mode: thinkB ? aiMode : 'normal', weather: wxNow, terrain: txNow, hazardsOnFoe: field.hazards.A, foeBench: benchCount(A, ai),
         mySpeed: spB0, foeSpeed: spA0, foeBestDmg: dmgAtoB, myBestDmg: dmgBtoA,
         foeBestPhysical: foeBestVsB && foeBestVsB.cls === 'Physical',
-        deep: aiMode === 'nightmare', // 2-ply lookahead for the Nightmare boss only
+        deep: thinkB && nightmare, // 2-ply only for a thinking side on Nightmare
       };
-      // Team B's move: the Vaereth Hard boss uses the expert planner (lookahead +
-      // KO/setup/tempo reasoning); everyone else uses the standard greedy bestMove.
-      const moveA = bestMove(mA, mB, ctxA);
-      const bossBrain = ((aiMode === 'hard' || aiMode === 'nightmare') && mB && (mB.boss || mB.aiSide));
-      const moveB = bossBrain ? hardBossPlan(mB, mA, ctxB) : bestMove(mB, mA, ctxB);
+      // Each side uses the expert planner (lookahead + KO/setup/tempo reasoning) only
+      // if it has AI thinking for this battle; otherwise the standard greedy bestMove.
+      const moveA = thinkA ? hardBossPlan(mA, mB, ctxA) : bestMove(mA, mB, ctxA);
+      const moveB = thinkB ? hardBossPlan(mB, mA, ctxB) : bestMove(mB, mA, ctxB);
       // turn order by speed (paralysis halves speed; ties random)
       const wx = curWeather();
       const wspeed = (m) => {
@@ -2777,9 +2804,12 @@ window.VIEWS = window.VIEWS || {};
       }).filter(m => byDex(m.dex));
       if (roster.length === 0) return false;
       const named = lo.name ? `"${lo.name}"` : 'team';
-      if (importInto === 'A' || importInto === 'both') { setManualA(roster.map(r => ({ ...r }))); setSrcA('manual'); }
-      if (importInto === 'B' || importInto === 'both') { setManualB(roster.map(r => ({ ...r }))); setSrcB('manual'); }
-      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${importInto === 'both' ? 'A & B' : importInto}.`);
+      // In boss mode, Team B is the Vaereth boss and can't be imported into. If a stale
+      // target points at B, redirect the import to A so the player's team isn't lost.
+      const target = vaereth && (importInto === 'B' || importInto === 'both') ? 'A' : importInto;
+      if (target === 'A' || target === 'both') { setManualA(roster.map(r => ({ ...r }))); setSrcA('manual'); }
+      if (target === 'B' || target === 'both') { setManualB(roster.map(r => ({ ...r }))); setSrcB('manual'); }
+      setImportMsg(`Imported ${named} (${roster.length} Pokémon) into Team ${target === 'both' ? 'A & B' : target}.${(vaereth && (importInto === 'B' || importInto === 'both')) ? ' (Team B is the boss, so it went into Team A.)' : ''}`);
       setResult(null); setStep(0); setPlaying(false);
       return true;
     };
@@ -2800,7 +2830,9 @@ window.VIEWS = window.VIEWS || {};
 
     // open the import modal pre-targeted at a side ('A' | 'B' | 'both')
     const openImport = (into) => {
-      setImportInto(into || 'A'); setImportText(''); setImportMsg('');
+      // boss mode: Team B is the boss, so any import must target A
+      const tgt = vaereth ? 'A' : (into || 'A');
+      setImportInto(tgt); setImportText(''); setImportMsg('');
       try { setSavedLoadouts((window.VTEAM && window.VTEAM.listLoadouts) ? window.VTEAM.listLoadouts() : []); }
       catch (e) { setSavedLoadouts([]); }
       setImportOpen(true);
@@ -2823,7 +2855,7 @@ window.VIEWS = window.VIEWS || {};
       const built = assembleTeams();
       if (!built) return;
       // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
-      const r = simulate(built.A, built.B, undefined, aiMode);
+      const r = simulate(built.A, built.B, undefined, aiMode, { srcA, srcB });
       setResult(r);
       // Adaptive Nightmare: log this attempt (win or loss) so the boss can adapt
       // its movesets to the community meta. Uses the player's actual Team A.
@@ -2965,9 +2997,16 @@ window.VIEWS = window.VIEWS || {};
 
         {/* team source: per-side Random / Manual / Import */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 14 }}>
-          {[['A', srcA, '#33d6ff'], ['B', srcB, '#ff7fe0']].map(([side, src, col]) => (
-            <div key={side} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {[['A', srcA, '#33d6ff'], ['B', srcB, '#ff7fe0']].map(([side, src, col]) => {
+            // In boss mode, Team B IS the Vaereth boss — its source can't be chosen
+            // (importing/picking a B team would just be discarded). Show it locked.
+            const bossLocked = vaereth && side === 'B';
+            return (
+            <div key={side} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', opacity: bossLocked ? 0.6 : 1 }}>
               <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: col }}>TEAM {side}</span>
+              {bossLocked ? (
+                <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, color: '#ff7fe0' }}>☠ {BOSS_NAME} (boss) — locked</span>
+              ) : (
               <div style={{ display: 'inline-flex', borderRadius: 8, overflow: 'hidden', border: '1px solid #2a2545' }}>
                 {['random', 'manual', 'import'].map((opt, oi) => (
                   <button key={opt}
@@ -2977,8 +3016,10 @@ window.VIEWS = window.VIEWS || {};
                   </button>
                 ))}
               </div>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* level slider — governs the level of ALL teams (random, manual, imported), up to 100 */}
@@ -3014,9 +3055,15 @@ window.VIEWS = window.VIEWS || {};
               </div>
               <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>Paste a share code from the Team Builder (starts with <code style={{ color: '#cdbfff' }}>VT2</code>). It loads as an editable manual roster.</p>
               <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-                {[['A', 'Into Team A'], ['B', 'Into Team B'], ['both', 'Into both']].map(([v, lbl]) => (
-                  <button key={v} onClick={() => setImportInto(v)} style={{ cursor: 'pointer', flex: 1, padding: '8px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, fontWeight: 600, background: importInto === v ? '#8a5cff22' : '#100c24', border: `1px solid ${importInto === v ? '#8a5cff' : '#2a2545'}`, color: importInto === v ? '#fff' : '#9a93bb' }}>{lbl}</button>
-                ))}
+                {[['A', 'Into Team A'], ['B', 'Into Team B'], ['both', 'Into both']].map(([v, lbl]) => {
+                  // In boss mode, Team B is the boss — only allow importing into A.
+                  const blocked = vaereth && (v === 'B' || v === 'both');
+                  return (
+                  <button key={v} disabled={blocked} title={blocked ? 'Team B is the boss in this mode' : undefined}
+                    onClick={() => { if (!blocked) setImportInto(v); }}
+                    style={{ cursor: blocked ? 'not-allowed' : 'pointer', opacity: blocked ? 0.4 : 1, flex: 1, padding: '8px', borderRadius: 8, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, fontWeight: 600, background: importInto === v ? '#8a5cff22' : '#100c24', border: `1px solid ${importInto === v ? '#8a5cff' : '#2a2545'}`, color: importInto === v ? '#fff' : '#9a93bb' }}>{lbl}</button>
+                  );
+                })}
               </div>
 
               {/* saved Team Builder loadouts — one tap to import, no code needed */}
