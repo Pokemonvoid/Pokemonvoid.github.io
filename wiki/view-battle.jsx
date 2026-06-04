@@ -396,6 +396,41 @@ window.VIEWS = window.VIEWS || {};
     // damaging moves that also raise a stat (the stat handler runs after damage)
     add('Trailblaze', 'self', [['SPE', 1]]);   // GRASS 50 — boosts user Speed
     add('Flame Charge', 'self', [['SPE', 1]]);  // FIRE 50 — boosts user Speed
+    // damaging moves that boost the USER (canonical chances)
+    add('Scale Shot', 'self', [['SPE', 1], ['DEF', -1]]);
+    add('Aqua Step', 'self', [['SPE', 1]]);
+    add('Torch Song', 'self', [['SPA', 1]]);
+    add('Mystical Power', 'self', [['SPA', 1]]);
+    add('Psyshield Bash', 'self', [['DEF', 1]]);
+    add('Aura Wheel', 'self', [['SPE', 1]]);
+    // damaging moves that LOWER the target (the foe). chance per canon (1 = always).
+    add('Bulldoze', 'foe', [['SPE', -1]]);
+    add('Rock Tomb', 'foe', [['SPE', -1]]);
+    add('Icy Wind', 'foe', [['SPE', -1]]);
+    add('Glaciate', 'foe', [['SPE', -1]]);
+    add('Mud Shot', 'foe', [['SPE', -1]]);
+    add('Low Sweep', 'foe', [['SPE', -1]]);
+    add('Lunge', 'foe', [['ATK', -1]]);
+    add('Skitter Smack', 'foe', [['SPA', -1]]);
+    add('Spirit Break', 'foe', [['SPA', -1]]);
+    add('Thunderous Kick', 'foe', [['DEF', -1]]);
+    add('Fire Lash', 'foe', [['DEF', -1]]);
+    add('Trop Kick', 'foe', [['ATK', -1]]);
+    add('Drum Beating', 'foe', [['SPE', -1]]);
+    add('Apple Acid', 'foe', [['SPD', -1]]);
+    add('Grav Apple', 'foe', [['DEF', -1]]);
+    add('Bitter Malice', 'foe', [['ATK', -1]]);
+    add('Acid Spray', 'foe', [['SPD', -2]]);
+    add('Mystical Fire', 'foe', [['SPA', -1]]);
+    add('Snarl', 'foe', [['SPA', -1]]);
+    add('Struggle Bug', 'foe', [['SPA', -1]]);
+    add('Psychic', 'foe', [['SPD', -1]], 0.1);
+    add('Luster Purge', 'foe', [['SPD', -1]], 0.5);
+    add('Crunch', 'foe', [['DEF', -1]], 0.2);
+    add('Razor Shell', 'foe', [['DEF', -1]], 0.5);
+    add('Liquidation', 'foe', [['DEF', -1]], 0.2);
+    add('Rock Smash', 'foe', [['DEF', -1]], 0.5);
+    add('Crush Claw', 'foe', [['DEF', -1]], 0.5);
     add('Nasty Plot', 'self', [['SPA', 2]]);
     add('Hone Claws', 'self', [['ATK', 1], ['ACC', 1]]);
     add('Coil', 'self', [['ATK', 1], ['DEF', 1], ['ACC', 1]]);
@@ -1871,6 +1906,37 @@ window.VIEWS = window.VIEWS || {};
           else if (res.eff === 0) line += ` It doesn't affect ${def.name}…`;
         }
         log.push(line);
+        // ---- recoil & drain (apply off the damage actually dealt) ----
+        if (mv.cls !== 'Status' && dealt > 0) {
+          const mn = normName(mv.name);
+          // recoil moves: user takes a fraction of the damage dealt (1/3 default; the
+          // 50%-recoil moves and Steel Beam/Mind Blown/Chloroblast take 1/2). Reckless
+          // doesn't reduce recoil; Rock Head (not modeled) would negate it.
+          const RECOIL_HALF = ['headsmash', 'lightofruin', 'mindblown', 'steelbeam', 'chloroblast', 'wavecrash'];
+          const RECOIL_THIRD = ['doubleedge', 'takedown', 'wildcharge', 'woodhammer', 'bravebird', 'flareblitz', 'volttackle', 'submission', 'highjumpkick', 'jumpkick'];
+          let recoilFrac = 0;
+          if (RECOIL_HALF.includes(mn)) recoilFrac = 0.5;
+          else if (RECOIL_THIRD.includes(mn)) recoilFrac = 1 / 3;
+          if (recoilFrac > 0 && atk.hp > 0) {
+            const rec = Math.max(1, Math.floor(dealt * recoilFrac));
+            atk.hp = Math.max(0, atk.hp - rec);
+            events.push({ t: 'recoil', side, name: atk.name, dmg: rec, hp: atk.hp, maxHP: atk.maxHP });
+            log.push(`${atk.name} was hurt by recoil! (-${Math.round((rec / atk.maxHP) * 100)}%)`);
+          }
+          // drain moves: user recovers half the damage dealt (Draining Kiss/Oblivion
+          // Wing recover 3/4). Matcha Gotcha/Parabolic Charge/Giga Drain etc. = 1/2.
+          const DRAIN_THREEQ = ['drainingkiss', 'oblivionwing'];
+          const DRAIN_HALF = ['gigadrain', 'megadrain', 'absorb', 'drainpunch', 'leechlife', 'hornleech', 'parabaliccharge', 'paraboliccharge', 'bitterblade', 'matchagotcha', 'dreameater', 'bouncybubble', 'poizapdart'];
+          let drainFrac = 0;
+          if (DRAIN_THREEQ.includes(mn)) drainFrac = 0.75;
+          else if (DRAIN_HALF.includes(mn)) drainFrac = 0.5;
+          if (drainFrac > 0 && atk.hp > 0 && atk.hp < atk.maxHP) {
+            const heal = Math.max(1, Math.floor(dealt * drainFrac));
+            atk.hp = Math.min(atk.maxHP, atk.hp + heal);
+            events.push({ t: 'drain', side, name: atk.name, heal, hp: atk.hp, maxHP: atk.maxHP });
+            log.push(`${atk.name} drained HP from ${def.name}!`);
+          }
+        }
         // recharge moves (Hyper Beam, Rock Wrecker, etc.): user rests next turn
         if (isRecharge(mv)) { atk.mustRecharge = true; }
         if (res.sturdy) { events.push({ t: 'ability', side: side === 'A' ? 'B' : 'A', name: def.name, ability: 'Sturdy', boostsOf: snapshotBoosts(A, B) }); log.push(`${def.name} endured the hit with Sturdy!`); }
@@ -1947,6 +2013,20 @@ window.VIEWS = window.VIEWS || {};
               events.push({ t: 'heal', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP });
               log.push(`${atk.name} restored its HP!`);
             } else { log.push(`${atk.name} used ${mv.name}, but its HP is already full!`); }
+          }
+        }
+
+        // ---- Leech Seed: plant a seed that drains the target each end of turn ----
+        if (normName(mv.name) === 'leechseed' && mv.cls === 'Status') {
+          // Grass types are immune; can't stack
+          if (def.types.includes('GRASS')) {
+            log.push(`${def.name} used ${mv.name}... but it doesn't affect Grass types!`);
+          } else if (def.seeded) {
+            log.push(`${atk.name} used ${mv.name}, but ${def.name} is already seeded.`);
+          } else {
+            def.seeded = side; // the side that planted it (heals that side's active mon)
+            events.push({ t: 'seed', side: side === 'A' ? 'B' : 'A', name: def.name });
+            log.push(`${def.name} was seeded!`);
           }
         }
 
@@ -2076,6 +2156,30 @@ window.VIEWS = window.VIEWS || {};
             if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
             else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
           }
+        }
+      }
+
+      // ---- end-of-turn Leech Seed: drain the seeded active mon, heal the seeder ----
+      for (const side of eotOrder) {
+        const mon = side === 'A' ? A[ai] : B[bi];
+        if (!mon || mon.fainted || !mon.seeded) continue;
+        const drain = Math.max(1, Math.floor(mon.maxHP / 8));
+        const tookHp = Math.min(drain, mon.hp);
+        mon.hp = Math.max(0, mon.hp - drain);
+        const healSide = mon.seeded;
+        const healMon = healSide === 'A' ? A[ai] : B[bi];
+        events.push({ t: 'seeddrain', side, name: mon.name, dmg: tookHp, hp: mon.hp, maxHP: mon.maxHP });
+        log.push(`${mon.name}'s health was sapped by Leech Seed! (-${Math.round((tookHp / mon.maxHP) * 100)}%)`);
+        if (healMon && !healMon.fainted && healMon.hp < healMon.maxHP) {
+          healMon.hp = Math.min(healMon.maxHP, healMon.hp + tookHp);
+          events.push({ t: 'heal', side: healSide, name: healMon.name, hp: healMon.hp, maxHP: healMon.maxHP });
+        }
+        if (mon.hp <= 0) {
+          mon.fainted = true; STATUS.clear(mon);
+          events.push({ t: 'faint', name: mon.name, side });
+          log.push(`${mon.name} fainted!`);
+          if (side === 'A') { const nx = pickNextAlive(A, ai); if (nx >= 0) { ai = nx; events.push({ t: 'send', side: 'A', name: A[ai].name, idx: ai }); log.push(`Team A sent out ${A[ai].name}!`); onEntry('A', ai); } }
+          else { const nx = pickNextAlive(B, bi); if (nx >= 0) { bi = nx; events.push({ t: 'send', side: 'B', name: B[bi].name, idx: bi }); log.push(`Team B sent out ${B[bi].name}!`); onEntry('B', bi); } }
         }
       }
 
