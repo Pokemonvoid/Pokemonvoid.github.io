@@ -20,7 +20,8 @@ window.VIEWS = window.VIEWS || {};
     if (m && m.evs) ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'].forEach(k => { if (Number.isFinite(m.evs[k])) ev[k] = Math.max(0, Math.min(252, m.evs[k] | 0)); });
     if (m && m.ivs) ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'].forEach(k => { if (Number.isFinite(m.ivs[k])) iv[k] = Math.max(0, Math.min(31, m.ivs[k] | 0)); });
     const nature = (m && typeof m.nature === 'string' && S().NATURES && S().NATURES[m.nature]) ? m.nature : 'Hardy';
-    return { dex: String(m.dex), moves: Array.isArray(m.moves) ? m.moves.slice(0, 4) : [], evs: ev, ivs: iv, nature };
+    const ability = (m && typeof m.ability === 'string') ? m.ability : null;
+    return { dex: String(m.dex), moves: Array.isArray(m.moves) ? m.moves.slice(0, 4) : [], evs: ev, ivs: iv, nature, ability };
   }
   function freshLoadout(name) { return { id: 'L' + Date.now() + Math.floor(Math.random() * 1000), name: name || 'New Team', members: [] }; }
   function loadAll() {
@@ -78,6 +79,24 @@ window.VIEWS = window.VIEWS || {};
     const evStr = SKEYS.map(k => Math.max(0, Math.min(252, evs[k] | 0)).toString(36).padStart(2, '0')).join(''); // 12 chars
     return '-' + ni.toString(36) + ivStr + evStr;
   }
+  // ability pool for a dex (abilities + hidden), matching the battle engine's order
+  function _abilityPool(dex) {
+    try {
+      const V = window.VDEX; const d = V && V.byDex ? V.byDex(dex) : null;
+      if (!d) return [];
+      const seen = []; const push = a => { if (a && !seen.some(x => x.toLowerCase() === a.toLowerCase())) seen.push(a); };
+      (d.abilities || []).forEach(push); if (d.hidden) push(d.hidden);
+      return seen;
+    } catch (e) { return []; }
+  }
+  // '@N' suffix (pool index, base36) appended only when a non-first ability is chosen.
+  function _encodeAbility(m) {
+    if (!m.ability) return '';
+    const pool = _abilityPool(m.dex);
+    const idx = pool.findIndex(a => a.toLowerCase() === String(m.ability).toLowerCase());
+    if (idx <= 0) return ''; // index 0 (or not found) = default, no suffix needed
+    return '@' + idx.toString(36);
+  }
   function encodeTeam(loadout) {
     try {
       const G = window.VGAME;
@@ -86,7 +105,7 @@ window.VIEWS = window.VIEWS || {};
           const id = G.moveToId(mv);
           return id ? id : '<' + mv + '>';
         }).join('');
-        return parseInt(m.dex, 10).toString(36) + '.' + ids + _encodeSpec(m);
+        return parseInt(m.dex, 10).toString(36) + '.' + ids + _encodeSpec(m) + _encodeAbility(m);
       }).join(';');
       return 'VT2~' + loadout.name + '~' + parts;
     } catch (e) { return ''; }
@@ -157,11 +176,25 @@ window.VIEWS = window.VIEWS || {};
         const members = rest ? rest.split(';').filter(Boolean).slice(0, MAXTEAM).map(seg => {
           const dot = seg.indexOf('.');
           const dexRaw = dot >= 0 ? seg.slice(0, dot) : seg;
-          const afterDot = dot >= 0 ? seg.slice(dot + 1) : '';
+          let afterDot = dot >= 0 ? seg.slice(dot + 1) : '';
+          // split off an optional '@N' ability suffix (after any spec). '@' can't
+          // appear in move ids or the fixed-width spec, so it's safe to find last.
+          let abilityName = null;
+          const atPos = afterDot.lastIndexOf('@');
+          if (atPos >= 0) {
+            const idxStr = afterDot.slice(atPos + 1);
+            afterDot = afterDot.slice(0, atPos);
+            const dexPad = padDex(parseInt(dexRaw, 36));
+            const pool = _abilityPool(dexPad);
+            const ai = parseInt(idxStr, 36);
+            if (pool && pool[ai]) abilityName = pool[ai];
+          }
           const [movesStr, specStr] = _specSplit(afterDot);
           const base = { dex: padDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
           const spec = specStr ? _parseSpec(specStr) : null;
-          return spec ? { ...base, ...spec } : base;
+          const out = spec ? { ...base, ...spec } : base;
+          if (abilityName) out.ability = abilityName;
+          return out;
         }) : [];
         return { id: 'L' + Date.now(), name: name || 'Imported Team', members };
       }
@@ -292,6 +325,17 @@ window.VIEWS = window.VIEWS || {};
     const [evs, setEvs] = React.useState({ ...(member.evs || (VS.freshEVs ? VS.freshEVs() : {})) });
     const [ivs, setIvs] = React.useState({ ...(member.ivs || (VS.maxIVs ? VS.maxIVs() : {})) });
     const [nature, setNature] = React.useState(member.nature || 'Hardy');
+    // ability pool (abilities + hidden) in the engine's order; chosen ability state
+    const abilPool = (() => {
+      if (!mon) return [];
+      const seen = []; const push = a => { if (a && !seen.some(x => x.toLowerCase() === a.toLowerCase())) seen.push(a); };
+      (mon.abilities || []).forEach(push); if (mon.hidden) push(mon.hidden);
+      return seen;
+    })();
+    const [ability, setAbility] = React.useState(() => {
+      if (member.ability && abilPool.some(a => a.toLowerCase() === String(member.ability).toLowerCase())) return abilPool.find(a => a.toLowerCase() === String(member.ability).toLowerCase());
+      return abilPool[0] || null;
+    });
     const LEVEL = 50; // Team Builder previews stats at Lv. 50
     const evTotal = SK.reduce((s, k) => s + (evs[k] || 0), 0);
     const evLeft = EV_TOTAL - evTotal;
@@ -335,7 +379,23 @@ window.VIEWS = window.VIEWS || {};
             </select>
           </div>
 
-          {/* per-stat rows */}
+          {/* ability */}
+          {abilPool.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#8a83a8', minWidth: 56 }}>Ability</span>
+              {abilPool.length === 1 ? (
+                <span style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: '#100c24', border: '1px solid #2a2545', color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>{abilPool[0]}{mon && mon.hidden && mon.hidden.toLowerCase() === abilPool[0].toLowerCase() ? ' (hidden)' : ''}</span>
+              ) : (
+                <select value={ability || abilPool[0]} onChange={e => setAbility(e.target.value)}
+                  style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: '#100c24', border: '1px solid #2a2545', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, outline: 'none' }}>
+                  {abilPool.map(a => {
+                    const isHidden = mon && mon.hidden && mon.hidden.toLowerCase() === a.toLowerCase();
+                    return <option key={a} value={a}>{a}{isHidden ? ' (hidden)' : ''}</option>;
+                  })}
+                </select>
+              )}
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
             {SK.map(k => (
               <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -358,9 +418,9 @@ window.VIEWS = window.VIEWS || {};
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <button onClick={() => { setEvs(VS.freshEVs ? VS.freshEVs() : {}); setIvs(VS.maxIVs ? VS.maxIVs() : {}); setNature('Hardy'); }}
+            <button onClick={() => { setEvs(VS.freshEVs ? VS.freshEVs() : {}); setIvs(VS.maxIVs ? VS.maxIVs() : {}); setNature('Hardy'); setAbility(abilPool[0] || null); }}
               style={{ cursor: 'pointer', padding: '11px 14px', borderRadius: 10, background: 'transparent', border: '1px solid #2a2545', color: '#8a83a8', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Reset</button>
-            <button onClick={() => { onSave({ evs, ivs, nature }); onClose(); }} style={{ cursor: 'pointer', flex: 1, padding: '11px', borderRadius: 10, background: 'linear-gradient(135deg, #4a3a9a, #2d2270)', border: '1px solid #6a52c0', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Save</button>
+            <button onClick={() => { onSave({ evs, ivs, nature, ability }); onClose(); }} style={{ cursor: 'pointer', flex: 1, padding: '11px', borderRadius: 10, background: 'linear-gradient(135deg, #4a3a9a, #2d2270)', border: '1px solid #6a52c0', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Save</button>
             <button onClick={onClose} style={{ cursor: 'pointer', padding: '11px 16px', borderRadius: 10, background: 'transparent', border: '1px solid #2a2545', color: '#8a83a8', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Cancel</button>
           </div>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: '#6a6388', marginTop: 10, textAlign: 'center' }}>Stats shown at Lv. 50. Green = nature boost, red = nature drop.</div>
@@ -568,7 +628,7 @@ window.VIEWS = window.VIEWS || {};
                   ))}
                 </div>
                 <button onClick={() => setMovePick(i)} style={{ cursor: 'pointer', marginTop: 8, width: '100%', padding: '6px', borderRadius: 7, background: '#1a1238', border: '1px solid #3a2f6e', color: '#cdbfff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>{mv.length ? 'Edit Moves' : '+ Add Moves'}</button>
-                <button onClick={() => setStatPick(i)} style={{ cursor: 'pointer', marginTop: 6, width: '100%', padding: '6px', borderRadius: 7, background: '#161226', border: '1px solid #2a2545', color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>⚙ EVs / IVs / Nature</button>
+                <button onClick={() => setStatPick(i)} style={{ cursor: 'pointer', marginTop: 6, width: '100%', padding: '6px', borderRadius: 7, background: '#161226', border: '1px solid #2a2545', color: '#9a93bb', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600 }}>⚙ EVs / IVs / Nature / Ability</button>
               </div>
             );
           })}

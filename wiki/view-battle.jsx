@@ -931,6 +931,13 @@ window.VIEWS = window.VIEWS || {};
     const ivs = (spec && spec.ivs) || maxIVs();
     const evs = (spec && spec.evs) || freshEVs();
     const nature = (spec && spec.nature && NATURES[spec.nature]) ? spec.nature : 'Hardy';
+    const abilityPool = Array.from(new Set([...(d.abilities || []), ...(d.hidden ? [d.hidden] : [])]));
+    // chosen starting ability: use spec.ability if it's a legal pick for this mon,
+    // otherwise default to the first listed ability.
+    let ability = (d.abilities && d.abilities[0]) || null;
+    if (spec && spec.ability && abilityPool.some(a => normName(a) === normName(spec.ability))) {
+      ability = abilityPool.find(a => normName(a) === normName(spec.ability));
+    }
     const stats = {};
     STAT_KEYS.forEach(k => {
       stats[k] = computeStat(d.stats[k], k, L, ivs[k] == null ? 31 : ivs[k], evs[k] || 0, nature);
@@ -949,8 +956,8 @@ window.VIEWS = window.VIEWS || {};
       evs: { ...evs }, ivs: { ...ivs }, nature,
       fainted: false,
       status: null, statusTurns: 0, toxicN: 0,
-      ability: (d.abilities && d.abilities[0]) || null,
-      abilityPool: Array.from(new Set([...(d.abilities || []), ...(d.hidden ? [d.hidden] : [])])),
+      ability: ability,
+      abilityPool: abilityPool,
       item: null,            // held item (e.g. 'Sync Band'); none by default
       syncUsedTurn: -1,      // last turn Sync Band was used (once-per-turn limit)
       boosts: STAGES.fresh(),
@@ -962,7 +969,7 @@ window.VIEWS = window.VIEWS || {};
   function buildFromMembers(members, level) {
     const L = (typeof level === 'number' && Number.isFinite(level)) ? level : 50;
     return (members || [])
-      .map(m => buildMon(m.dex, L, m.moves, undefined, { evs: m.evs, ivs: m.ivs, nature: m.nature }))
+      .map(m => buildMon(m.dex, L, m.moves, undefined, { evs: m.evs, ivs: m.ivs, nature: m.nature, ability: m.ability }))
       .filter(Boolean)
       .slice(0, 6);
   }
@@ -1060,7 +1067,7 @@ window.VIEWS = window.VIEWS || {};
   // level 125, attacks always roll max damage (see maxRoll in damage calc), and a
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
   const VAERETH_NIGHTMARE_LEVEL = 125;
-  const VAERETH_NIGHTMARE_MULT = 1.30; // NIGHTMARE boss multiplier
+  const VAERETH_NIGHTMARE_MULT = 1.00; // NIGHTMARE boss multiplier (1-day trial at 1.00x; was 1.30x)
   // Nightmare gets its OWN default roster — a hard counter to the dominant community
   // meta team (Kodinaut/Equinine/Cerbament/Colapsore/Sediserker/Mangmight), built
   // around Water + Fighting + Grass + Light STAB that punishes that exact lineup,
@@ -2801,11 +2808,11 @@ window.VIEWS = window.VIEWS || {};
       let A, B, msg = '';
       if (srcA === 'manual') {
         if (manualA.length === 0) { setBuildMsg('Team A is empty — add Pokémon or switch it to Random.'); return false; }
-        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature })), level);
+        A = buildFromMembers(manualA.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature, ability: m.ability })), level);
       } else { A = (teamA && teamA.length) ? teamA : randomTeam(6, mulberry32((Math.random() * 1e9) | 0), level, aiMode); }
       if (srcB === 'manual') {
         if (manualB.length === 0) { setBuildMsg('Team B is empty — add Pokémon or switch it to Random.'); return false; }
-        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature })), level);
+        B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature, ability: m.ability })), level);
       } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level, aiMode); }
       // VAERETH boss mode overrides Team B entirely with the cranked boss roster.
       if (vaereth) { B = buildVaerethBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null); }
