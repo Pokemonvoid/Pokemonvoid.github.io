@@ -844,10 +844,12 @@ window.VIEWS = window.VIEWS || {};
   function buildMon(dex, level, moveNames, rng, spec) {
     const d = byDex(dex);
     if (!d) return null;
-    // coerce level defensively: only a finite 1–100 number is valid, else 50.
+    // coerce level defensively: only a finite number is valid, else 50. Normal mons
+    // cap at 100; boss builds may exceed it (e.g. Nightmare L125) via allowOverLevel.
     let L = Number(level);
     if (!Number.isFinite(L)) L = 50;
-    L = Math.max(1, Math.min(100, Math.round(L)));
+    const cap = (spec && spec.allowOverLevel) ? 200 : 100;
+    L = Math.max(1, Math.min(cap, Math.round(L)));
     const ivs = (spec && spec.ivs) || maxIVs();
     const evs = (spec && spec.evs) || freshEVs();
     const nature = (spec && spec.nature && NATURES[spec.nature]) ? spec.nature : 'Hardy';
@@ -976,21 +978,30 @@ window.VIEWS = window.VIEWS || {};
     { dex: '092', moves: ['Bulk Up', 'Close Combat', 'Hurricane', 'Drain Punch'], nature: 'Jolly' },         // Mangmight [FLYING/FIGHTING] — bulky setup
     { dex: '009', moves: ['Calm Mind', 'Hydro Pump', 'Meteor Beam', 'Hyper Voice'], nature: 'Modest' },      // Kodinaut [WATER/NORMAL] — special tank
   ];
+  // Nightmare: the ultimate tier. Same brutal Hard roster + expert AI, but at
+  // level 125, attacks always roll max damage (see maxRoll in damage calc), and a
+  // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
+  const VAERETH_NIGHTMARE_LEVEL = 125;
+  const VAERETH_NIGHTMARE_MULT = 0.92; // L125 + guaranteed max-damage rolls already add huge power; this leaves a ~1-in-10000 crack for a legendary run (2-3 people ever)
   function buildVaerethBoss(aiMode) {
     const hard = aiMode === 'hard';
-    const roster = hard ? VAERETH_HARD_ROSTER : VAERETH_ROSTER;
-    const mult = hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT;
+    const nightmare = aiMode === 'nightmare';
+    const tough = hard || nightmare; // both use the strong roster + 560 spread
+    const roster = tough ? VAERETH_HARD_ROSTER : VAERETH_ROSTER;
+    const mult = nightmare ? VAERETH_NIGHTMARE_MULT : (hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT);
+    const level = nightmare ? VAERETH_NIGHTMARE_LEVEL : VAERETH_LEVEL;
     const team = roster.map(r => {
       const d = byDex(r.dex);
-      // hard roster: perfect 560 spread (50 beyond the legal cap). normal roster:
+      // tough tiers: perfect 560 spread (50 beyond the legal cap). normal roster:
       // its hand-tuned 510 spread (or an optimized 560 when fought on hard AI).
-      const evs = hard ? idealEVs(d.stats, EV_TOTAL_MAX + 50) : r.evs;
-      const m = buildMon(r.dex, VAERETH_LEVEL, r.moves, undefined, { evs, ivs: maxIVs(), nature: r.nature });
+      const evs = tough ? idealEVs(d.stats, EV_TOTAL_MAX + 50) : r.evs;
+      const m = buildMon(r.dex, level, r.moves, undefined, { evs, ivs: maxIVs(), nature: r.nature, allowOverLevel: true });
       if (!m) return null;
       // flat stat buff (visible in inspector) — the boss is openly stronger
       STAT_KEYS.forEach(k => { m.stats[k] = Math.floor(m.stats[k] * mult); });
       m.maxHP = m.stats.HP; m.hp = m.maxHP;
       m.boss = true;
+      if (nightmare) m.maxRoll = true; // every attack rolls the top of its damage range
       return m;
     }).filter(Boolean);
     return team;
@@ -1043,7 +1054,8 @@ window.VIEWS = window.VIEWS || {};
     }
     const crit = rng() < ABIL.critChance(attacker, defender, 1 / 16);
     const critMult = ABIL.critMultFor(attacker, crit);
-    const roll = 0.85 + rng() * 0.15; // 0.85–1.00
+    // Nightmare boss attacks always roll the top of the damage spread.
+    const roll = attacker.maxRoll ? 1.0 : (0.85 + rng() * 0.15); // 0.85–1.00
     // Phase 1 uses no EV/IV investment, which makes frail mons extremely glassy.
     // A modest scalar lengthens battles so switching and matchups actually matter.
     const SCALE = 0.6;
@@ -1569,7 +1581,7 @@ window.VIEWS = window.VIEWS || {};
       // Team B's move: the Vaereth Hard boss uses the expert planner (lookahead +
       // KO/setup/tempo reasoning); everyone else uses the standard greedy bestMove.
       const moveA = bestMove(mA, mB, ctxA);
-      const bossBrain = (aiMode === 'hard' && mB && mB.boss);
+      const bossBrain = ((aiMode === 'hard' || aiMode === 'nightmare') && mB && mB.boss);
       const moveB = bossBrain ? hardBossPlan(mB, mA, ctxB) : bestMove(mB, mA, ctxB);
       // turn order by speed (paralysis halves speed; ties random)
       const wx = curWeather();
@@ -2127,35 +2139,41 @@ window.VIEWS = window.VIEWS || {};
   // (gold/prismatic, ornate — the real flex). `team` is [{dex,name}].
   function CertModal({ tier, team, name, setName, onClose }) {
     const hard = tier === 'hard';
+    const nm = tier === 'nightmare';
     const hasName = !!(name && name.trim());
     const tryClose = () => { if (hasName) onClose(); };
-    const C = hard
+    const C = nm
+      ? { edge: '#ff3b3b', edge2: '#ff7a4d', glow: '#ff2a2a', ink: '#ffe8e0', sub: '#ff9a8a', bg: 'radial-gradient(ellipse at 50% 0%, #2a0606 0%, #160512 45%, #08040a 100%)', seal: '#ff3b3b' }
+      : hard
       ? { edge: '#ffd54a', edge2: '#ff9d3c', glow: '#ffd54a', ink: '#fff6dc', sub: '#e9cf86', bg: 'radial-gradient(ellipse at 50% 0%, #2a210a 0%, #14102b 45%, #0a0816 100%)', seal: '#ffd54a' }
       : { edge: '#b9c4e6', edge2: '#8a5cff', glow: '#9fb0e8', ink: '#eef1ff', sub: '#aeb6d8', bg: 'radial-gradient(ellipse at 50% 0%, #161a33 0%, #100c24 50%, #0a0816 100%)', seal: '#b9c4e6' };
+    const fancy = hard || nm; // ornate tiers
     return (
       <div onClick={tryClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,2,10,0.9)', backdropFilter: 'blur(7px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '36px 14px', overflowY: 'auto' }}>
         <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 600 }}>
           {/* the certificate card — this is the screenshot target */}
-          <div style={{ position: 'relative', borderRadius: 10, padding: '34px 30px 28px', background: C.bg, border: `2px solid ${C.edge}`, boxShadow: `0 0 0 1px #0a0816, 0 0 40px ${C.glow}55, inset 0 0 60px ${hard ? '#ffd54a14' : '#8a5cff12'}`, overflow: 'hidden' }}>
+          <div style={{ position: 'relative', borderRadius: 10, padding: '34px 30px 28px', background: C.bg, border: `2px solid ${C.edge}`, boxShadow: `0 0 0 1px #0a0816, 0 0 40px ${C.glow}55, inset 0 0 60px ${nm ? '#ff2a2a18' : hard ? '#ffd54a14' : '#8a5cff12'}`, overflow: 'hidden' }}>
             {/* corner flourishes */}
             {[['top', 'left'], ['top', 'right'], ['bottom', 'left'], ['bottom', 'right']].map(([v, h], i) => (
               <div key={i} style={{ position: 'absolute', [v]: 10, [h]: 10, width: 26, height: 26, [`border${v[0].toUpperCase()}${v.slice(1)}`]: `2px solid ${C.edge2}`, [`border${h[0].toUpperCase()}${h.slice(1)}`]: `2px solid ${C.edge2}`, opacity: 0.8 }} />
             ))}
-            {hard && <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,213,74,0.04) 18px 19px)' }} />}
+            {fancy && <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: nm ? 'repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,42,42,0.05) 18px 19px)' : 'repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,213,74,0.04) 18px 19px)' }} />}
 
             <div style={{ textAlign: 'center', position: 'relative' }}>
               <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 3, color: C.sub, marginBottom: 4 }}>POKÉMON VOID</div>
-              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: C.sub, marginBottom: 14 }}>{hard ? 'CERTIFICATE OF LEGEND' : 'CERTIFICATE OF VICTORY'}</div>
+              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: C.sub, marginBottom: 14 }}>{nm ? 'CERTIFICATE OF NIGHTMARE' : hard ? 'CERTIFICATE OF LEGEND' : 'CERTIFICATE OF VICTORY'}</div>
 
-              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: hard ? 42 : 34, lineHeight: 1.05, color: C.ink, textShadow: `0 0 26px ${C.glow}aa`, marginBottom: 6 }}>
-                {hard ? 'CONQUEROR OF' : 'VICTOR OVER'}
+              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: fancy ? 42 : 34, lineHeight: 1.05, color: C.ink, textShadow: `0 0 26px ${C.glow}aa`, marginBottom: 6 }}>
+                {nm ? 'SURVIVOR OF' : hard ? 'CONQUEROR OF' : 'VICTOR OVER'}
               </div>
-              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: hard ? 30 : 24, color: C.edge, marginBottom: hard ? 16 : 14 }}>
+              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: fancy ? 30 : 24, color: C.edge, marginBottom: fancy ? 16 : 14 }}>
                 PŌKEDEX FILLERS
               </div>
 
               <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: C.sub, lineHeight: 1.55, maxWidth: 420, margin: '0 auto 18px' }}>
-                {hard
+                {nm
+                  ? 'On this day, against the Nightmare — Level 125, status-proof, every blow landing at its cruelest — one trainer did the all-but-impossible. The region will not see this often:'
+                  : hard
                   ? 'On this day, against the cruelest team in all of Drapalla — at its sharpest and most merciless — one trainer did what nearly none can. Let it be known across the region:'
                   : 'This trainer faced the region\u2019s most stubborn gauntlet and walked away the winner. A feat worth remembering:'}
               </div>
@@ -2171,7 +2189,7 @@ window.VIEWS = window.VIEWS || {};
               <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 2, color: C.sub, marginBottom: 8 }}>WITH THE TEAM</div>
               <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
                 {(team || []).map((m, i) => (
-                  <div key={i} style={{ width: 64, height: 64, borderRadius: 10, background: '#0c091c', border: `1px solid ${C.edge}55`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: `inset 0 0 14px ${hard ? '#ffd54a14' : '#8a5cff12'}` }}>
+                  <div key={i} style={{ width: 64, height: 64, borderRadius: 10, background: '#0c091c', border: `1px solid ${C.edge}55`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: `inset 0 0 14px ${nm ? '#ff2a2a16' : hard ? '#ffd54a14' : '#8a5cff12'}` }}>
                     <SpriteSlot dex={m.dex} name={m.name} size={50} accent={C.edge} />
                   </div>
                 ))}
@@ -2180,11 +2198,11 @@ window.VIEWS = window.VIEWS || {};
               {/* seal / footer */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 4 }}>
                 <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${C.edge}66)` }} />
-                <div style={{ width: 54, height: 54, borderRadius: '50%', border: `2px solid ${C.seal}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, boxShadow: `0 0 18px ${C.glow}66` }}>{hard ? '👑' : '⭐'}</div>
+                <div style={{ width: 54, height: 54, borderRadius: '50%', border: `2px solid ${C.seal}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, boxShadow: `0 0 18px ${C.glow}66` }}>{nm ? '💀' : hard ? '👑' : '⭐'}</div>
                 <div style={{ flex: 1, height: 1, background: `linear-gradient(270deg, transparent, ${C.edge}66)` }} />
               </div>
               <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: C.sub, marginTop: 12 }}>
-                {hard ? 'HARD DIFFICULTY' : 'NORMAL DIFFICULTY'} · pokemonvoid.github.io
+                {nm ? 'NIGHTMARE DIFFICULTY' : hard ? 'HARD DIFFICULTY' : 'NORMAL DIFFICULTY'} · pokemonvoid.github.io
               </div>
             </div>
           </div>
@@ -2395,7 +2413,7 @@ window.VIEWS = window.VIEWS || {};
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
       // 6-species team, tracked separately for Normal vs Hard, persisted across sessions.
       if (vaereth && r.winner === 'A') {
-        const tier = aiMode === 'hard' ? 'hard' : 'normal';
+        const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
         const key = certTeamKey(team);
         if (!certAlreadyEarned(tier, key)) {
@@ -2503,10 +2521,10 @@ window.VIEWS = window.VIEWS || {};
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18, paddingTop: 10, borderTop: '1px solid #1a1638' }}>
           <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#6a6388', letterSpacing: 1, marginRight: 2 }}>SETUP</span>
           <button onClick={() => rollTeams()} style={{ cursor: 'pointer', background: '#15112a', border: '1px solid #2a2545', color: '#cdbfff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600 }}>🎲 Random Teams</button>
-          <button onClick={() => { setAiMode(m => { const nm = m === 'hard' ? 'normal' : 'hard'; const rng = mulberry32((Math.random() * 1e9) | 0); if (srcA === 'random') setTeamA(randomTeam(6, rng, level, nm)); if (srcB === 'random' && !vaereth) setTeamB(randomTeam(6, rng, level, nm)); return nm; }); setResult(null); setStep(0); setPlaying(false); }}
-            title={'AI difficulty. Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, avoids moves the foe is immune to, and switches more cleverly. Also upgrades random teams: Normal = random IVs / no EVs / random nature; Hard = max IVs / smart 510 EVs / ideal nature. Toggle anytime.'}
-            style={{ cursor: 'pointer', background: aiMode === 'hard' ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26', border: aiMode === 'hard' ? '1px solid #b89bff' : '1px solid #3a3168', color: aiMode === 'hard' ? '#fff' : '#9a93bb', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
-            {aiMode === 'hard' ? '🧠 AI: Hard' : '🧠 AI: Normal'}
+          <button onClick={() => { setAiMode(m => { const nm = m === 'normal' ? 'hard' : (m === 'hard' ? 'nightmare' : 'normal'); const rng = mulberry32((Math.random() * 1e9) | 0); if (srcA === 'random') setTeamA(randomTeam(6, rng, level, nm === 'nightmare' ? 'hard' : nm)); if (srcB === 'random' && !vaereth) setTeamB(randomTeam(6, rng, level, nm === 'nightmare' ? 'hard' : nm)); return nm; }); setResult(null); setStep(0); setPlaying(false); }}
+            title={'AI difficulty (cycles Normal \u2192 Hard \u2192 Nightmare). Hard: the AI plays smarter \u2014 speed-aware KOs, won\u2019t set up into a likely KO, switches cleverly. Nightmare: same expert AI but the boss is Level 125, immune to status, and every attack rolls maximum damage \u2014 meant for almost no one. Random teams also upgrade: Normal = random IVs/no EVs; Hard/Nightmare = max IVs/smart EVs/ideal nature.'}
+            style={{ cursor: 'pointer', background: aiMode === 'nightmare' ? 'linear-gradient(135deg, #2a0a0a, #b3122e)' : (aiMode === 'hard' ? 'linear-gradient(135deg, #5a2db3, #8a5cff)' : '#120e26'), border: aiMode === 'nightmare' ? '1px solid #ff5a5a' : (aiMode === 'hard' ? '1px solid #b89bff' : '1px solid #3a3168'), color: aiMode === 'normal' ? '#9a93bb' : '#fff', borderRadius: 10, padding: '11px 18px', fontFamily: "'Pixelify Sans', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: 1 }}>
+            {aiMode === 'nightmare' ? '💀 AI: Nightmare' : (aiMode === 'hard' ? '🧠 AI: Hard' : '🧠 AI: Normal')}
           </button>
           <button onClick={() => { setVaereth(v => { const nv = !v; if (nv) setAiMode('hard'); return nv; }); setResult(null); setStep(0); setPlaying(false); }}
             title={`${BOSS_NAME}: a brutally hard boss replaces Team B. Beating it is meant to be very tough.`}

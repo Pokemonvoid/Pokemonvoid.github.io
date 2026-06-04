@@ -144,7 +144,7 @@
     return (
       <div>
         <PageHead kicker="HALL OF CONQUERORS" title="Pokedex Fillers Leaderboard"
-          sub="Beat the Pokedex Fillers boss in the Battle Sim to earn your place. Your score is the number of different teams you've conquered each difficulty with — find more winning teams to climb." />
+          sub="Beat the Pokedex Fillers boss in the Battle Sim to earn your place. Three tiers: Normal, Hard, and the all-but-impossible Nightmare. Your score is the number of genuinely different teams you've conquered each tier with." />
 
         {!CONFIGURED && (
           <div style={{ maxWidth: 560, margin: '20px auto', textAlign: 'center', background: '#15112a', border: '1px solid #2a2545', borderRadius: 12, padding: 18, fontFamily: "'Space Grotesk', sans-serif", color: '#cdbfff', fontSize: 13.5, lineHeight: 1.5 }}>
@@ -156,9 +156,21 @@
           <div style={{ maxWidth: 560, margin: '12px auto', textAlign: 'center', color: '#ff8fa6', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>{err}</div>
         )}
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginTop: 16, alignItems: 'flex-start' }}>
-          <Board title="Normal" accent="#b9c4e6" rows={rows} difficulty="normal" />
-          <Board title="Hard ☠" accent="#ffd54a" rows={rows} difficulty="hard" />
+        {/* ---- Olympic podium: the reigning #1 of each tier ---- */}
+        <Podium rows={rows} />
+
+        {/* ---- the three full boards, stacked in a slight pyramid: Nightmare
+                highest, then Hard, then Normal at the base ---- */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 26 }}>
+          <div style={{ width: '100%', maxWidth: 560 }}>
+            <Board title="💀 Nightmare" accent="#ff3b3b" rows={rows} difficulty="nightmare" />
+          </div>
+          <div style={{ width: '100%', maxWidth: 620 }}>
+            <Board title="☠ Hard" accent="#ffd54a" rows={rows} difficulty="hard" />
+          </div>
+          <div style={{ width: '100%', maxWidth: 680 }}>
+            <Board title="Normal" accent="#b9c4e6" rows={rows} difficulty="normal" />
+          </div>
         </div>
 
         {rows === null && (
@@ -167,4 +179,36 @@
       </div>
     );
   };
+
+  // The reigning champion of each tier, arranged like an Olympic podium:
+  // Nightmare in the center on the tallest block (gold), Hard to the left
+  // (silver), Normal to the right (bronze).
+  function Podium({ rows }) {
+    const champ = (difficulty) => (buildBoard(rows || [], difficulty)[0] || null);
+    const nm = champ('nightmare'), hd = champ('hard'), no = champ('normal');
+    const Block = ({ who, label, accent, height, medal, glow }) => (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '1 1 0', minWidth: 0 }}>
+        <div style={{ fontSize: 26, marginBottom: 4 }}>{medal}</div>
+        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 15, color: '#fff', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+          {who ? who.name : '—'}
+        </div>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: accent, marginBottom: 6 }}>
+          {who ? `${who.score} ${who.score === 1 ? 'win' : 'wins'}` : 'unclaimed'}
+        </div>
+        <div style={{ width: '100%', height, borderRadius: '8px 8px 0 0', background: `linear-gradient(180deg, ${accent}cc, ${accent}44)`, border: `1px solid ${accent}`, borderBottom: 'none', boxShadow: `0 0 22px ${glow}`, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 8 }}>
+          <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 13, color: '#0a0816', letterSpacing: 1 }}>{label}</span>
+        </div>
+      </div>
+    );
+    return (
+      <div style={{ maxWidth: 600, margin: '8px auto 0' }}>
+        <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, letterSpacing: 2, color: '#6a6388', textAlign: 'center', marginBottom: 12 }}>REIGNING CHAMPIONS</div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, borderBottom: '2px solid #2a2545', paddingBottom: 0 }}>
+          <Block who={hd} label="HARD" accent="#ffd54a" height={84} medal="🥈" glow="#ffd54a33" />
+          <Block who={nm} label="NIGHTMARE" accent="#ff3b3b" height={120} medal="🥇" glow="#ff2a2a44" />
+          <Block who={no} label="NORMAL" accent="#b9c4e6" height={56} medal="🥉" glow="#b9c4e633" />
+        </div>
+      </div>
+    );
+  }
 })();
