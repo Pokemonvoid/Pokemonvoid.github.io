@@ -267,9 +267,9 @@ window.VIEWS = window.VIEWS || {};
     canApply(target, code) {
       if (!target || target.fainted) return false;
       if (target.status) return false;
-      // boss mons are fully immune to major status (the gauntlet plays clean) —
-      // this closes the one strategy that beats it: status/paralysis stalling.
-      if (target.boss) return false;
+      // boss mons (and the AI-controlled side in Nightmare mode) are fully immune
+      // to major status — closes status/paralysis stalling at the top difficulty.
+      if (target.boss || target.aiSide) return false;
       const imm = STATUS.immuneType[code] || [];
       if (target.types.some(t => imm.includes(t))) return false;
       if (ABIL.blocksStatus(target, code)) return false; // ability immunity (Insomnia, Limber, etc.)
@@ -961,7 +961,7 @@ window.VIEWS = window.VIEWS || {};
     { dex: '099', moves: ['Water Spout', 'Steel Wing', 'Aerial Ace', 'Water Gun'], nature: 'Modest', evs: { HP: 4, SPA: 252, SPE: 252 } },       // Writrout [WATER/FLYING]
   ];
   const VAERETH_LEVEL = 100;
-  const VAERETH_STAT_MULT = 1.25; // NORMAL boss stat boost on top of max level
+  const VAERETH_STAT_MULT = 0.85; // NORMAL boss: rebalanced as the accessible tier — a real fight but winnable (~30-40% for a good team), clearly easier than Hard
   // HARD mode uses a completely different, far stronger team (Normal's roster is a
   // placeholder for the owner's favourites; Hard is the real gauntlet). These six
   // are high-BST, type-diverse threats — no single sleep/counter strategy sweeps
@@ -969,7 +969,7 @@ window.VIEWS = window.VIEWS || {};
   // 1.20x + boss status immunity (see STATUS.canApply) closes the paralysis-stall
   // exploit that let ~10 players clear the old version. Best known team now wins
   // ~0.5%, random optimized teams ~0.1% — a true "almost nobody" gauntlet.
-  const VAERETH_HARD_MULT = 1.20;
+  const VAERETH_HARD_MULT = 0.95; // rebalanced below Nightmare: with status immunity + the expert AI already making Hard brutal, 0.95x lands the best teams at ~2-3% — tough but fair "dedicated few", clearly beatable unlike Nightmare (~0%)
   const VAERETH_HARD_ROSTER = [
     { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
@@ -983,11 +983,54 @@ window.VIEWS = window.VIEWS || {};
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
   const VAERETH_NIGHTMARE_LEVEL = 125;
   const VAERETH_NIGHTMARE_MULT = 0.92; // L125 + guaranteed max-damage rolls already add huge power; this leaves a ~1-in-10000 crack for a legendary run (2-3 people ever)
-  function buildVaerethBoss(aiMode) {
+
+  // ---- Adaptive Nightmare boss (moveset-only) ------------------------------
+  // The Nightmare boss keeps its fixed, hand-tuned 6 mons (so it stays strong) but
+  // shifts each mon's MOVESET toward coverage that punishes the recent community
+  // meta. `meta` = { typeCounts: {TYPE: n} } from the last ~50 logged attempts.
+  // For each boss mon, if one of its legal moves is super-effective against a
+  // common player type, that move is prioritized into its set. Never weakens the
+  // mon (it only swaps in legal, on-type or coverage moves it can actually learn).
+  function metaThreatTypes(meta) {
+    if (!meta || !meta.typeCounts) return [];
+    return Object.entries(meta.typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => e[0]);
+  }
+  // choose up to 4 moves for a boss mon: keep its strongest STAB/setup, then fill
+  // with the best coverage moves against the meta threat types.
+  function adaptMoveset(dex, baseMoves, threats) {
+    if (!threats.length) return baseMoves;
+    const learn = learnableMovesFor(dex).map(n => findMove(n)).filter(Boolean);
+    if (!learn.length) return baseMoves;
+    // score each learnable damaging move by its best effectiveness vs the meta
+    const coverage = learn.filter(m => m.pow && m.pow > 1).map(m => {
+      let best = 0;
+      threats.forEach((t, i) => { const e = eff(m.type, t) / (i + 1); if (e > best) best = e; });
+      return { m, cover: best, pow: m.pow };
+    }).filter(x => x.cover > 1).sort((a, b) => (b.cover - a.cover) || (b.pow - a.pow));
+    if (!coverage.length) return baseMoves; // nothing super-effective available
+    // keep the mon's first 2 base moves (its identity: usually setup + main STAB),
+    // then add up to 2 best coverage moves not already present.
+    const keep = baseMoves.slice(0, 2);
+    const out = keep.slice();
+    for (const c of coverage) {
+      if (out.length >= 4) break;
+      if (!out.some(n => normName(n) === normName(c.m.name))) out.push(c.m.name);
+    }
+    // top up from the remaining base moves if we didn't fill 4
+    for (const bm of baseMoves) { if (out.length >= 4) break; if (!out.some(n => normName(n) === normName(bm))) out.push(bm); }
+    return out.slice(0, 4);
+  }
+
+  function buildVaerethBoss(aiMode, meta) {
     const hard = aiMode === 'hard';
     const nightmare = aiMode === 'nightmare';
     const tough = hard || nightmare; // both use the strong roster + 560 spread
-    const roster = tough ? VAERETH_HARD_ROSTER : VAERETH_ROSTER;
+    let roster = tough ? VAERETH_HARD_ROSTER : VAERETH_ROSTER;
+    // Nightmare adapts each mon's MOVESET to counter the recent meta (roster fixed).
+    if (nightmare && meta) {
+      const threats = metaThreatTypes(meta);
+      if (threats.length) roster = roster.map(r => ({ ...r, moves: adaptMoveset(r.dex, r.moves, threats) }));
+    }
     const mult = nightmare ? VAERETH_NIGHTMARE_MULT : (hard ? VAERETH_HARD_MULT : VAERETH_STAT_MULT);
     const level = nightmare ? VAERETH_NIGHTMARE_LEVEL : VAERETH_LEVEL;
     const team = roster.map(r => {
@@ -1001,7 +1044,12 @@ window.VIEWS = window.VIEWS || {};
       STAT_KEYS.forEach(k => { m.stats[k] = Math.floor(m.stats[k] * mult); });
       m.maxHP = m.stats.HP; m.hp = m.maxHP;
       m.boss = true;
-      if (nightmare) m.maxRoll = true; // every attack rolls the top of its damage range
+      if (nightmare) {
+        m.maxRoll = true; // every attack rolls the top of its damage range
+        // Nightmare boss EXCLUSIVELY: any move below 90% accuracy is raised to 90%.
+        // Clone the move objects so we never mutate the shared global move data.
+        m.moves = m.moves.map(mv => (typeof mv.acc === 'number' && mv.acc < 90) ? { ...mv, acc: 90 } : mv);
+      }
       return m;
     }).filter(Boolean);
     return team;
@@ -1308,6 +1356,7 @@ window.VIEWS = window.VIEWS || {};
     me.moves.forEach(mv => {
       let score = 0;
       const isStatus = mv.cls === 'Status' || !mv.pow;
+      const acc = (mv.acc == null ? 100 : mv.acc) / 100; // 1.0 if always-hits
       if (!isStatus) {
         const dmg = myMaxKO(foe, mv);
         if (dmg <= 0) { // foe immune — essentially worthless
@@ -1317,17 +1366,23 @@ window.VIEWS = window.VIEWS || {};
           // reward damage as a fraction of the foe's remaining HP, but DON'T reward
           // overkill: a move that does 3x lethal is no better than one that just KOs.
           const effectiveDmg = Math.min(dmg, foe.hp);
-          score = (effectiveDmg / Math.max(1, foe.hp)) * 100;
+          // weight by accuracy: a 70%-acc move only lands 70% of the time, so its
+          // expected value — and its KO reliability — is discounted. This stops the
+          // boss from gambling on Hurricane/Hydro Pump when a steadier move is close.
+          score = (effectiveDmg / Math.max(1, foe.hp)) * 100 * acc;
           if (kos) {
-            score += 120; // removing a threat from the board is worth a lot
-            // KOing also means we take no retaliation from THIS foe this turn if we're faster
-            if (iAmFaster) score += 30;
+            // KO bonus scaled by how reliably this move actually connects
+            score += 120 * acc;
+            if (iAmFaster) score += 30 * acc;
           } else {
             // not a KO: we'll likely eat the foe's reply — subtract its expected bite
             score -= (foeRetalNow / Math.max(1, me.maxHP)) * 45;
           }
           // tempo: prefer a move that 2HKOs from full over chip that never closes
-          if (!kos && dmg * 2 >= foe.hp) score += 12;
+          if (!kos && dmg * 2 >= foe.hp) score += 12 * acc;
+          // a small flat penalty for genuinely unreliable moves so a near-equal
+          // accurate option wins ties (e.g. prefer a 95-acc hit over 70-acc Hurricane)
+          if (acc < 0.85) score -= (0.85 - acc) * 60;
         }
       } else {
         // status / setup / heal: lean on bestMove's own nuanced status scoring by
@@ -1433,6 +1488,21 @@ window.VIEWS = window.VIEWS || {};
     // deep-clone teams so the originals aren't mutated (fresh boosts per battle)
     const A = teamA.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
     const B = teamB.map(m => ({ ...m, stats: { ...m.stats }, moves: m.moves.slice(), hp: m.maxHP, fainted: false, status: null, statusTurns: 0, toxicN: 0, boosts: STAGES.fresh(), syncUsedTurn: -1, mustRecharge: false, abilityPool: (m.abilityPool || []).slice() }));
+    // Disambiguate the battle log when both teams field the same species: the foe's
+    // copy (Team B) is shown as "Foe <name>" so lines like "Mangmight used X. Mangmight
+    // lost Y%" can't read as a mon hitting itself. Only triggers on an actual collision;
+    // normal battles keep plain species names. (Purely cosmetic — targeting is unchanged.)
+    (() => {
+      const aSpecies = new Set(A.map(m => m.name));
+      B.forEach(m => { if (aSpecies.has(m.name)) m.name = 'Foe ' + m.name; });
+    })();
+    // In Nightmare mode, the AI-controlled side (Team B) inherits the boss's edge
+    // even in regular (non-boss) battles: max damage rolls + status immunity (applied
+    // in STATUS.canApply via the aiSide flag) + the expert planner. The player's own
+    // side (A) plays normally so their sleep/paralysis still work against the AI.
+    if (aiMode === 'nightmare') {
+      B.forEach(m => { if (!m.boss) { m.maxRoll = true; m.aiSide = true; } });
+    }
     let ai = 0, bi = 0; // active indices
     const events = [];
     const log = [];
@@ -1581,7 +1651,7 @@ window.VIEWS = window.VIEWS || {};
       // Team B's move: the Vaereth Hard boss uses the expert planner (lookahead +
       // KO/setup/tempo reasoning); everyone else uses the standard greedy bestMove.
       const moveA = bestMove(mA, mB, ctxA);
-      const bossBrain = ((aiMode === 'hard' || aiMode === 'nightmare') && mB && mB.boss);
+      const bossBrain = ((aiMode === 'hard' || aiMode === 'nightmare') && mB && (mB.boss || mB.aiSide));
       const moveB = bossBrain ? hardBossPlan(mB, mA, ctxB) : bestMove(mB, mA, ctxB);
       // turn order by speed (paralysis halves speed; ties random)
       const wx = curWeather();
@@ -2305,10 +2375,44 @@ window.VIEWS = window.VIEWS || {};
       return true;
     };
 
-    // current display state derived from events up to `step`
-    const view = React.useRef({ a: null, b: null, aHP: {}, bHP: {}, anim: null });
+    // ---- Adaptive Nightmare: meta fetch + attempt logging --------------------
+    // The Nightmare boss adapts its movesets to the recent community meta. We pull
+    // the last ~50 attempts on load, tally the player types people bring, and feed
+    // that to buildVaerethBoss. Every Nightmare attempt is logged (win or loss).
+    const [nightmareMeta, setNightmareMeta] = React.useState(null);
+    const loadNightmareMeta = React.useCallback(() => {
+      if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return;
+      const url = LB_URL.replace(/\/$/, '') + '/rest/v1/nightmare_attempts?select=team&order=created_at.desc&limit=50';
+      fetch(url, { headers: { apikey: LB_KEY, Authorization: 'Bearer ' + LB_KEY } })
+        .then(r => r.ok ? r.json() : [])
+        .then(rows => {
+          const typeCounts = {};
+          (rows || []).forEach(row => {
+            (row.team || []).forEach(mon => {
+              (mon.types || []).forEach(t => { typeCounts[t] = (typeCounts[t] || 0) + 1; });
+            });
+          });
+          if (Object.keys(typeCounts).length) setNightmareMeta({ typeCounts });
+        })
+        .catch(() => { /* offline — boss uses its default roster */ });
+    }, []);
+    React.useEffect(() => { loadNightmareMeta(); }, [loadNightmareMeta]);
+
+    const logNightmareAttempt = (playerTeam, won) => {
+      if (!LB_URL || !LB_KEY || LB_KEY.indexOf('PASTE_') === 0) return;
+      const team = (playerTeam || []).map(m => ({ dex: m.dex, types: (m.types || []).slice() }));
+      if (!team.length) return;
+      const dexes = team.map(m => m.dex).slice().sort().join('-');
+      try {
+        fetch(LB_URL.replace(/\/$/, '') + '/rest/v1/nightmare_attempts', {
+          method: 'POST',
+          headers: { apikey: LB_KEY, Authorization: 'Bearer ' + LB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ team, dexes, won: !!won, voter_id: lbVoterId() }),
+        }).catch(() => {});
+      } catch (e) { /* ignore */ }
+    };
     // the Vaereth boss roster for display (deterministic); built once.
-    const bossDisplay = React.useMemo(() => buildVaerethBoss(aiMode), [aiMode]);
+    const bossDisplay = React.useMemo(() => buildVaerethBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null), [aiMode, nightmareMeta]);
 
     const rollTeams = (lvl) => {
       // guard: only a finite number is a real level; a click event etc. → use state
@@ -2347,7 +2451,7 @@ window.VIEWS = window.VIEWS || {};
         B = buildFromMembers(manualB.map(m => ({ dex: m.dex, moves: (m.moves || []).map(x => x.name), evs: m.evs, ivs: m.ivs, nature: m.nature })), level);
       } else { B = (teamB && teamB.length) ? teamB : randomTeam(6, mulberry32((Math.random() * 1e9 + 7) | 0), level, aiMode); }
       // VAERETH boss mode overrides Team B entirely with the cranked boss roster.
-      if (vaereth) { B = buildVaerethBoss(aiMode); }
+      if (vaereth) { B = buildVaerethBoss(aiMode, aiMode === 'nightmare' ? nightmareMeta : null); }
       setTeamA(A); setTeamB(B); setBuildMsg(msg);
       return { A, B };
     };
@@ -2410,8 +2514,13 @@ window.VIEWS = window.VIEWS || {};
       // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
       const r = simulate(built.A, built.B, undefined, aiMode);
       setResult(r);
+      // Adaptive Nightmare: log this attempt (win or loss) so the boss can adapt
+      // its movesets to the community meta. Uses the player's actual Team A.
+      if (vaereth && aiMode === 'nightmare') {
+        logNightmareAttempt(built.A, r.winner === 'A');
+      }
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
-      // 6-species team, tracked separately for Normal vs Hard, persisted across sessions.
+      // 6-species team, tracked separately per difficulty, persisted across sessions.
       if (vaereth && r.winner === 'A') {
         const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
