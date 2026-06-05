@@ -3132,8 +3132,10 @@ window.VIEWS = window.VIEWS || {};
       }
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
       // 6-species team, tracked separately per difficulty, persisted across sessions.
-      // A dev-forced win NEVER earns a cert or submits to the leaderboard.
-      if (pflrs && r.winner === 'A' && !r.devForced) {
+      // A dev-forced win IS allowed to earn a cert and submit to the leaderboard (so the
+      // dev can seed/test the board); it is still kept OUT of the adaptive Nightmare meta
+      // by the !r.devForced guard on logNightmareAttempt above.
+      if (pflrs && r.winner === 'A') {
         const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
         // differ-by-5: a win earns a (scoring) cert only if the team changed >=5 mons
