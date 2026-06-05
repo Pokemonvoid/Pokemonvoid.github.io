@@ -156,6 +156,59 @@ window.VIEWS = window.VIEWS || {};
     return { ...opt, t };
   };
 
+  // ---- GLOBAL conflict map: tags that must never co-occur ACROSS the whole ruleset
+  // (the per-pool `usedTags` guard only catches same-tag pairs within one category;
+  // these are the cross-category / cross-pool contradictions). Symmetric — declared
+  // once, applied both ways. A realized rule is dropped if it conflicts with any rule
+  // already kept earlier in the resolution order. ---
+  const CONFLICTS = {
+    // Insanity "trinity" already bundles no-evo + no-items + set mode, so any of those
+    // standalone rules would be redundant/contradictory alongside it.
+    trinity: ['noevo', 'items', 'set', 'noitemheal', 'held'],
+    // a fixed party cap fights rules that force a single living Pokémon
+    size: ['solo'],
+    solo: ['size', 'rotate', 'lowmember', 'lead', 'onepergym'],
+    // banning evolution outright makes trade-evo and the "trinity" evo clause moot
+    noevo: ['tradeevo'],
+    // two different level constraints that pull opposite directions / duplicate
+    cap: ['underlevel'],
+    // overlapping "no items" formulations shouldn't stack as separate rules
+    items: ['noitemheal'],
+    // permadeath-line appears in BOTH the modifier pool and the insanity pool (same
+    // tag, different pools) — the per-pool guard can't see across them
+    lineperma: ['lineperma'],
+    // type-identity rules that contradict each other
+    typing: ['typedeath'],
+    typedeath: ['typing'],
+    // glass-cannon instant-death interacts incoherently with revive mercy
+    glass: ['mercy'],
+  };
+  // build a symmetric lookup so order of declaration doesn't matter
+  const conflictsWith = (() => {
+    const m = {};
+    const add = (a, b) => { (m[a] = m[a] || new Set()).add(b); };
+    Object.entries(CONFLICTS).forEach(([k, arr]) => arr.forEach(v => { add(k, v); add(v, k); }));
+    return (tagA, tagB) => !!(m[tagA] && m[tagA].has(tagB));
+  })();
+
+  // Filter an assembled list of realized rules so none contradict: keep rules in order,
+  // dropping any whose tag conflicts with — or duplicates — a tag already kept. Returns
+  // the conflict-free list. (Untagged rules never conflict and are always kept.)
+  function dedupeConflicts(rules) {
+    const keptTags = [];
+    const out = [];
+    for (const r of rules) {
+      const tag = r.tag;
+      if (tag) {
+        if (keptTags.includes(tag)) continue;                 // exact duplicate tag (cross-pool)
+        if (keptTags.some(t => conflictsWith(tag, t))) continue; // contradicts something kept
+        keptTags.push(tag);
+      }
+      out.push(r);
+    }
+    return out;
+  }
+
   // pick a conflict-free set of addons from a pool: 1 per `tag`, count random
   function pickAddons(pool, minN, maxN) {
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
@@ -205,7 +258,21 @@ window.VIEWS = window.VIEWS || {};
     // Insanity adds 2-4 extreme clauses from the dedicated pool
     out.insane = insane ? pickAddons(INSANE.addons, 2, 4) : [];
 
-    ['encounter', 'death', 'team', 'battle', 'species', 'modifier', 'insane'].forEach(k => out[k].forEach(r => all.push(r)));
+    // ---- GLOBAL conflict resolution across ALL categories ----
+    // The per-pool guard in pickAddons can't see contradictions that span categories
+    // (e.g. a team "party cap" vs an insanity "solo" clause) or the same tag appearing
+    // in two different pools. We flatten every chosen rule into one ordered list and
+    // run dedupeConflicts so the FINAL ruleset is guaranteed contradiction-free, then
+    // rebuild each category from the survivors. Order = priority: the governing
+    // encounter/death rules first (always kept), then the scaling categories.
+    const order = ['encounter', 'death', 'team', 'battle', 'species', 'modifier', 'insane'];
+    const tagged = [];
+    order.forEach(k => (out[k] || []).forEach(r => tagged.push({ k, r })));
+    const survivors = dedupeConflicts(tagged.map(x => x.r));
+    const survivorSet = new Set(survivors); // identity match — realized objects are unique
+    order.forEach(k => { out[k] = (out[k] || []).filter(r => survivorSet.has(r)); });
+
+    order.forEach(k => out[k].forEach(r => all.push(r)));
 
     // difficulty = sum of weights (mercy reduces it). Insanity floors at the top tier.
     let score = all.reduce((s, r) => s + (r.w || 0), 0);
