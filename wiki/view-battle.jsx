@@ -493,6 +493,31 @@ window.VIEWS = window.VIEWS || {};
     add('Smokescreen', 'foe', [['ACC', -1]]);
     add('Flash', 'foe', [['ACC', -1]]);
     add('Sweet Scent', 'foe', [['EVA', -2]]);
+    // ===== BATCH 1: previously-unimplemented stat moves (reuse this same handler) =====
+    // self-boost setup moves
+    add('Tail Glow', 'self', [['SPA', 3]]);
+    add('Geomancy', 'self', [['SPA', 2], ['SPD', 2], ['SPE', 2]]); // canon: charge turn, but we apply on use
+    add('Clangorous Soul', 'self', [['ATK', 1], ['DEF', 1], ['SPA', 1], ['SPD', 1], ['SPE', 1]]); // costs HP (handled below)
+    add('Fillet Away', 'self', [['ATK', 2], ['SPA', 2], ['SPE', 2]]); // costs HP (handled below)
+    add('Barrier', 'self', [['DEF', 2]]);
+    add('Stuff Cheeks', 'self', [['DEF', 2]]);
+    add('Stockpile', 'self', [['DEF', 1], ['SPD', 1]]);
+    add('Charge', 'self', [['SPD', 1]]);
+    add('Tidy Up', 'self', [['ATK', 1], ['SPE', 1]]);
+    add('No Retreat', 'self', [['ATK', 1], ['DEF', 1], ['SPA', 1], ['SPD', 1], ['SPE', 1]]); // trap part deferred
+    add('Decorate', 'self', [['ATK', 2], ['SPA', 2]]); // canon targets ally; in 1v1 self-buff
+    // foe stat-drops
+    add('Eerie Impulse', 'foe', [['SPA', -2]]);
+    add('Baby-Doll Eyes', 'foe', [['ATK', -1]]);
+    add('Noble Roar', 'foe', [['ATK', -1], ['SPA', -1]]);
+    add('Tearful Look', 'foe', [['ATK', -1], ['SPA', -1]]);
+    add('Venom Drench', 'foe', [['ATK', -1], ['SPA', -1], ['SPE', -1]]);
+    add('Kinesis', 'foe', [['ACC', -1]]);
+    add('Captivate', 'foe', [['SPA', -2]]);
+    add('Octolock', 'foe', [['DEF', -1], ['SPD', -1]]); // trap part deferred; stat drops apply
+    add('Parting Shot', 'foe', [['ATK', -1], ['SPA', -1]]); // pivot part deferred
+    add('Spicy Extract', 'foe', [['ATK', 2], ['DEF', -2]]);
+    add('Rototiller', 'self', [['ATK', 1], ['SPA', 1]]); // canon affects Grass mons; treat as self in 1v1
     return t;
   })();
   function moveStatEffect(move) { return MOVE_STAT[normName(move.name)] || null; }
@@ -509,6 +534,13 @@ window.VIEWS = window.VIEWS || {};
     add('Synthesis', 0.5, { weather: true }); add('Moonlight', 0.5, { weather: true });
     add('Morning Sun', 0.5, { weather: true });
     add('Rest', 1.0, { rest: true });
+    // ===== BATCH 1: previously-unimplemented heal moves =====
+    add('Shore Up', 0.5, { weather: true });       // heals more in sandstorm; reuse weather flag
+    add('Swallow', 0.5);                            // simplified: ~half (canon scales with Stockpile)
+    add('Heal Pulse', 0.5);                         // canon targets ally; in 1v1 = self-heal
+    add('Warminglight', 0.25);                      // restore chunk of HP
+    add('Purify', 0.5, { cure: true });             // heal + cure own status
+    add('Aromatherapy', 0, { cure: true });         // cures status (no HP); cure flag
     return t;
   })();
   function healMoveInfo(move) { return HEAL_MOVES[normName(move.name)] || null; }
@@ -2261,12 +2293,17 @@ window.VIEWS = window.VIEWS || {};
               if (w === 'sun') frac = 2 / 3;
               else if (w && w !== 'sun') frac = 0.25; // reduced in non-sun weather
             }
-            if (atk.hp < atk.maxHP) {
+            let didSomething = false;
+            // cure flag (Aromatherapy/Purify): clear the user's status condition
+            if (heal.cure && atk.status) { STATUS.clear(atk); events.push({ t: 'status', side, name: atk.name, code: null, statusOf: snapshotStatus(A, B) }); log.push(`${atk.name}'s status was cured!`); didSomething = true; }
+            if (frac > 0 && atk.hp < atk.maxHP) {
               const amt = Math.max(1, Math.floor(atk.maxHP * frac));
               atk.hp = Math.min(atk.maxHP, atk.hp + amt);
               events.push({ t: 'heal', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP });
               log.push(`${atk.name} restored its HP!`);
-            } else { log.push(`${atk.name} used ${mv.name}, but its HP is already full!`); }
+              didSomething = true;
+            }
+            if (!didSomething) log.push(`${atk.name} used ${mv.name}, but it had no effect!`);
           }
         }
 
@@ -2317,7 +2354,21 @@ window.VIEWS = window.VIEWS || {};
         // ---- stat-stage moves (Swords Dance, Growl, etc.) ----
         const statEff = moveStatEffect(mv);
         if (statEff && (statEff.chance >= 1 || rng() < statEff.chance)) {
-          if (statEff.target === 'self') {
+          // HP-cost setup moves: spend a chunk of the user's HP to power up (canon: ~1/3
+          // for Clangorous Soul, ~1/2 for Fillet Away). Fails if the user is too low.
+          const mn2 = normName(mv.name);
+          const HP_COST = { clangoroussoul: 1 / 3, filletaway: 0.5, radiantblessing: 0.5 };
+          if (HP_COST[mn2] != null && statEff.target === 'self') {
+            const cost = Math.floor(atk.maxHP * HP_COST[mn2]);
+            if (atk.hp > cost) {
+              atk.hp -= cost;
+              events.push({ t: 'heal', side, name: atk.name, hp: atk.hp, maxHP: atk.maxHP });
+              applyStatChanges(atk, side, statEff.changes, false);
+              log.push(`${atk.name} cut its own HP to power up!`);
+            } else {
+              log.push(`${atk.name} used ${mv.name}, but it failed! (not enough HP)`);
+            }
+          } else if (statEff.target === 'self') {
             applyStatChanges(atk, side, statEff.changes, false);
           } else if (def.hp > 0 && res.eff !== 0) {
             // foe-targeted drop counts as opponent-caused (triggers Defiant)
