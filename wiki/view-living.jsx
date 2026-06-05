@@ -36,7 +36,55 @@ window.VIEWS = window.VIEWS || {};
     } catch (e) {}
     return [freshBox(1)];
   }
-  function saveState(boxes) { try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, boxes })); } catch (e) {} }
+  function saveState(boxes) {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, boxes }));
+      // also keep a rolling, timestamped backup so an accidental wipe of the main key
+      // (cleared site data, a bad write, a browser eviction) can be recovered. We only
+      // back up when there's REAL data, so we never overwrite good backups with an empty
+      // dex. Keep the most recent few; restore is offered on load if the main key is gone.
+      const caught = boxes.reduce((n, b) => n + b.slots.filter(s => s && (s.normal || s.shiny || s.anomaly)).length, 0);
+      if (caught > 0) {
+        const stamp = Date.now();
+        const key = BK_PREFIX + stamp + '_' + (caught); // include caught to avoid same-ms key collisions
+        localStorage.setItem(key, JSON.stringify({ v: 2, boxes, caught, ts: stamp }));
+        // prune to the newest MAX_BACKUPS
+        const keys = backupKeys();
+        while (keys.length > MAX_BACKUPS) { localStorage.removeItem(keys.shift()); }
+      }
+    } catch (e) {}
+  }
+  const BK_PREFIX = 'voiddex_livingdex_bak_';
+  const MAX_BACKUPS = 3;
+  // List backup keys robustly. Object.keys(localStorage) is unreliable for the Storage
+  // API (keys live behind the prototype, not as own-enumerable props in every engine),
+  // so iterate via length/key(i) which is the spec-guaranteed way.
+  function backupKeys() {
+    const out = [];
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(BK_PREFIX) === 0) out.push(k); } } catch (e) {}
+    return out.sort();
+  }
+  // Return the most recent backup that has real data, or null. Used to offer recovery
+  // when the main save is empty/missing but a backup survived.
+  function latestBackup() {
+    try {
+      const keys = backupKeys();
+      for (let i = keys.length - 1; i >= 0; i--) {
+        const v = JSON.parse(localStorage.getItem(keys[i]));
+        if (v && Array.isArray(v.boxes) && v.caught > 0) return v;
+      }
+    } catch (e) {}
+    return null;
+  }
+  // Is the live save effectively empty (no caught mons)? — the loss signal.
+  function liveIsEmpty() {
+    try {
+      const v = JSON.parse(localStorage.getItem(LS_KEY));
+      if (!v || !Array.isArray(v.boxes)) return true;
+      const caught = v.boxes.reduce((n, b) => n + ((b && b.slots) || []).filter(s => s && (s.normal || s.shiny || s.anomaly)).length, 0);
+      return caught === 0;
+    } catch (e) { return true; }
+  }
 
   // ---- cross-device share code (compact) ----
   // VD2~boxName~slots;boxName~slots;...   slots = per-slot tokens:
@@ -197,6 +245,23 @@ window.VIEWS = window.VIEWS || {};
 
   window.VIEWS.Living = function Living() {
     const [boxes, setBoxes] = React.useState(loadState);
+    // Data-loss safety net: if the live save is empty but a recent backup has real data,
+    // offer to restore it (covers cleared site-data, evictions, a bad write). Detected
+    // once on mount; the banner lets the player restore or dismiss.
+    const [recover, setRecover] = React.useState(() => (liveIsEmpty() ? latestBackup() : null));
+    const doRestore = () => {
+      if (!recover || !Array.isArray(recover.boxes)) { setRecover(null); return; }
+      // normalize the backup through the same path as loadState
+      const norm = recover.boxes.map((b, i) => ({
+        name: (b && b.name) || ('Box ' + (i + 1)),
+        slots: Array.from({ length: PER_BOX }, (_, k) => {
+          const s = b && b.slots && b.slots[k];
+          return s && s.dex ? { dex: String(s.dex), normal: !!s.normal, shiny: !!s.shiny, anomaly: !!s.anomaly } : null;
+        }),
+      }));
+      setBoxes(norm);
+      setRecover(null);
+    };
     const [picking, setPicking] = React.useState(null);   // {box, slot} target for new mon
     const [editing, setEditing] = React.useState(null);   // {box, slot} of filled slot being edited
     const [q, setQ] = React.useState('');
@@ -331,7 +396,7 @@ window.VIEWS = window.VIEWS || {};
           <div>
             <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 2, color: '#8a5cff', marginBottom: 8 }}>STORAGE SYSTEM</div>
             <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 52, lineHeight: 1, color: '#fff', textShadow: '0 0 30px #8a5cff66' }}>Living Dex</h1>
-            <p style={{ margin: '12px 0 0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, color: '#bdb6dd', maxWidth: 640, lineHeight: 1.6 }}>Track every Pokémon you've caught across your PC Boxes. Click a slot to deposit a Pokémon, then mark it as caught, shiny, or anomaly. Everything saves automatically on this device.</p>
+            <p style={{ margin: '12px 0 0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, color: '#bdb6dd', maxWidth: 640, lineHeight: 1.6 }}>Track every Pokémon you've caught across your PC Boxes. Click a slot to deposit a Pokémon, then mark it as caught, shiny, or anomaly. Everything saves automatically on this device. <strong style={{ color: '#7fdfff' }}>It's saved only on this device — tap ⇄ Share to copy a backup code and keep it somewhere safe.</strong></p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: 'inline-flex', borderRadius: 10, overflow: 'hidden', border: '1px solid #2a2545' }}>
@@ -342,6 +407,21 @@ window.VIEWS = window.VIEWS || {};
             <button onClick={resetAll} style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, background: '#2a1020', border: '1px solid #ff5f7e66', color: '#ff8fa6', borderRadius: 10, padding: '10px 18px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>↺ Reset All</button>
           </div>
         </div>
+
+        {/* data-loss recovery: shown only when the live save is empty but a backup with
+            real data was found on this device. Lets the player one-click restore it. */}
+        {recover ? (
+          <div style={{ marginBottom: 20, padding: '16px 18px', borderRadius: 12, background: 'linear-gradient(135deg, #2a1f08, #1d1605)', border: '1px solid #ffd54a66' }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700, color: '#ffd54a', marginBottom: 6 }}>⚠ We found a backup of your Living Dex</div>
+            <p style={{ margin: '0 0 12px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13.5, color: '#e9dcc0', lineHeight: 1.55 }}>
+              Your saved dex on this device looks empty, but an automatic backup with <strong>{recover.caught} caught</strong> {recover.caught === 1 ? 'Pokémon' : 'Pokémon'} survived{recover.ts ? ' from ' + new Date(recover.ts).toLocaleString() : ''}. You can restore it now. (If this is a brand-new device, you can dismiss this.)
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={doRestore} style={{ cursor: 'pointer', padding: '10px 18px', borderRadius: 9, background: 'linear-gradient(135deg, #6a5410, #4a3a08)', border: '1px solid #ffd54a88', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700 }}>Restore my Living Dex</button>
+              <button onClick={() => setRecover(null)} style={{ cursor: 'pointer', padding: '10px 16px', borderRadius: 9, background: 'transparent', border: '1px solid #2a2545', color: '#8a83a8', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>Dismiss</button>
+            </div>
+          </div>
+        ) : null}
 
         {/* progress stats */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
