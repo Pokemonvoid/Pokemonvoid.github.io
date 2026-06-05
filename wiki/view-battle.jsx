@@ -1066,7 +1066,7 @@ window.VIEWS = window.VIEWS || {};
   // ~0.5%, random optimized teams ~0.1% — a true "almost nobody" gauntlet.
   const PFLRS_HARD_MULT = 1.10; // HARD boss multiplier
   const PFLRS_HARD_ROSTER = [
-    { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
+    { dex: '083', moves: ['Galacticnebula', 'Supernova', 'Brightcannon', 'Will-O-Wisp'], nature: 'Modest' }, // Colapsore [COSMIC/LIGHT] — bulky special wall + burns
     { dex: '107', moves: ['Eruption', 'Fiery Wrath', 'Burning Jealousy', 'Thunder Wave'], nature: 'Timid' }, // Cerbament [FIRE/DARK] — Eruption nuke
     { dex: '051', moves: ['Swords Dance', 'Extreme Speed', 'Duality', 'Crunch'], nature: 'Jolly' },          // Equinine [LIGHT/DARK] — setup + priority
     { dex: '073', moves: ['Rock Wrecker', 'Kowtow Cleave', 'Night Slash', 'Psycho Cut'], nature: 'Jolly' }, // Sedirogue [ROCK/DARK] — fastest
@@ -1089,7 +1089,7 @@ window.VIEWS = window.VIEWS || {};
     { dex: '069', moves: ['Rock Wrecker', 'Liquidation', 'Ancient Power', 'Work Up'], nature: 'Adamant' }, // Sedimonk [ROCK/WATER] — Rock/Water STAB vs Mangmight/Cerbament
     { dex: '070', moves: ['Rock Wrecker', 'Wood Hammer', 'Energy Ball', 'Work Up'], nature: 'Adamant' },   // Sedruid [ROCK/GRASS] — Grass coverage vs the Water/Normal/Rock mons
     { dex: '051', moves: ['Swords Dance', 'Extreme Speed', 'Duality', 'Crunch'], nature: 'Jolly' },       // Equinine [LIGHT/DARK] — Light vs Colapsore/Mangmight + priority pickoff
-    { dex: '083', moves: ['Shell Burst', 'Supernova', 'Brightcannon', 'Heat Wave'], nature: 'Modest' },   // Colapsore [COSMIC/LIGHT] — BST550 nuke anchor
+    { dex: '083', moves: ['Galacticnebula', 'Supernova', 'Brightcannon', 'Heat Wave'], nature: 'Modest' },   // Colapsore [COSMIC/LIGHT] — BST550 nuke anchor
   ];
 
   // ---- Adaptive Nightmare boss (moveset-only) ------------------------------
@@ -1143,9 +1143,13 @@ window.VIEWS = window.VIEWS || {};
     const learn = learnableMovesFor(dex).map(n => findMove(n)).filter(Boolean);
     if (!learn.length) return baseMoves;
     const stallMeta = archetype === 'stall';
+    // NEVER let the adapter arm the boss with self-sabotage moves: Explosion/Self-Destruct
+    // (the boss would lead and blow itself up — a free KO for the player), or moves with
+    // use-restrictions the engine doesn't fully model (Shell Burst is one-time/typing-loss).
+    const ADAPT_BANNED = new Set(['explosion', 'selfdestruct', 'mistyexplosion', 'finalgambit', 'memento', 'healingwish', 'lunardance', 'shellburst'].map(n => normName(n)));
     // score each learnable damaging move by effectiveness vs meta (and, vs stall,
     // weight raw power more so walls get broken rather than chipped).
-    const coverage = learn.filter(m => m.pow && m.pow > 1).map(m => {
+    const coverage = learn.filter(m => m.pow && m.pow > 1 && !ADAPT_BANNED.has(normName(m.name))).map(m => {
       let best = 0;
       threats.forEach((t, i) => { const e = eff(m.type, t) / (i + 1); if (e > best) best = e; });
       const powScore = stallMeta ? (m.pow / 40) : 0; // vs stall, favour heavy hits
@@ -2145,9 +2149,11 @@ window.VIEWS = window.VIEWS || {};
           // doesn't reduce recoil; Rock Head (not modeled) would negate it.
           const RECOIL_HALF = ['headsmash', 'lightofruin', 'mindblown', 'steelbeam', 'chloroblast', 'wavecrash'];
           const RECOIL_THIRD = ['doubleedge', 'takedown', 'wildcharge', 'woodhammer', 'bravebird', 'flareblitz', 'volttackle', 'submission', 'highjumpkick', 'jumpkick'];
+          const RECOIL_QUARTER = ['headcharge', 'brightcannon']; // 1/4 recoil (Head Charge, Brightcannon)
           let recoilFrac = 0;
           if (RECOIL_HALF.includes(mn)) recoilFrac = 0.5;
           else if (RECOIL_THIRD.includes(mn)) recoilFrac = 1 / 3;
+          else if (RECOIL_QUARTER.includes(mn)) recoilFrac = 0.25;
           if (recoilFrac > 0 && atk.hp > 0) {
             const rec = Math.max(1, Math.floor(dealt * recoilFrac));
             atk.hp = Math.max(0, atk.hp - rec);
