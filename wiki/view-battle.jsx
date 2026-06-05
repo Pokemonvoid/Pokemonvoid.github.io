@@ -2727,6 +2727,130 @@ window.VIEWS = window.VIEWS || {};
     const nm = tier === 'nightmare';
     const hasName = !!(name && name.trim());
     const tryClose = () => { if (hasName) onClose(); };
+
+    // ----- NIGHTMARE: dedicated black-hole / void certificate -----
+    if (nm) {
+      const KF = `
+        @keyframes vdDiskTilt { to { transform:rotateX(74deg) rotate(360deg); } }
+        @keyframes vdHalo { 0%,100%{opacity:.5; transform:scale(1);} 50%{opacity:.9; transform:scale(1.1);} }
+        @keyframes vdFoil { 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+        @keyframes vdTwinkle { 0%,100%{opacity:.12; transform:scale(.5);} 50%{opacity:1; transform:scale(1.15);} }
+        @keyframes vdInhale { 0%{transform:translate(var(--x),var(--y)) scale(1); opacity:0;} 12%{opacity:1;} 100%{transform:translate(0,0) scale(.15); opacity:0;} }
+        @keyframes vdFrame { 0%,100%{box-shadow:0 0 0 4px #060410,0 0 0 5px #ffce5e44,0 0 50px #6a3aff44,inset 0 0 80px #3a1aff10;} 50%{box-shadow:0 0 0 4px #060410,0 0 0 5px #ffce5e88,0 0 80px #8a4affaa,inset 0 0 90px #5a2aff1c;} }
+        @keyframes vdGlint { 0%{transform:translateX(-120%) skewX(-18deg);} 60%,100%{transform:translateX(220%) skewX(-18deg);} }
+        @keyframes vdDrop { 0%{opacity:0; transform:translateY(-14px); filter:blur(6px);} 100%{opacity:1; transform:translateY(0); filter:blur(0);} }
+        @keyframes vdLine { 0%{transform:scaleX(0);} 100%{transform:scaleX(1);} }
+        @keyframes vdRise { 0%{opacity:0; transform:translateY(14px) scale(.85);} 100%{opacity:1; transform:translateY(0) scale(1);} }
+        @keyframes vdBob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+        @keyframes vdShimmer { 0%,100%{text-shadow:0 0 26px #9a4aff,0 0 8px #fff4;} 50%{text-shadow:0 0 40px #b06aff,0 0 16px #fff8;} }
+        @keyframes vdBadge { to {transform:rotate(360deg);} }
+        @keyframes vdFade { from{opacity:0;} to{opacity:1;} }
+        @keyframes vdGrav { 0%,100%{transform:translateY(var(--ty)) rotate(var(--rot)) scaleY(var(--sy));} 50%{transform:translateY(calc(var(--ty) - 4px)) rotate(var(--rot)) scaleY(calc(var(--sy) + 0.12));} }
+        .vdReveal { opacity:0; animation:vdFade .7s ease-out forwards; }
+        .vdGname { display:inline-flex; align-items:flex-end; line-height:1; }
+        .vdGname span { display:inline-block; transform-origin:bottom center; animation:vdGrav 3s ease-in-out infinite; }
+      `;
+      const warpName = (txt) => {
+        const ch = [...(txt || ' ')]; const len = ch.length; const mid = (len - 1) / 2;
+        return ch.map((c, i) => {
+          const t = 1 - Math.abs(i - mid) / (mid || 1);
+          const e = Math.pow(t, 1.5);
+          const ty = (-e * 22).toFixed(1) + 'px';
+          const sy = (1 + e * 0.55).toFixed(3);
+          const side = i < mid ? 1 : (i > mid ? -1 : 0);
+          const rot = (side * (1 - t) * 10).toFixed(1) + 'deg';
+          const delay = (Math.abs(i - mid) * 0.05).toFixed(2) + 's';
+          return <span key={i} style={{ '--ty': ty, '--sy': sy, '--rot': rot, animationDelay: delay }}>{c === ' ' ? '\u00A0' : c}</span>;
+        });
+      };
+      const stars = Array.from({ length: 46 }, (_, i) => {
+        const c = Math.random();
+        return { left: (Math.random() * 100) + '%', top: (Math.random() * 100) + '%', size: (3 + Math.random() * 7) + 'px', color: c > 0.66 ? '#caa8ff' : c > 0.33 ? '#ff8ab0' : '#fff', dur: (1.5 + Math.random() * 3) + 's', delay: (Math.random() * 3) + 's' };
+      });
+      const specks = Array.from({ length: 30 }, (_, i) => {
+        const ang = Math.random() * Math.PI * 2, dist = 130 + Math.random() * 200;
+        const cols = ['#ffce5e', '#ff3a8a', '#9a4aff'];
+        return { x: Math.cos(ang) * dist + 'px', y: Math.sin(ang) * dist + 'px', color: cols[i % 3], dur: (2.5 + Math.random() * 3) + 's', delay: (Math.random() * 5) + 's' };
+      });
+      const BH = (size, hot, cool) => (
+        <div style={{ position: 'relative', width: size, height: size }}>
+          <div style={{ position: 'absolute', inset: '-25%', borderRadius: '50%', background: `radial-gradient(circle, ${cool}33, transparent 62%)`, animation: 'vdHalo 4s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', inset: '-8%', borderRadius: '50%', transformStyle: 'preserve-3d', transform: 'rotateX(74deg)', animation: 'vdDiskTilt 7s linear infinite', background: `conic-gradient(from 0deg, transparent, ${hot}, #fff8, ${hot}, ${cool}, transparent, ${cool}cc, ${hot}, transparent)`, filter: 'blur(2px) brightness(1.25)', WebkitMaskImage: 'radial-gradient(circle, transparent 38%, #000 44%, #000 92%, transparent 100%)', maskImage: 'radial-gradient(circle, transparent 38%, #000 44%, #000 92%, transparent 100%)' }} />
+          <div style={{ position: 'absolute', inset: '30%', borderRadius: '50%', background: 'radial-gradient(circle at 44% 40%, #0b0714, #000 66%)', boxShadow: '0 0 26px 6px #000, inset 0 0 18px #000', zIndex: 2 }} />
+          <div style={{ position: 'absolute', inset: '27%', borderRadius: '50%', border: '2px solid #fff', boxShadow: `0 0 16px ${hot}, 0 0 30px ${hot}99, inset 0 0 12px ${cool}`, zIndex: 3 }} />
+        </div>
+      );
+      return (
+        <div onClick={tryClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(2,1,6,0.92)', backdropFilter: 'blur(7px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '36px 14px', overflowY: 'auto' }}>
+          <style>{KF}</style>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 600 }}>
+            <div style={{ position: 'relative', borderRadius: 16, padding: '50px 38px 38px', overflow: 'hidden', minHeight: 620, background: 'radial-gradient(ellipse at 50% 42%, #160a2e 0%, #0a0518 44%, #030108 100%)', border: '3px solid #ffce5e', animation: 'vdFrame 4s ease-in-out infinite' }}>
+              {/* stars */}
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                {stars.map((s, i) => <div key={i} style={{ position: 'absolute', left: s.left, top: s.top, fontSize: s.size, color: s.color, animation: `vdTwinkle ${s.dur} ease-in-out infinite`, animationDelay: s.delay }}>✦</div>)}
+              </div>
+              {/* specks spiraling into the hole */}
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+                {specks.map((s, i) => <div key={i} style={{ position: 'absolute', left: '50%', top: '40%', width: 3, height: 3, borderRadius: '50%', background: s.color, boxShadow: `0 0 6px ${s.color}`, '--x': s.x, '--y': s.y, animation: `vdInhale ${s.dur} linear infinite`, animationDelay: s.delay }} />)}
+              </div>
+              {/* black hole, just above the name */}
+              <div style={{ position: 'absolute', top: 300, left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }}>{BH(340, '#ffae3a', '#9a4aff')}</div>
+              {/* glint sweep */}
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '55%', pointerEvents: 'none', zIndex: 5, background: 'linear-gradient(90deg, transparent, #ffffff22, #ffffff44, #ffffff22, transparent)', animation: 'vdGlint 5.5s ease-in-out infinite' }} />
+              {/* inner frame */}
+              <div style={{ position: 'absolute', inset: 10, border: '1px solid #ffce5e44', borderRadius: 12, pointerEvents: 'none', zIndex: 4 }} />
+              {/* rarity badge */}
+              <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 6, width: 54, height: 54, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'absolute', inset: 0, animation: 'vdBadge 9s linear infinite' }}>
+                  <svg width="54" height="54" viewBox="0 0 54 54"><path d="M27 2 L31 12 L42 12 L33 19 L37 30 L27 23 L17 30 L21 19 L12 12 L23 12 Z" fill="none" stroke="#ffce5e" strokeWidth="1.2" opacity="0.5" /></svg>
+                </div>
+                <div style={{ fontFamily: "'Silkscreen',monospace", fontSize: 7, color: '#ffce5e', textAlign: 'center', lineHeight: 1.1, textShadow: '0 0 8px #ffce5e' }}>1 OF<br />FEW</div>
+              </div>
+
+              <div style={{ textAlign: 'center', position: 'relative', zIndex: 3 }}>
+                <div className="vdReveal" style={{ fontFamily: "'Silkscreen',monospace", fontSize: 9, letterSpacing: 5, color: '#ffce5e', marginBottom: 6, textShadow: '0 0 12px #ffce5e88', animationDelay: '.1s' }}>❖ ❖ ❖</div>
+                <div className="vdReveal" style={{ fontFamily: "'Silkscreen',monospace", fontSize: 10, letterSpacing: 3, color: '#caa8ff', marginBottom: 3, animationDelay: '.2s' }}>POKÉMON VOID</div>
+                <div className="vdReveal" style={{ fontFamily: "'Silkscreen',monospace", fontSize: 11, letterSpacing: 3, color: '#ffd87a', marginBottom: 44, textShadow: '0 0 12px #ff8a3a', animationDelay: '.3s' }}>CERTIFICATE OF NIGHTMARE</div>
+                <div style={{ fontFamily: "'Pixelify Sans',sans-serif", fontWeight: 700, fontSize: 54, lineHeight: 1, color: '#fff4ea', opacity: 0, animation: 'vdDrop .8s ease-out .45s forwards, vdShimmer 3.6s ease-in-out 1.3s infinite' }}>SURVIVOR OF</div>
+                <div style={{ fontFamily: "'Pixelify Sans',sans-serif", fontWeight: 700, fontSize: 35, margin: '6px 0 70px', opacity: 0, background: 'linear-gradient(90deg,#ffce5e,#ff3a8a,#9a4aff,#ffce5e)', backgroundSize: '250% auto', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent', filter: 'drop-shadow(0 0 18px #ff2a6a99)', animation: 'vdDrop .8s ease-out .6s forwards, vdFoil 5s linear 1.4s infinite' }}>PŌKEDEX FILLERS</div>
+
+                {/* name pulling up into the hole */}
+                <div className="vdReveal" style={{ fontFamily: "'Pixelify Sans',sans-serif", fontWeight: 700, fontSize: 44, color: '#fff4d0', lineHeight: 1, textShadow: '0 0 26px #9a4aff', animationDelay: '1s', display: 'inline-block' }}>
+                  {hasName ? <span className="vdGname">{warpName(name)}</span> : <span style={{ color: '#caa8ff', opacity: 0.7, fontSize: 30 }}>enter your name</span>}
+                </div>
+                <div style={{ width: 'min(360px,80%)', height: 2, margin: '12px auto 8px', background: 'linear-gradient(90deg, transparent, #ffce5e, transparent)', transformOrigin: 'center', animation: 'vdLine .8s ease-out 1.05s both' }} />
+                <div className="vdReveal" style={{ fontFamily: "'Silkscreen',monospace", fontSize: 8, letterSpacing: 3, color: '#ffce5e', animationDelay: '1.1s', marginBottom: 14 }}>AWARDED TO</div>
+                {/* hidden-ish input so the player can actually type their name */}
+                <input value={name} onChange={e => setName(e.target.value.slice(0, 24))} placeholder="type your name…" style={{ width: 'min(320px,86%)', textAlign: 'center', background: 'transparent', border: 'none', borderBottom: '1px solid #ffce5e55', color: '#fff4d0', fontFamily: "'Pixelify Sans',sans-serif", fontWeight: 700, fontSize: 18, padding: '2px 6px 6px', outline: 'none', marginBottom: 22 }} />
+
+                <div className="vdReveal" style={{ fontSize: 12.5, lineHeight: 1.55, color: '#d8c0e8', maxWidth: 430, margin: '0 auto 22px', animationDelay: '1.1s' }}>
+                  On this day, against the Nightmare — Level 125, status-proof, every blow landing at its cruelest — one trainer did the all-but-impossible.
+                </div>
+                <div className="vdReveal" style={{ fontFamily: "'Silkscreen',monospace", fontSize: 8, letterSpacing: 3, color: '#ffce5e', margin: '6px 0 10px', animationDelay: '1.2s' }}>WITH THE TEAM</div>
+                <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 9, marginBottom: 8 }}>
+                  {(team || []).map((m, i) => (
+                    <div key={i} style={{ position: 'relative', width: 66, height: 66, borderRadius: 11, opacity: 0, animation: `vdRise .6s ease-out ${(1 + i * 0.12).toFixed(2)}s forwards`, background: '#140a22', border: '1px solid #ffce5e55', boxShadow: 'inset 0 0 16px #9a4aff33, 0 0 12px #6a3aff44' }}>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 4, animation: `vdBob 3.4s ease-in-out infinite`, animationDelay: `${(i * 0.25).toFixed(2)}s` }}>
+                        <SpriteSlot dex={m.dex} name={m.name} size={42} accent="#ffce5e" />
+                        <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, marginTop: 2, color: '#ffce5edd', maxWidth: 60, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="vdReveal" style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: '#caa8ff', marginTop: 24, animationDelay: '1.9s' }}><span style={{ color: '#ffce5e' }}>◆</span>&nbsp; NIGHTMARE DIFFICULTY · pokemonvoid.github.io &nbsp;<span style={{ color: '#ffce5e' }}>◆</span></div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 16 }}>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 12, color: '#8a83a8', textAlign: 'center', alignSelf: 'center' }}>
+                {hasName ? 'Screenshot your certificate to share it!' : 'Enter your name to claim your certificate.'}
+              </div>
+              <button onClick={tryClose} disabled={!hasName} style={{ cursor: hasName ? 'pointer' : 'not-allowed', background: hasName ? '#1a1030' : '#100c1e', border: `1px solid ${hasName ? '#ffce5e55' : '#1d1838'}`, color: hasName ? '#ffce5e' : '#5f5980', borderRadius: 8, padding: '8px 18px', fontFamily: "'Pixelify Sans',sans-serif", fontWeight: 700, fontSize: 14 }}>Close</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const C = nm
       ? { edge: '#ff3b3b', edge2: '#ff7a4d', glow: '#ff2a2a', ink: '#ffe8e0', sub: '#ff9a8a', bg: 'radial-gradient(ellipse at 50% 0%, #2a0606 0%, #160512 45%, #08040a 100%)', seal: '#ff3b3b' }
       : hard
@@ -2839,6 +2963,17 @@ window.VIEWS = window.VIEWS || {};
         const m = qs.match(/[?&]vd_ovr=([A-Za-z0-9-]+)/);
         return !!(m && m[1] === DEV_TOKEN);
       } catch (e) { return false; }
+    }, []);
+    // DESIGN PREVIEW (display-only): ?vd_certpreview=normal|hard|nightmare opens the
+    // certificate modal so you can see exactly how it renders (including the name-entry
+    // field) for the team currently loaded in Team A. This is purely a visual preview —
+    // its close handler does NOT call submitWin, so it can never touch the leaderboard.
+    const certPreviewTier = React.useMemo(() => {
+      try {
+        const qs = (window.location.search || '') + ' ' + (window.location.hash || '');
+        const m = qs.match(/[?&]vd_certpreview=(normal|hard|nightmare)/);
+        return m ? m[1] : null;
+      } catch (e) { return null; }
     }, []);
     const [pflrs, setPflrs] = React.useState(false); // PFLRS boss mode (Team B becomes a cranked boss)
     const [aiMode, setAiMode] = React.useState('normal'); // 'normal' | 'hard' AI difficulty
@@ -3132,10 +3267,8 @@ window.VIEWS = window.VIEWS || {};
       }
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
       // 6-species team, tracked separately per difficulty, persisted across sessions.
-      // A dev-forced win IS allowed to earn a cert and submit to the leaderboard (so the
-      // dev can seed/test the board); it is still kept OUT of the adaptive Nightmare meta
-      // by the !r.devForced guard on logNightmareAttempt above.
-      if (pflrs && r.winner === 'A') {
+      // A dev-forced win NEVER earns a cert or submits to the leaderboard.
+      if (pflrs && r.winner === 'A' && !r.devForced) {
         const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
         // differ-by-5: a win earns a (scoring) cert only if the team changed >=5 mons
@@ -3409,6 +3542,16 @@ window.VIEWS = window.VIEWS || {};
         {cert && (!result || skip || step >= result.events.length - 1) && (
           <CertModal tier={cert.tier} team={cert.team} name={certName} setName={setCertName} onClose={() => { submitWin(cert.tier, cert.team, certName); setCert(null); }} />
         )}
+
+        {/* DESIGN PREVIEW (display-only): renders the certificate exactly as it appears,
+            using whatever team is loaded in Team A, when ?vd_certpreview=<tier> is set.
+            Its onClose ONLY closes the preview — it never calls submitWin, so this can
+            never write to the leaderboard or record a win. Purely to see the visual. */}
+        {certPreviewTier && !cert && (() => {
+          const previewTeam = (manualA && manualA.length ? manualA : (teamA || [])).map(m => ({ dex: m.dex, name: (window.VDEX.byDex(m.dex) || {}).name || m.name }));
+          const team = previewTeam.length ? previewTeam : [{ dex: '009', name: 'Kodinaut' }];
+          return <CertModal tier={certPreviewTier} team={team} name={certName} setName={setCertName} onClose={() => { window.location.hash = '#/battle'; }} />;
+        })()}
 
         {/* playback scrubber */}
         {result && !skip && (
