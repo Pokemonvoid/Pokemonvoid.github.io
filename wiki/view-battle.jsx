@@ -3018,6 +3018,20 @@ window.VIEWS = window.VIEWS || {};
     const run = () => {
       const built = assembleTeams();
       if (!built) return;
+      // Boss fights require a FULL moveset: every Pokémon on the player's side must have
+      // 4 moves. This stops the "one move per mon" trick (used to make the auto-battler
+      // predictable) from being used to cheese the boss — boss wins should come from a
+      // real, complete team. Random teams always auto-fill 4, so this only bites a
+      // manually-built team with deliberately short movesets. (Mons that genuinely can't
+      // learn 4 moves don't exist among discovered species, so nobody is locked out.)
+      if (pflrs) {
+        const short = (built.A || []).filter(m => !m.moves || m.moves.length < 4);
+        if (short.length) {
+          const names = short.map(m => m.name).join(', ');
+          setBuildMsg('Boss battles require a full moveset: give every Pokémon 4 moves before challenging the boss. Missing moves on: ' + names + '.');
+          return;
+        }
+      }
       // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
       const r = simulate(built.A, built.B, undefined, aiMode, { srcA, srcB });
       setResult(r);
