@@ -2766,17 +2766,22 @@ window.VIEWS = window.VIEWS || {};
     const [certName, setCertName] = React.useState(''); // player-entered name for the certificate
     const timer = React.useRef(null);
 
-    // --- certificate de-dupe: one cert per unique 6-species set, per difficulty,
-    // persisted across sessions. key = sorted dex numbers. ---
-    const certTeamKey = (team) => (team || []).map(m => m.dex).slice().sort((a, b) => a - b).join('-');
+    // --- certificate eligibility: a win counts only if the team CHANGES AT LEAST 5
+    // of its 6 mons versus every team already used on this tier. I.e. it may share at
+    // most ONE species with any prior winning team; 2+ shared = "too similar, no new
+    // cert." Stored per difficulty, persisted across sessions, as a list of the dex
+    // arrays of teams that have already scored. ---
+    const certDexList = (team) => (team || []).map(m => String(m.dex)).sort();
+    const certTeamKey = (team) => certDexList(team).join('-'); // still used as the row key sent to the DB
     const certStoreKey = (tier) => 'voidmon_fillers_certs_' + tier;
+    // shared-species count between two dex arrays
+    const sharedCount = (a, b) => { const sb = new Set(b); let n = 0; a.forEach(d => { if (sb.has(d)) n++; }); return n; };
+    const MIN_CHANGED = 5; // must change >=5 of 6 => may share at most (6 - 5) = 1
 
-    // --- one-time go-live reset: when this version ships, wipe any previously
-    // stored "team already used" memory so every team is available to score with
-    // again. The memory is PER TIER (a team can score once on each of normal/hard/
-    // nightmare; repeats on the SAME tier earn nothing). Bump LEADERBOARD_EPOCH to
-    // trigger another fresh start on a future patch. ---
-    const LEADERBOARD_EPOCH = 'lb_v2'; // bumped for today's patch — clears used-team memory
+    // --- one-time go-live reset: when this version ships, wipe any previously stored
+    // "team already used" memory so every team is available to score with again. Bump
+    // LEADERBOARD_EPOCH to trigger another fresh start on a future patch. ---
+    const LEADERBOARD_EPOCH = 'lb_v3'; // bumped: new differ-by-5 format + reset
     (function resetCertsOnGoLive() {
       try {
         if (localStorage.getItem('voidmon_lb_epoch') === LEADERBOARD_EPOCH) return;
@@ -2785,12 +2790,19 @@ window.VIEWS = window.VIEWS || {};
       } catch (e) { /* storage unavailable — nothing to reset */ }
     })();
 
-    const certAlreadyEarned = (tier, key) => {
-      try { const raw = localStorage.getItem(certStoreKey(tier)); const set = raw ? JSON.parse(raw) : []; return Array.isArray(set) && set.includes(key); }
-      catch (e) { return false; }
+    const certPriorTeams = (tier) => {
+      try { const raw = localStorage.getItem(certStoreKey(tier)); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }
+      catch (e) { return []; }
     };
-    const certRecord = (tier, key) => {
-      try { const raw = localStorage.getItem(certStoreKey(tier)); const set = raw ? JSON.parse(raw) : []; if (!set.includes(key)) { set.push(key); localStorage.setItem(certStoreKey(tier), JSON.stringify(set)); } }
+    // "already earned" now means: too similar to a prior team (shares 2+ mons with any
+    // of them, i.e. changed fewer than 5). A brand-new or sufficiently-different team
+    // returns false and is allowed to score.
+    const certAlreadyEarned = (tier, team) => {
+      const dex = certDexList(team);
+      return certPriorTeams(tier).some(prev => sharedCount(dex, prev) > (6 - MIN_CHANGED));
+    };
+    const certRecord = (tier, team) => {
+      try { const arr = certPriorTeams(tier); arr.push(certDexList(team)); localStorage.setItem(certStoreKey(tier), JSON.stringify(arr)); }
       catch (e) { /* storage unavailable — cert still shows once this session */ }
     };
 
@@ -2815,12 +2827,22 @@ window.VIEWS = window.VIEWS || {};
         team: team,
         voter_id: lbVoterId(),
       };
+      // The CLIENT differ-by-5 gate (certAlreadyEarned) is what prevents farming, so the
+      // DB insert should always go through for an allowed win. We check the response so a
+      // real rejection (e.g. a too-strict unique index on voter_id/difficulty that was
+      // silently dropping legitimate new-team wins) is visible instead of swallowed.
       try {
         fetch(LB_URL.replace(/\/$/, '') + '/rest/v1/boss_wins', {
           method: 'POST',
           headers: { 'apikey': LB_KEY, 'Authorization': 'Bearer ' + LB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
           body: JSON.stringify(payload),
-        }).catch(() => { /* offline / duplicate — ignore */ });
+        }).then(res => {
+          if (!res.ok) {
+            // 409 = unique-constraint conflict: the DB index is rejecting a win the client
+            // considers valid. Surface it so it can be diagnosed (and the index relaxed).
+            console.warn('[leaderboard] win not recorded (HTTP ' + res.status + '). If this is a 409, the boss_wins unique index is too strict for the differ-by-5 rule and should be widened to include team_key.');
+          }
+        }).catch(() => { console.warn('[leaderboard] win submission failed (offline?)'); });
       } catch (e) { /* ignore */ }
       return true;
     };
@@ -3010,9 +3032,11 @@ window.VIEWS = window.VIEWS || {};
       if (pflrs && r.winner === 'A') {
         const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
-        const key = certTeamKey(team);
-        if (!certAlreadyEarned(tier, key)) {
-          certRecord(tier, key);
+        // differ-by-5: a win earns a (scoring) cert only if the team changed >=5 mons
+        // vs every team already used on this tier. Too-similar repeats show no cert and
+        // don't submit, so the board can't be farmed with near-identical teams.
+        if (!certAlreadyEarned(tier, team)) {
+          certRecord(tier, team);
           setCert({ tier, team });
         }
       }
