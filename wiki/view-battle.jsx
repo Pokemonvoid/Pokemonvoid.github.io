@@ -2055,6 +2055,14 @@ window.VIEWS = window.VIEWS || {};
         if (gateLine) { events.push({ t: 'cantmove', side, name: atk.name, reason: gateLine, statusOf: snapshotStatus(A, B) }); log.push(gateLine); }
         if (cantAct) continue;
 
+        // ---- Shell Burst: usable only while the user is Cosmic-type. If the user has
+        // already lost its Cosmic typing (e.g. from a prior Shell Burst), the move fails.
+        if (normName(mv.name) === 'shellburst' && !atk.types.includes('COSMIC')) {
+          events.push({ t: 'move', side, move: mv.name, attacker: atk.name, failed: true });
+          log.push(`${atk.name} used ${mv.name}, but it failed! (no longer Cosmic-type)`);
+          continue;
+        }
+
         // ---- Protect family: blocks all damage this turn; fails more if used in a
         // row (canonical successive-use penalty: 1, 1/3, 1/9, ...). Consumes the turn.
         if (isProtectMove(mv)) {
@@ -2141,6 +2149,13 @@ window.VIEWS = window.VIEWS || {};
           else if (res.eff === 0) line += ` It doesn't affect ${def.name}…`;
         }
         log.push(line);
+        // ---- Shell Burst: after firing, the user permanently loses its Cosmic typing
+        // for the rest of the battle (a one-time nuke that changes the user's defenses). ----
+        if (normName(mv.name) === 'shellburst' && atk.types.includes('COSMIC')) {
+          atk.types = atk.types.filter(t => t !== 'COSMIC');
+          events.push({ t: 'typechange', side, name: atk.name, types: atk.types.slice() });
+          log.push(`${atk.name} lost its Cosmic typing!`);
+        }
         // ---- recoil & drain (apply off the damage actually dealt) ----
         if (mv.cls !== 'Status' && dealt > 0) {
           const mn = normName(mv.name);
