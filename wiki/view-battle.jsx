@@ -1109,7 +1109,7 @@ window.VIEWS = window.VIEWS || {};
   // level 125, attacks always roll max damage (see maxRoll in damage calc), and a
   // stat multiplier tuned so essentially nobody clears it (target: 2-3 people ever).
   const PFLRS_NIGHTMARE_LEVEL = 125;
-  const PFLRS_NIGHTMARE_MULT = 1.10; // NIGHTMARE boss multiplier
+  const PFLRS_NIGHTMARE_MULT = 1.00; // NIGHTMARE boss multiplier
   // Nightmare gets its OWN default roster — a hard counter to the dominant community
   // meta team (Kodinaut/Equinine/Cerbament/Colapsore/Sediserker/Mangmight), built
   // around Water + Fighting + Grass + Light STAB that punishes that exact lineup,
