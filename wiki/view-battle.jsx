@@ -2826,6 +2826,20 @@ window.VIEWS = window.VIEWS || {};
     const [level, setLevel] = React.useState(50);   // avg level for RANDOM teams (1–100)
     const [inspect, setInspect] = React.useState(null); // null | 'A' | 'B'
     const [buildMsg, setBuildMsg] = React.useState('');
+    // DEV-ONLY guaranteed-win toggle for live testing. Enabled by adding a private param
+    // to the URL: ?vd_ovr=<token> (the token is set below). When active, a boss fight is
+    // forced to a player win so you can exercise the win/cert/UI flow without building a
+    // winning team. It is NOT a team code (can't be shared/imported), and it explicitly
+    // SKIPS the certificate and leaderboard submission so a dev win can never be recorded
+    // or pollute the boards. Read once on mount.
+    const devWin = React.useMemo(() => {
+      try {
+        const DEV_TOKEN = 'drapalla-7731'; // private; change to rotate. add ?vd_ovr=drapalla-7731 to the URL
+        const qs = (window.location.search || '') + ' ' + (window.location.hash || '');
+        const m = qs.match(/[?&]vd_ovr=([A-Za-z0-9-]+)/);
+        return !!(m && m[1] === DEV_TOKEN);
+      } catch (e) { return false; }
+    }, []);
     const [pflrs, setPflrs] = React.useState(false); // PFLRS boss mode (Team B becomes a cranked boss)
     const [aiMode, setAiMode] = React.useState('normal'); // 'normal' | 'hard' AI difficulty
     const [cert, setCert] = React.useState(null); // {tier:'normal'|'hard', team:[{dex,name}]} when a fresh boss win earns a certificate
@@ -3100,16 +3114,26 @@ window.VIEWS = window.VIEWS || {};
       }
       // the boss always battles with the smarter (Hard) AI; otherwise use the toggle
       const r = simulate(built.A, built.B, undefined, aiMode, { srcA, srcB });
+      // DEV-ONLY override: force a player win for live testing. Marked so downstream
+      // logic (cert / leaderboard) can hard-skip it — a dev win is never recorded.
+      if (devWin && pflrs) {
+        r.winner = 'A';
+        r.devForced = true;
+        r.survivorsB = 0;
+        if (Array.isArray(r.teamB)) r.teamB.forEach(m => { m.fainted = true; m.hp = 0; });
+      }
       setResult(r);
       // Adaptive Nightmare: log this attempt (win or loss) so the boss can adapt
       // its movesets to the community meta. Uses the player's actual Team A.
-      if (pflrs && aiMode === 'nightmare') {
+      // (Never log a dev-forced win — it would poison the adaptive meta.)
+      if (pflrs && aiMode === 'nightmare' && !r.devForced) {
         const bossKOs = (r.teamB ? r.teamB.length : 6) - (r.survivorsB || 0);
         logNightmareAttempt(built.A, r.winner === 'A', bossKOs);
       }
       // certificate: a win vs the real Pokedex Fillers boss earns one cert per unique
       // 6-species team, tracked separately per difficulty, persisted across sessions.
-      if (pflrs && r.winner === 'A') {
+      // A dev-forced win NEVER earns a cert or submits to the leaderboard.
+      if (pflrs && r.winner === 'A' && !r.devForced) {
         const tier = aiMode === 'nightmare' ? 'nightmare' : (aiMode === 'hard' ? 'hard' : 'normal');
         const team = (r.teamA || built.A || []).map(m => ({ dex: m.dex, name: m.name }));
         // differ-by-5: a win earns a (scoring) cert only if the team changed >=5 mons
