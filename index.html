@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Pokémon Void — Wiki</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2307060f'/%3E%3Ccircle cx='32' cy='32' r='18' fill='%238a5cff'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23e9e4ff'/%3E%3C/svg%3E" />
+<!-- PWA: installable app metadata -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#07060f" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Voiddex" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -197,6 +205,17 @@
       window.SPRITE_VERSION = Array.from(window.SPRITE_SET).join('-');
     })
     .finally(() => { ReactDOM.createRoot(document.getElementById('root')).render(<App />); });
+</script>
+<script>
+  // PWA: register the service worker. Wrapped in checks so it never breaks the
+  // site if the browser does not support it (or on file:// during local testing).
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.warn('Service worker registration failed:', err);
+      });
+    });
+  }
 </script>
 </body>
 </html>
