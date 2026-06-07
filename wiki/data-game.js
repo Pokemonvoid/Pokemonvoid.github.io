@@ -8982,7 +8982,7 @@ window.VGAME = (function () {
     // Battle Items — held items first, then field utility
     { name: 'Leftovers', cat: 'Battle Items', icon: 'items/LEFTOVERS.png', desc: 'A held item that gradually restores the holder\'s HP each turn. Hidden in the Limerico Poké Mart\'s trash can.', find: 'Limerico Town (Poké Mart trash can)' },
     { name: 'Big Root', cat: 'Battle Items', icon: 'items/BIGROOT.png', desc: 'A held item that boosts the HP restored by draining moves and Leech Seed.', find: 'Held by wild Pokémon; vendors' },
-    { name: 'EXP. Share', cat: 'Battle Items', icon: 'items/EXPSHARE.png', desc: 'Shares Experience Points with the Pokémon in the party that did not battle.', find: 'Key item; given during the story' },
+    { name: 'EXP. Share', cat: 'Battle Items', icon: 'items/EXPSHARE.png', desc: 'Shares Experience Points with the Pokémon in the party that did not battle.', find: 'Pebpup Cavern (western entrance, between two steps)' },
     { name: 'King\'s Rock', cat: 'Battle Items', icon: 'items/KINGSROCK.png', desc: 'A held item that may cause the foe to flinch when the holder lands a damaging hit.', find: 'Held by wild Pokémon; vendors' },
     { name: 'Iron Ball', cat: 'Battle Items', icon: 'items/IRONBALL.png', desc: 'A held item that cuts Speed and grounds Flying-types and levitators.', find: 'Held by wild Pokémon; vendors' },
     { name: 'Destiny Knot', cat: 'Battle Items', icon: 'items/DESTINYKNOT.png', desc: 'A held item that, if the holder becomes infatuated, infatuates the foe as well. Used in breeding.', find: 'Held items; Daycare' },
@@ -9097,7 +9097,7 @@ window.VGAME = (function () {
       encounter: '', map: 'limerico-town.png',
       mons: [],
       encounters: [],
-      items: ['Leftovers', 'Everstone', 'Exp. Share'],
+      items: ['Leftovers', 'Everstone'],
       quests: [],
       npcs: [{ name: 'Forest', role: 'Farmer', sprite: 'FARMER.png', starterDependent: false, team: [{ dex: '038', name: 'Scalfling', lv: 9, ability: 'Cud Chew / Poison Point', moves: ['Poison Sting', 'Tail Whip', 'Rage'], note: '' }, { dex: '027', name: 'Pawnut', lv: 11, ability: 'Inner Focus / Weak Armor', moves: ['Harden', 'Leech Seed', 'Growth', 'Protect'], note: '' }] }, { name: 'Siesta', role: 'Harvester', sprite: 'HARVESTER.png', starterDependent: false, team: [{ dex: '044', name: 'Cruspud', lv: 13, ability: 'Stench', moves: ['Rollout', 'Sand Attack', 'Infestation', 'Mud Shot'], note: '' }] }, { name: 'Clara', role: 'Gym Leader', sprite: 'LEADER_CLARA.png', starterDependent: false, team: [{ dex: '044', name: 'Cruspud', lv: 12, ability: 'Harvest', moves: ['Rollout', 'Sand Attack', 'Infestation', 'Work Up'], note: '' }, { dex: '036', name: 'Scraqua', lv: 14, ability: 'Hydration / Ball Fetch', moves: ['Tackle', 'Water Sport', 'Work Up', 'Bite'], note: '' }, { dex: '039', name: 'Bision', lv: 16, ability: 'Intimidate', moves: ['Work Up', 'Poison Tail', 'Rage', 'Bulldoze'], note: '' }] }],
     },
