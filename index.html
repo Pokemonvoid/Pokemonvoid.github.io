@@ -77,13 +77,22 @@
     /* ---- GRIDS ----
        Catch-all: collapse ANY multi-column grid to a single column on phones.
        This covers every current layout AND any new view added later, instead of
-       enumerating exact strings. Galleries that use auto-fill/auto-fit are handled
-       separately just below (they stay multi-column, only the cells shrink). */
-    [style*="grid-template-columns"] {
+       enumerating exact strings. Two opt-outs follow: auto-fill/auto-fit galleries
+       (stay multi-column, smaller cells) and .v-keeprow (narrow label/number/bar
+       rows that must stay horizontal, e.g. stat bars, comparison rows). */
+    [style*="grid-template-columns"]:not(.v-keeprow) {
       grid-template-columns: 1fr !important;
     }
 
-    /* opt-out: sprite/card galleries keep multiple columns, just smaller cells.
+    /* opt-out 1: narrow row-grids (stat bars, compare rows, damage rows, move
+       roster) keep their horizontal layout. Without this they stack vertically and
+       their proportional bars/columns break. Wide ones scroll sideways if needed. */
+    .v-keeprow {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* opt-out 2: sprite/card galleries keep multiple columns, just smaller cells.
        auto-fill/auto-fit grids are responsive by nature, so re-enable them with a
        phone-friendly minimum. The min() guard stops a single wide card on tiny screens. */
     [style*="auto-fill"], [style*="auto-fit"] {

@@ -43,7 +43,7 @@ window.VIEWS = window.VIEWS || {};
     const learners = open ? learnersOf(m.name) : null;
     return (
       <div style={{ borderTop: i ? '1px solid #1a1630' : 'none' }}>
-        <div onClick={() => setOpen(o => !o)} style={{ cursor: 'pointer', display: 'grid', gridTemplateColumns: 'minmax(220px, 2.4fr) 132px 124px 1fr 1fr 1fr', gap: 16, padding: '18px 24px', alignItems: 'start' }}>
+        <div onClick={() => setOpen(o => !o)} className="v-keeprow" style={{ cursor: 'pointer', display: 'grid', gridTemplateColumns: 'minmax(220px, 2.4fr) 132px 124px 1fr 1fr 1fr', gap: 16, padding: '18px 24px', alignItems: 'start' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: open ? '#b08fff' : '#5f5980', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>›</span>
@@ -121,7 +121,7 @@ window.VIEWS = window.VIEWS || {};
         {list.length === 0 ? <Empty label="No moves match." /> : (
           <div style={{ border: '1px solid #221d3a', borderRadius: 14, overflow: 'hidden', background: '#0e0b1f' }}>
             {/* header */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 2.4fr) 132px 124px 1fr 1fr 1fr', gap: 16, padding: '14px 24px', borderBottom: '1px solid #221d3a', background: '#120e26' }}>
+            <div className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 2.4fr) 132px 124px 1fr 1fr 1fr', gap: 16, padding: '14px 24px', borderBottom: '1px solid #221d3a', background: '#120e26' }}>
               {['Move', 'Type', 'Class', 'Pow', 'Acc', 'PP'].map((h, i) => <span key={h} style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#6a6388', letterSpacing: 0.5, textAlign: i >= 3 ? 'right' : 'left' }}>{h.toUpperCase()}</span>)}
             </div>
             {list.map((m, i) => <MoveRow key={m.name} m={m} i={i} />)}

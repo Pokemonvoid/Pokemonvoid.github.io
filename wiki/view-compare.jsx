@@ -163,7 +163,7 @@ window.VIEWS = window.VIEWS || {};
     const setSlot = (i, dx) => { setPicks(p => p.map((v, idx) => idx === i ? dx : v)); setPickerFor(null); setPq(''); };
 
     const StatRow = ({ k }) => (
-      <div style={{ display: 'grid', gridTemplateColumns: '92px repeat(3, 1fr)', gap: 10, alignItems: 'center', padding: '7px 0', borderTop: '1px solid #1a1630' }}>
+      <div className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: '92px repeat(3, 1fr)', gap: 10, alignItems: 'center', padding: '7px 0', borderTop: '1px solid #1a1630' }}>
         <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#8a83a8' }}>{STAT_LABELS[k].toUpperCase()}</span>
         {chosen.map((d, i) => {
           if (!d) return <span key={i} />;
@@ -216,13 +216,13 @@ window.VIEWS = window.VIEWS || {};
           <Empty label="Pick up to 3 Pokémon above to compare them head-to-head." />
         ) : (
           <div style={{ border: '1px solid #221d3a', borderRadius: 14, background: '#0e0b1f', padding: '6px 18px 16px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '92px repeat(3, 1fr)', gap: 10, padding: '10px 0 4px' }}>
+            <div className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: '92px repeat(3, 1fr)', gap: 10, padding: '10px 0 4px' }}>
               <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#6a6388' }}>STAT</span>
               {chosen.map((d, i) => <span key={i} style={{ textAlign: 'center', fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 14, color: d ? '#fff' : '#3a3550' }}>{d ? d.name : '—'}</span>)}
             </div>
             {STAT_KEYS.map(k => <StatRow key={k} k={k} />)}
             {/* BST row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '92px repeat(3, 1fr)', gap: 10, alignItems: 'center', padding: '9px 0 2px', borderTop: '2px solid #2a2350', marginTop: 4 }}>
+            <div className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: '92px repeat(3, 1fr)', gap: 10, alignItems: 'center', padding: '9px 0 2px', borderTop: '2px solid #2a2350', marginTop: 4 }}>
               <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#b08fff' }}>TOTAL</span>
               {chosen.map((d, i) => {
                 if (!d) return <span key={i} />;

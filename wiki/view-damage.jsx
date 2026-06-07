@@ -191,11 +191,11 @@ window.VIEWS = window.VIEWS || {};
         <button onClick={() => setShowAdv(s => !s)} style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: '#8a5cff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, marginTop: 4 }}>{showAdv ? '▾ hide IVs / EVs' : '▸ IVs / EVs'}</button>
         {showAdv && (
           <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 8, alignItems: 'center', fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#5f5980' }}>
+            <div className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 8, alignItems: 'center', fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#5f5980' }}>
               <span></span><span style={{ textAlign: 'center' }}>IV (0-31)</span><span style={{ textAlign: 'center' }}>EV (0-252)</span>
             </div>
             {STATS.map(s => (
-              <div key={s} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 8, alignItems: 'center' }}>
+              <div key={s} className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr', gap: 8, alignItems: 'center' }}>
                 <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#a89fce' }}>{s}</span>
                 <input type="number" min={0} max={31} value={f.ivs[s]} onChange={e => set({ ...f, ivs: { ...f.ivs, [s]: Math.max(0, Math.min(31, +e.target.value || 0)) } })} style={{ ...numStyle, width: '100%' }} />
                 <input type="number" min={0} max={252} value={f.evs[s]} onChange={e => set({ ...f, evs: { ...f.evs, [s]: Math.max(0, Math.min(252, +e.target.value || 0)) } })} style={{ ...numStyle, width: '100%' }} />

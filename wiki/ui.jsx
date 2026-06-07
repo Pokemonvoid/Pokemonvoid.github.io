@@ -100,7 +100,7 @@
           const pct = Math.min(100, (v / STAT_MAX) * 100);
           const col = STAT_COLORS[k] || '#a07bff';
           return (
-            <div key={k} style={{ display: 'grid', gridTemplateColumns: '74px 34px 1fr', alignItems: 'center', gap: 10, marginBottom: 9 }}>
+            <div key={k} className="v-keeprow" style={{ display: 'grid', gridTemplateColumns: '74px 34px 1fr', alignItems: 'center', gap: 10, marginBottom: 9 }}>
               <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 9, color: '#8a83a8' }}>{STAT_LABELS[k].toUpperCase()}</span>
               <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, color: '#f0ecff', fontWeight: 700, textAlign: 'right' }}>{v}</span>
               <div style={{ height: 9, borderRadius: 3, background: '#181334', overflow: 'hidden', border: '1px solid #2a2350' }}>
