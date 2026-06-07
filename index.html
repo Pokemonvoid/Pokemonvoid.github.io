@@ -53,8 +53,13 @@
   input::placeholder { color: #6a6388; }
   a { color: inherit; }
 
-  /* ===== MOBILE ONLY — every rule below applies only at <=640px. Desktop layout is untouched. ===== */
+  /* ===== MOBILE ONLY — every rule below applies only at <=640px. Desktop layout is untouched. =====
+     Everything in this block is wrapped in @media (max-width: 640px), so a desktop browser never
+     evaluates any of it. Do not move rules outside this block and do not raise the 640px breakpoint. */
   @media (max-width: 640px) {
+    /* prevent any stray element from forcing horizontal page scroll */
+    html, body { overflow-x: hidden; }
+
     .v-main { padding: 18px 14px 64px !important; }
     .v-pagehead { font-size: 32px !important; }
 
@@ -67,24 +72,41 @@
       scrollbar-width: none;
     }
     .v-navlinks::-webkit-scrollbar { display: none; }
-    .v-navlinks .vnav-link { white-space: nowrap; flex: 0 0 auto; }
+    .v-navlinks .vnav-link { white-space: nowrap; flex: 0 0 auto; padding: 9px 12px !important; }
 
-    /* collapse common hard-coded multi-column grids to a single column */
-    [style*="grid-template-columns: 1fr 1fr"],
-    [style*="grid-template-columns: repeat(3, 1fr)"],
-    [style*="grid-template-columns: repeat(2, 1fr)"],
-    [style*="grid-template-columns: minmax(280px, 380px) 1fr"],
-    [style*="grid-template-columns: 1fr 1.05fr"],
-    [style*="grid-template-columns: 1fr 1.15fr"],
-    [style*="grid-template-columns: 210px 1fr"],
-    [style*="grid-template-columns: 320px 1fr"],
-    [style*="grid-template-columns: 1.4fr 1fr"] {
+    /* ---- GRIDS ----
+       Catch-all: collapse ANY multi-column grid to a single column on phones.
+       This covers every current layout AND any new view added later, instead of
+       enumerating exact strings. Galleries that use auto-fill/auto-fit are handled
+       separately just below (they stay multi-column, only the cells shrink). */
+    [style*="grid-template-columns"] {
       grid-template-columns: 1fr !important;
     }
 
-    /* tame oversized inline headings (Living Dex 52px title, detail-page 76px name, etc.) */
-    h1[style*="font-size: 52px"], h1[style*="font-size: 46px"] { font-size: 30px !important; }
-    h1[style*="font-size: 76px"] { font-size: 40px !important; line-height: 1 !important; }
+    /* opt-out: sprite/card galleries keep multiple columns, just smaller cells.
+       auto-fill/auto-fit grids are responsive by nature, so re-enable them with a
+       phone-friendly minimum. The min() guard stops a single wide card on tiny screens. */
+    [style*="auto-fill"], [style*="auto-fit"] {
+      grid-template-columns: repeat(auto-fill, minmax(min(96px, 30vw), 1fr)) !important;
+    }
+
+    /* ---- HEADINGS ----
+       Scale every large fixed inline heading down for phones. Covers the full set
+       found across views (40,42,44,46,52,54,56,64,76) rather than only two of them. */
+    [style*="font-size: 40px"], [style*="font-size: 42px"],
+    [style*="font-size: 44px"], [style*="font-size: 46px"] { font-size: 28px !important; line-height: 1.15 !important; }
+    [style*="font-size: 52px"], [style*="font-size: 54px"],
+    [style*="font-size: 56px"] { font-size: 32px !important; line-height: 1.1 !important; }
+    [style*="font-size: 64px"], [style*="font-size: 76px"] { font-size: 40px !important; line-height: 1 !important; }
+
+    /* ---- WIDE CONTENT ----
+       Keep wide tables / rosters scrollable instead of blowing out the viewport.
+       (Some of these already have a scroll wrapper; this is a belt-and-braces guard.) */
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+
+    /* ---- TAP COMFORT ---- */
+    button, .vnav-link, a[role="button"] { min-height: 40px; }
+    input, select, textarea { font-size: 16px !important; } /* stops iOS auto-zoom on focus */
   }
 </style>
 </head>
