@@ -25,11 +25,11 @@ window.VGUIDE = (function () {
       },
       shots: [
         "guide-img/cutscenes-events-character-selection-00.png",
-        "guide-img/cutscenes-events-character-selection-02.png",
-        "guide-img/cutscenes-events-character-selection-01.png",
         "guide-img/cutscenes-events-character-selection-03.png",
-        "guide-img/cutscenes-events-character-selection-05.png",
-        "guide-img/cutscenes-events-character-selection-04.png"
+        "guide-img/cutscenes-events-character-selection-02.png",
+        "guide-img/cutscenes-events-character-selection-03.png",
+        "guide-img/cutscenes-events-character-selection-04.png",
+        "guide-img/cutscenes-events-character-selection-05.png"
       ],
       dialogue: [
         {
