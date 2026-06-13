@@ -391,7 +391,6 @@ window.VGUIDE = (function () {
         "guide-img/towns-cities-saudade-town-outside-00.png",
         "guide-img/towns-cities-saudade-town-outside-01.png",
         "guide-img/towns-cities-saudade-town-outside-02.png",
-        "guide-img/towns-cities-saudade-town-outside-03.png",
         "guide-img/towns-cities-saudade-town-outside-04.png",
         "guide-img/towns-cities-saudade-town-outside-05.png"
       ],
