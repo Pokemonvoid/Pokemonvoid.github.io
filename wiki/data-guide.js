@@ -1060,9 +1060,9 @@ window.VGUIDE = (function () {
         tip: "Forest gives $352 and Siesta gives $416 on defeat. Beating each trainer makes the Pokémon they guard move. Heal before facing Clara."
       },
       shots: [
-        "guide-img/towns-cities-limerico-town-limerico-gym-00.png",
+        "guide-img/towns-cities-limerico-town-limerico-gym-02.png",
         "guide-img/towns-cities-limerico-town-limerico-gym-01.png",
-        "guide-img/towns-cities-limerico-town-limerico-gym-02.png"
+        "guide-img/towns-cities-limerico-town-limerico-gym-00.png"
       ],
       dialogue: [
         {
