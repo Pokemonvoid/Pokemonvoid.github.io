@@ -9,511 +9,1225 @@
 window.VGUIDE = (function () {
   const CHAPTERS = [
     {
-      id: 'intro',
-      title: 'Introduction',
-      area: 'Opening',
+      id: "intro",
+      title: "Introduction",
+      area: "Opening",
       blurb: "Professor Hickory welcomes you to the world of Pokémon and onboards you as a research intern.",
       summary: {
         objectives: [
-          'Customise your character appearance',
-          'Choose your name',
-          'Meet Professor Hickory and his daughter Pecan',
+          "Customise your character appearance",
+          "Choose your name",
+          "Meet Professor Hickory and his daughter Pecan"
         ],
         items: [],
         mons: [],
-        tip: 'This is a story-only segment — no battles yet. Just enjoy the intro and pick a name you like, since it is used throughout.',
+        tip: "This is a story-only segment — no battles yet. Just enjoy the intro and pick a name you like, since it is used throughout."
       },
       shots: [
-        'guide-img/cutscenes-events-character-selection-00.png',
-	'guide-img/cutscenes-events-character-selection-02.png',
-        'guide-img/cutscenes-events-character-selection-01.png',
-        'guide-img/cutscenes-events-character-selection-03.png',
-        'guide-img/cutscenes-events-character-selection-05.png',
-        'guide-img/cutscenes-events-character-selection-04.png',
-
+        "guide-img/cutscenes-events-character-selection-00.png",
+        "guide-img/cutscenes-events-character-selection-02.png",
+        "guide-img/cutscenes-events-character-selection-01.png",
+        "guide-img/cutscenes-events-character-selection-03.png",
+        "guide-img/cutscenes-events-character-selection-05.png",
+        "guide-img/cutscenes-events-character-selection-04.png"
       ],
       dialogue: [
-        { who: '???', text: 'Hello? Is this thing working?' },
-        { who: '???', text: "Wait I think I've got it—" },
-        { who: '???', text: 'Aha! There we go!' },
-        { who: '???', text: 'Hello there! Welcome to the world of Pokémon!' },
-        { who: 'Hickory', text: 'My name is Hickory, but everyone knows me as the Pokémon Professor!' },
-        { who: 'Hickory', text: 'As you know, this world is widely inhabited by the mysterious creatures called Pokémon.' },
-        { who: 'Hickory', text: 'Pokémon possess incredible powers and come in countless shapes and forms…' },
-        { who: 'Hickory', text: '…they live in forests, oceans, mountains — they can be seen in every corner of our world.' },
-        { who: 'Hickory', text: 'We humans live and work alongside Pokémon, supporting one another.' },
-        { who: 'Hickory', text: 'Together, we overcome challenges that neither could face alone.' },
-        { who: 'Hickory', text: 'Pokémon battles are one way people strengthen their bonds with Pokémon, but research, care, and understanding are just as important.' },
-        { who: 'Hickory', text: 'I dedicate my life to studying Pokémon that display different forms and regional phenomenon.' },
-        { who: 'Hickory', text: "I'm currently accepting new Pokémon research interns to assist me in my work." },
-        { who: 'Hickory', text: "But before we begin... I'd like to learn a little more about you…" },
-        { who: 'Hickory', text: "Oh dear, it seems like your camera isn't working on my end." },
-        { who: 'Hickory', text: 'Could you turn it on and show me what you look like?' },
-        { who: '', text: 'Choose what your player looks like.' },
-        { who: 'Hickory', text: "Ah, that's right! You are…" },
-        { who: 'Hickory', text: "Err… what's your name again?" },
-        { who: '', text: "Pick your player's name. In this guide the player is referred to as <Player>." },
-        { who: 'Hickory', text: '<Player> — did I get that right? (Yes / No)' },
-        { who: 'Hickory', text: "<Player>, yes! That's the name listed in my files!" },
-        { who: '???', text: 'Seriously, Dad? I already organized those files for you!' },
-        { who: 'Hickory', text: 'Oh, you know your old man. Always forgetting things.' },
-        { who: '???', text: "I really don't know how you managed to mess it up though…" },
-        { who: 'Hickory', text: "Let's not worry about that right now, honey." },
-        { who: 'Hickory', text: 'Hey, this is a good opportunity to meet <Player>! Come over here for a second, will you?' },
-        { who: 'Pecan', text: 'Oh, so this is what <Player> looks like? Nice to meet you, <Player>!' },
-        { who: 'Hickory', text: "Meet my daughter, Pecan! She's also my assistant and one of the people you'll be working with." },
-        { who: 'Pecan', text: "I'm basically running the lab at this point, dad…" },
-        { who: 'Pecan', text: 'Sometimes I wonder if your head is even still attached to your body!' },
-        { who: 'Hickory', text: 'Ahhh, what a jokester you are, Pecan.' },
-        { who: 'Hickory', text: 'Oh no! I completely forgot about the Pokémon samples!' },
-        { who: 'Pecan', text: 'What?! Those were supposed to be taken out half an hour ago!' },
-        { who: 'Hickory', text: 'I know, I know…' },
-        { who: 'Hickory', text: 'Could you please take care of it, Pecan? I need to finish up onboarding <Player> here…' },
-        { who: 'Pecan', text: 'Fine, fine…' },
-        { who: 'Hickory', text: 'Now, where was I?' },
-        { who: 'Hickory', text: 'Oh yes, right!' },
-        { who: 'Hickory', text: "You'll encounter many Pokémon with different perspectives, values, and goals." },
-        { who: 'Hickory', text: 'I hope that through this experience, you discover what truly excites you!' },
-        { who: 'Hickory', text: 'Build connections with Pokémon, support fellow trainers, and grow!' },
-        { who: 'Hickory', text: 'Not just as a researcher, but as a person.' },
-        { who: 'Hickory', text: "Now then… let's begin with your Pokémon internship and step into the fascinating world of Pokémon!" },
-      ],
+        {
+          who: "???",
+          text: "Hello? Is this thing working?"
+        },
+        {
+          who: "???",
+          text: "Wait I think I've got it—"
+        },
+        {
+          who: "???",
+          text: "Aha! There we go!"
+        },
+        {
+          who: "???",
+          text: "Hello there! Welcome to the world of Pokémon!"
+        },
+        {
+          who: "Hickory",
+          text: "My name is Hickory, but everyone knows me as the Pokémon Professor!"
+        },
+        {
+          who: "Hickory",
+          text: "As you know, this world is widely inhabited by the mysterious creatures called Pokémon."
+        },
+        {
+          who: "Hickory",
+          text: "Pokémon possess incredible powers and come in countless shapes and forms…"
+        },
+        {
+          who: "Hickory",
+          text: "…they live in forests, oceans, mountains — they can be seen in every corner of our world."
+        },
+        {
+          who: "Hickory",
+          text: "We humans live and work alongside Pokémon, supporting one another."
+        },
+        {
+          who: "Hickory",
+          text: "Together, we overcome challenges that neither could face alone."
+        },
+        {
+          who: "Hickory",
+          text: "Pokémon battles are one way people strengthen their bonds with Pokémon, but research, care, and understanding are just as important."
+        },
+        {
+          who: "Hickory",
+          text: "I dedicate my life to studying Pokémon that display different forms and regional phenomenon."
+        },
+        {
+          who: "Hickory",
+          text: "I'm currently accepting new Pokémon research interns to assist me in my work."
+        },
+        {
+          who: "Hickory",
+          text: "But before we begin... I'd like to learn a little more about you…"
+        },
+        {
+          who: "Hickory",
+          text: "Oh dear, it seems like your camera isn't working on my end."
+        },
+        {
+          who: "Hickory",
+          text: "Could you turn it on and show me what you look like?"
+        },
+        {
+          who: "",
+          text: "Choose what your player looks like."
+        },
+        {
+          who: "Hickory",
+          text: "Ah, that's right! You are…"
+        },
+        {
+          who: "Hickory",
+          text: "Err… what's your name again?"
+        },
+        {
+          who: "",
+          text: "Pick your player's name. In this guide the player is referred to as <Player>."
+        },
+        {
+          who: "Hickory",
+          text: "<Player> — did I get that right? (Yes / No)"
+        },
+        {
+          who: "Hickory",
+          text: "<Player>, yes! That's the name listed in my files!"
+        },
+        {
+          who: "???",
+          text: "Seriously, Dad? I already organized those files for you!"
+        },
+        {
+          who: "Hickory",
+          text: "Oh, you know your old man. Always forgetting things."
+        },
+        {
+          who: "???",
+          text: "I really don't know how you managed to mess it up though…"
+        },
+        {
+          who: "Hickory",
+          text: "Let's not worry about that right now, honey."
+        },
+        {
+          who: "Hickory",
+          text: "Hey, this is a good opportunity to meet <Player>! Come over here for a second, will you?"
+        },
+        {
+          who: "Pecan",
+          text: "Oh, so this is what <Player> looks like? Nice to meet you, <Player>!"
+        },
+        {
+          who: "Hickory",
+          text: "Meet my daughter, Pecan! She's also my assistant and one of the people you'll be working with."
+        },
+        {
+          who: "Pecan",
+          text: "I'm basically running the lab at this point, dad…"
+        },
+        {
+          who: "Pecan",
+          text: "Sometimes I wonder if your head is even still attached to your body!"
+        },
+        {
+          who: "Hickory",
+          text: "Ahhh, what a jokester you are, Pecan."
+        },
+        {
+          who: "Hickory",
+          text: "Oh no! I completely forgot about the Pokémon samples!"
+        },
+        {
+          who: "Pecan",
+          text: "What?! Those were supposed to be taken out half an hour ago!"
+        },
+        {
+          who: "Hickory",
+          text: "I know, I know…"
+        },
+        {
+          who: "Hickory",
+          text: "Could you please take care of it, Pecan? I need to finish up onboarding <Player> here…"
+        },
+        {
+          who: "Pecan",
+          text: "Fine, fine…"
+        },
+        {
+          who: "Hickory",
+          text: "Now, where was I?"
+        },
+        {
+          who: "Hickory",
+          text: "Oh yes, right!"
+        },
+        {
+          who: "Hickory",
+          text: "You'll encounter many Pokémon with different perspectives, values, and goals."
+        },
+        {
+          who: "Hickory",
+          text: "I hope that through this experience, you discover what truly excites you!"
+        },
+        {
+          who: "Hickory",
+          text: "Build connections with Pokémon, support fellow trainers, and grow!"
+        },
+        {
+          who: "Hickory",
+          text: "Not just as a researcher, but as a person."
+        },
+        {
+          who: "Hickory",
+          text: "Now then… let's begin with your Pokémon internship and step into the fascinating world of Pokémon!"
+        }
+      ]
     },
     {
-      id: 'starter',
-      title: 'Starter Selection',
-      area: 'Saudade Town',
-      blurb: 'Pecan gathers you and your two neighbours to choose your first partner Pokémon.',
+      id: "starter",
+      title: "Starter Selection",
+      area: "Saudade Town",
+      blurb: "Pecan gathers you and your two neighbours to choose your first partner Pokémon.",
       summary: {
         objectives: [
-          'Gather your rivals Seren and Ronan from their houses',
-          'Return to Pecan and the benches',
-          'Choose your starter — you pick first',
+          "Gather your rivals Seren and Ronan from their houses",
+          "Return to Pecan and the benches",
+          "Choose your starter — you pick first"
         ],
         items: [],
-        mons: ['Tamatoo (Grass)', 'and the other two starters'],
-        tip: "You get first pick. Seren's house has the yellow roof (southwest); Ronan's has the green roof, next to yours.",
+        mons: [
+          "Tamatoo (Grass)",
+          "and the other two starters"
+        ],
+        tip: "You get first pick. Seren's house has the yellow roof (southwest); Ronan's has the green roof, next to yours."
       },
-      shots: ['guide-img/cutscenes-events-starter-selection-00.png'],
-      dialogue: [
-        { who: '???', text: 'Heyyyy!' },
-        { who: '???', text: "You're <Player>! Right?" },
-        { who: '???', text: 'Hi! Remember me? We met briefly just a while ago on call.' },
-        { who: '', text: 'If picked correctly:' },
-        { who: 'Pecan', text: "That's me! (Good thing you're not like my dad… always forgetting things…)" },
-        { who: 'Pecan', text: "Anyway, you're one of our brand new interns!" },
-        { who: 'Pecan', text: 'And whaddya know! You all live right next to each other!' },
-        { who: 'Pecan', text: "Isn't that weird?" },
-        { who: '<Player>', text: 'I… I guess?' },
-        { who: 'Pecan', text: 'Right?' },
-        { who: 'Pecan', text: "I've also got some exciting news!" },
-        { who: '', text: 'If picked "No…":' },
-        { who: '<Player>', text: "No… my mom wouldn't let me get one." },
-        { who: 'Pecan', text: "Today's your lucky day then!" },
-        { who: 'Pecan', text: 'You see, as part of the internship program, interns get one rare species of Pokémon to accompany them as they work!' },
-        { who: 'Pecan', text: "Though… ideally I'd need all of you gathered so you can all pick." },
-        { who: 'Pecan', text: "Whose house is whose anyway?" },
-        { who: '<Player>', text: "Seren's house is the one with the yellow roof southwest from here." },
-        { who: '<Player>', text: "And Ronan's house has a green roof right next to mine." },
-        { who: 'Pecan', text: "Well, since I'm sure you're more familiar with them than I am, could you go and get them for me?" },
-        { who: 'Pecan', text: "I saw a couple of benches a few steps down from here. I'll wait for you with the Pokémon!" },
-        { who: '', text: 'After gathering your rivals:' },
-        { who: 'Pecan', text: 'Over here <Player>! Thanks for gathering everyone.' },
-        { who: 'Pecan', text: 'I need you guys to step back a lil bit more…' },
-        { who: 'Pecan', text: 'Err… two more steps back maybe?' },
-        { who: 'Pecan', text: 'Alright! Come out, you guys!' },
-        { who: 'Rival 2', text: "WOAHHHHH!!! They're so cute!" },
-        { who: 'Rival 2', text: 'I want first dibs!' },
-        { who: 'Rival 1', text: "You didn't even remember to check your email, and now you want to get the first pick?" },
-        { who: 'Pecan', text: 'Woah, hold on now…' },
-        { who: 'Pecan', text: 'I was actually going to let <Player> pick first, seeing as I saw <Player> first.' },
-        { who: 'Pecan', text: "Now, <Player>, why don't you check out these adorable little Pokémon?" },
-        { who: '', text: 'Starter choice — Tamatoo:' },
-        { who: 'Pecan', text: "That's Tamatoo, the Mudcake Pokémon! It's a Grass type, and loves to play in the…" },
+      shots: [
+        "guide-img/cutscenes-events-starter-selection-00.png"
       ],
+      dialogue: [
+        {
+          who: "???",
+          text: "Heyyyy!"
+        },
+        {
+          who: "???",
+          text: "You're <Player>! Right?"
+        },
+        {
+          who: "???",
+          text: "Hi! Remember me? We met briefly just a while ago on call."
+        },
+        {
+          who: "",
+          text: "If picked correctly:"
+        },
+        {
+          who: "Pecan",
+          text: "That's me! (Good thing you're not like my dad… always forgetting things…)"
+        },
+        {
+          who: "Pecan",
+          text: "Anyway, you're one of our brand new interns!"
+        },
+        {
+          who: "Pecan",
+          text: "And whaddya know! You all live right next to each other!"
+        },
+        {
+          who: "Pecan",
+          text: "Isn't that weird?"
+        },
+        {
+          who: "<Player>",
+          text: "I… I guess?"
+        },
+        {
+          who: "Pecan",
+          text: "Right?"
+        },
+        {
+          who: "Pecan",
+          text: "I've also got some exciting news!"
+        },
+        {
+          who: "",
+          text: "If picked \"No…\":"
+        },
+        {
+          who: "<Player>",
+          text: "No… my mom wouldn't let me get one."
+        },
+        {
+          who: "Pecan",
+          text: "Today's your lucky day then!"
+        },
+        {
+          who: "Pecan",
+          text: "You see, as part of the internship program, interns get one rare species of Pokémon to accompany them as they work!"
+        },
+        {
+          who: "Pecan",
+          text: "Though… ideally I'd need all of you gathered so you can all pick."
+        },
+        {
+          who: "Pecan",
+          text: "Whose house is whose anyway?"
+        },
+        {
+          who: "<Player>",
+          text: "Seren's house is the one with the yellow roof southwest from here."
+        },
+        {
+          who: "<Player>",
+          text: "And Ronan's house has a green roof right next to mine."
+        },
+        {
+          who: "Pecan",
+          text: "Well, since I'm sure you're more familiar with them than I am, could you go and get them for me?"
+        },
+        {
+          who: "Pecan",
+          text: "I saw a couple of benches a few steps down from here. I'll wait for you with the Pokémon!"
+        },
+        {
+          who: "",
+          text: "After gathering your rivals:"
+        },
+        {
+          who: "Pecan",
+          text: "Over here <Player>! Thanks for gathering everyone."
+        },
+        {
+          who: "Pecan",
+          text: "I need you guys to step back a lil bit more…"
+        },
+        {
+          who: "Pecan",
+          text: "Err… two more steps back maybe?"
+        },
+        {
+          who: "Pecan",
+          text: "Alright! Come out, you guys!"
+        },
+        {
+          who: "Rival 2",
+          text: "WOAHHHHH!!! They're so cute!"
+        },
+        {
+          who: "Rival 2",
+          text: "I want first dibs!"
+        },
+        {
+          who: "Rival 1",
+          text: "You didn't even remember to check your email, and now you want to get the first pick?"
+        },
+        {
+          who: "Pecan",
+          text: "Woah, hold on now…"
+        },
+        {
+          who: "Pecan",
+          text: "I was actually going to let <Player> pick first, seeing as I saw <Player> first."
+        },
+        {
+          who: "Pecan",
+          text: "Now, <Player>, why don't you check out these adorable little Pokémon?"
+        },
+        {
+          who: "",
+          text: "Starter choice — Tamatoo:"
+        },
+        {
+          who: "Pecan",
+          text: "That's Tamatoo, the Mudcake Pokémon! It's a Grass type, and loves to play in the…"
+        }
+      ]
     },
     {
-      id: 'route-1',
-      title: 'Route 1 — First Battle',
-      area: 'Route 1',
-      blurb: 'Pecan teaches you the basics of Pokémon battling — then challenges you to your very first battle.',
+      id: "saudade-town",
+      title: "Saudade Town",
+      area: "Saudade Town",
+      blurb: "Your sleepy hometown — a wheat-farming village. Pick up your father’s Running Shoes from Mom and meet the locals.",
       summary: {
         objectives: [
-          'Learn battling from Pecan',
-          'Win your first battle against Pecan (worth $500)',
-          'Grab the free Potion from Drew',
-          'Follow the path up toward Eventide Forest',
+          "Talk to Mom to receive the Running Shoes",
+          "Meet the townsfolk",
+          "Optional — take Sadie’s \"Strange Stone\" minor quest"
         ],
-        items: ['Potion (free, from Drew)'],
+        items: [
+          "Running Shoes (from Mom)"
+        ],
         mons: [],
-        tip: "Pecan's battle is a tutorial — you're meant to win. The $500 prize is a nice early boost.",
+        tip: "Sadie’s Strange Stone quest sends you to Sedimite Grove in Eventide Forest — it’s between a green and an orange tree."
       },
       shots: [
-        'guide-img/routes-areas-route-1-00.png',
-        'guide-img/routes-areas-route-1-01.png',
-        'guide-img/routes-areas-route-1-02.png',
-        'guide-img/routes-areas-route-1-03.png',
-        'guide-img/routes-areas-route-1-04.png',
+        "guide-img/towns-cities-saudade-town-outside-00.png",
+        "guide-img/towns-cities-saudade-town-outside-01.png",
+        "guide-img/towns-cities-saudade-town-outside-02.png",
+        "guide-img/towns-cities-saudade-town-outside-03.png",
+        "guide-img/towns-cities-saudade-town-outside-04.png",
+        "guide-img/towns-cities-saudade-town-outside-05.png"
       ],
       dialogue: [
-        { who: 'Pecan', text: '<Player>! Over here!' },
-        { who: 'Pecan', text: "Before we go up ahead, there's something I wanted to teach you guys!" },
-        { who: 'Pecan', text: 'Pokémon battling!' },
-        { who: '<Player>', text: "A battle? I've never even tried…" },
-        { who: 'Pecan', text: "Don't worry! I'll be the one to teach you everything you need to know then!" },
-        { who: 'Pecan', text: 'Either way, all I want to do is prove myself to you all!' },
-        { who: 'Pecan', text: "You're all first time trainers, so I'm going to have to show you all what I got!" },
-        { who: 'Pecan', text: "Starting with you, <Player>! Let's see what you've got!" },
-        { who: '', text: 'Once defeated:' },
-        { who: 'Pecan', text: "What?! But I've had more training than you!" },
-        { who: '', text: 'You get $500 for winning!' },
-        { who: '', text: 'After battle:' },
-        { who: 'Pecan', text: "Can't believe I lost…" },
-        { who: 'Pecan', text: "But as you'll soon discover, battles are everything here. It's a way to communicate and learn more about each other and these adorable little critters." },
-        { who: 'Pecan', text: "Now just follow the path upwards in the forest, I'll be around there. See ya!" },
-        { who: '', text: 'On Route 1 — Drew:' },
-        { who: 'Drew', text: 'Oh hey! Looks like you could use a potion!' },
-        { who: '', text: '(Gives player a Potion)' },
-        { who: 'Drew', text: 'You can use it in or out of battle (or your money back).' },
-        { who: 'Drew', text: "Wait… it's free." },
-      ],
+        {
+          who: "",
+          text: "Mom — Running Shoes:"
+        },
+        {
+          who: "Mom",
+          text: "<Player>! Honey! I’m glad I caught you!"
+        },
+        {
+          who: "<Player>",
+          text: "Mom! What is it?"
+        },
+        {
+          who: "Mom",
+          text: "I don't want to keep you long, but I just thought you should know that I found your father's old running shoes. I thought you'd want to use them."
+        },
+        {
+          who: "<Player>",
+          text: "Oh, mom, you shouldn't have…"
+        },
+        {
+          who: "Mom",
+          text: "It's alright, sweetie, I insist."
+        },
+        {
+          who: "",
+          text: "<Player> received the Running Shoes."
+        },
+        {
+          who: "Mom",
+          text: "Okay! That's all. I'm rooting for you, <Player>."
+        },
+        {
+          who: "",
+          text: "Townsfolk:"
+        },
+        {
+          who: "Florist Phu",
+          text: "Wheat, wheat, wheat… This town needs more variety in their plants. Although the amount of wheat here truly is impressive…"
+        },
+        {
+          who: "Lass Maple",
+          text: "The smell of fresh bread here is so cozy and nice… That's how I know I'm home!"
+        },
+        {
+          who: "Lillia",
+          text: "Oh, I don't think I've seen your faces around before, are you new here?"
+        },
+        {
+          who: "Lillia",
+          text: "(Yes) No wait, I remember you're the child of our old Gym Leader — oh how far you've grown!"
+        },
+        {
+          who: "Zeryn",
+          text: "The amount of sunlight, water and hard work that goes into this town's wheat and grain is sublime!"
+        },
+        {
+          who: "Jinjoe",
+          text: "The wind through the wheat kinda sounds like music, doesn't it? I wanna write a song about this town someday."
+        },
+        {
+          who: "Youngster Colton",
+          text: "Careful in the wheat fields! I got lost in there for THREE HOURS! It was AWESOME!"
+        },
+        {
+          who: "Kyara",
+          text: "At sunset, the wheat fields glow gold… it has a very nostalgic feeling to it."
+        },
+        {
+          who: "",
+          text: "Minor Quest — Strange Stone (Sadie):"
+        },
+        {
+          who: "Sadie",
+          text: "Hey, you! Take on my quest! I need you to get me a strange looking stone from Sedimite Grove."
+        },
+        {
+          who: "Sadie",
+          text: "It's in Eventide Forest, between a green and an orange tree. Thanks! I'll be waiting for you."
+        }
+      ]
     },
     {
-      id: 'eventide-forest',
-      title: 'Eventide Forest',
-      area: 'Eventide Forest',
-      blurb: 'A wooded trainer gauntlet on the way to the Professor. Battle your way through to reach Pecan and your rivals.',
+      id: "route-1",
+      title: "Route 1 — First Battle",
+      area: "Route 1",
+      blurb: "Pecan teaches you the basics of Pokémon battling — then challenges you to your very first battle.",
       summary: {
         objectives: [
-          'Battle the forest trainers (Lorenzo, Dustin, and more)',
-          'Reach Pecan further in',
-          "Continue toward the Professor's Lab",
+          "Learn battling from Pecan",
+          "Win your first battle against Pecan (worth $500)",
+          "Grab the free Potion from Drew",
+          "Follow the path up toward Eventide Forest"
         ],
-        items: [],
-        mons: ['Wild Pokémon appear in the grass here'],
-        tip: 'Heal up before pushing through — the trainers chain together. Lorenzo uses a Reetle.',
+        items: [
+          "Potion (free, from Drew)"
+        ],
+        mons: [],
+        tip: "Pecan's battle is a tutorial — you're meant to win. The $500 prize is a nice early boost."
       },
       shots: [
-        'guide-img/routes-areas-eventide-forest-forest-00.png',
-        'guide-img/routes-areas-eventide-forest-forest-01.png',
-        'guide-img/routes-areas-eventide-forest-forest-02.png',
-        'guide-img/routes-areas-eventide-forest-forest-03.png',
-        'guide-img/routes-areas-eventide-forest-forest-04.png',
+        "guide-img/routes-areas-route-1-00.png",
+        "guide-img/routes-areas-route-1-01.png",
+        "guide-img/routes-areas-route-1-02.png",
+        "guide-img/routes-areas-route-1-03.png",
+        "guide-img/routes-areas-route-1-04.png"
       ],
       dialogue: [
-        { who: 'Pecan', text: 'Hey you made it!' },
-        { who: 'Pecan', text: 'Even I myself struggle battling the trainers on my way here. What did you think of them?' },
-        { who: '', text: 'Easy-Peasy response:' },
-        { who: '<Player>', text: 'It was pretty easy!' },
-        { who: '', text: 'Struggled a bit:' },
-        { who: '<Player>', text: 'Some trainers definitely were tough, but I made it through.' },
-        { who: '', text: 'Blacked out a few times:' },
-        { who: '<Player>', text: "Blacked out a few times… Hahaha. But I'm here now!" },
-        { who: 'Pecan', text: 'Glad to see you finally made it through. <Rival 1> and <Rival 2> are just ahead.' },
-        { who: 'Pecan', text: "Come on! Let's not leave the professor waiting." },
-        { who: '', text: 'Forest trainers — Lorenzo:' },
-        { who: 'Lorenzo', text: 'See those dents in that tree? That was my Reetle! Think you can handle a hit like that?' },
-        { who: '', text: 'Once defeated:' },
-        { who: 'Lorenzo', text: "Just you wait, you'll understand Reetle's power someday." },
-        { who: '', text: '(You get $64 for winning!)' },
-        { who: '', text: 'Dustin:' },
-        { who: 'Dustin', text: "The ground here is surprisingly hollow. If you're not careful, you'll fall right into— oh, too late! Let's battle!" },
-      ],
+        {
+          who: "Pecan",
+          text: "<Player>! Over here!"
+        },
+        {
+          who: "Pecan",
+          text: "Before we go up ahead, there's something I wanted to teach you guys!"
+        },
+        {
+          who: "Pecan",
+          text: "Pokémon battling!"
+        },
+        {
+          who: "<Player>",
+          text: "A battle? I've never even tried…"
+        },
+        {
+          who: "Pecan",
+          text: "Don't worry! I'll be the one to teach you everything you need to know then!"
+        },
+        {
+          who: "Pecan",
+          text: "Either way, all I want to do is prove myself to you all!"
+        },
+        {
+          who: "Pecan",
+          text: "You're all first time trainers, so I'm going to have to show you all what I got!"
+        },
+        {
+          who: "Pecan",
+          text: "Starting with you, <Player>! Let's see what you've got!"
+        },
+        {
+          who: "",
+          text: "Once defeated:"
+        },
+        {
+          who: "Pecan",
+          text: "What?! But I've had more training than you!"
+        },
+        {
+          who: "",
+          text: "You get $500 for winning!"
+        },
+        {
+          who: "",
+          text: "After battle:"
+        },
+        {
+          who: "Pecan",
+          text: "Can't believe I lost…"
+        },
+        {
+          who: "Pecan",
+          text: "But as you'll soon discover, battles are everything here. It's a way to communicate and learn more about each other and these adorable little critters."
+        },
+        {
+          who: "Pecan",
+          text: "Now just follow the path upwards in the forest, I'll be around there. See ya!"
+        },
+        {
+          who: "",
+          text: "On Route 1 — Drew:"
+        },
+        {
+          who: "Drew",
+          text: "Oh hey! Looks like you could use a potion!"
+        },
+        {
+          who: "",
+          text: "(Gives player a Potion)"
+        },
+        {
+          who: "Drew",
+          text: "You can use it in or out of battle (or your money back)."
+        },
+        {
+          who: "Drew",
+          text: "Wait… it's free."
+        }
+      ]
     },
     {
-      id: 'professors-lab',
+      id: "eventide-forest",
+      title: "Eventide Forest",
+      area: "Eventide Forest",
+      blurb: "A wooded trainer gauntlet on the way to the Professor. Battle your way through to reach Pecan and your rivals.",
+      summary: {
+        objectives: [
+          "Battle the forest trainers (Lorenzo, Dustin, and more)",
+          "Reach Pecan further in",
+          "Continue toward the Professor's Lab"
+        ],
+        items: [],
+        mons: [
+          "Wild Pokémon appear in the grass here"
+        ],
+        tip: "Heal up before pushing through — the trainers chain together. Lorenzo uses a Reetle."
+      },
+      shots: [
+        "guide-img/routes-areas-eventide-forest-forest-00.png",
+        "guide-img/routes-areas-eventide-forest-forest-01.png",
+        "guide-img/routes-areas-eventide-forest-forest-02.png",
+        "guide-img/routes-areas-eventide-forest-forest-03.png",
+        "guide-img/routes-areas-eventide-forest-forest-04.png"
+      ],
+      dialogue: [
+        {
+          who: "Pecan",
+          text: "Hey you made it!"
+        },
+        {
+          who: "Pecan",
+          text: "Even I myself struggle battling the trainers on my way here. What did you think of them?"
+        },
+        {
+          who: "",
+          text: "Easy-Peasy response:"
+        },
+        {
+          who: "<Player>",
+          text: "It was pretty easy!"
+        },
+        {
+          who: "",
+          text: "Struggled a bit:"
+        },
+        {
+          who: "<Player>",
+          text: "Some trainers definitely were tough, but I made it through."
+        },
+        {
+          who: "",
+          text: "Blacked out a few times:"
+        },
+        {
+          who: "<Player>",
+          text: "Blacked out a few times… Hahaha. But I'm here now!"
+        },
+        {
+          who: "Pecan",
+          text: "Glad to see you finally made it through. <Rival 1> and <Rival 2> are just ahead."
+        },
+        {
+          who: "Pecan",
+          text: "Come on! Let's not leave the professor waiting."
+        },
+        {
+          who: "",
+          text: "Forest trainers — Lorenzo:"
+        },
+        {
+          who: "Lorenzo",
+          text: "See those dents in that tree? That was my Reetle! Think you can handle a hit like that?"
+        },
+        {
+          who: "",
+          text: "Once defeated:"
+        },
+        {
+          who: "Lorenzo",
+          text: "Just you wait, you'll understand Reetle's power someday."
+        },
+        {
+          who: "",
+          text: "(You get $64 for winning!)"
+        },
+        {
+          who: "",
+          text: "Dustin:"
+        },
+        {
+          who: "Dustin",
+          text: "The ground here is surprisingly hollow. If you're not careful, you'll fall right into— oh, too late! Let's battle!"
+        }
+      ]
+    },
+    {
+      id: "professors-lab",
       title: "Professor's Lab",
-      area: 'Eventide Forest',
-      blurb: 'Reach the lab, meet Professor Hickory properly, and receive your very own Pokédex 21.6.',
+      area: "Eventide Forest",
+      blurb: "Reach the lab, meet Professor Hickory properly, and receive your very own Pokédex 21.6.",
       summary: {
         objectives: [
-          'Enter the Professor’s Lab with Pecan and your rivals',
-          'Meet Professor Hickory and Kayden',
-          'Receive your Pokédex 21.6',
+          "Enter the Professor’s Lab with Pecan and your rivals",
+          "Meet Professor Hickory and Kayden",
+          "Receive your Pokédex 21.6"
         ],
-        items: ['Pokédex 21.6'],
+        items: [
+          "Pokédex 21.6"
+        ],
         mons: [],
-        tip: 'Story beat — no battles. This officially kicks off your internship and unlocks the Pokédex.',
+        tip: "Story beat — no battles. This officially kicks off your internship and unlocks the Pokédex."
       },
       shots: [
-        'guide-img/routes-areas-eventide-forest-professors-lab-outside-00.png',
-        'guide-img/routes-areas-eventide-forest-professors-lab-outside-01.png',
-        'guide-img/routes-areas-eventide-forest-professors-lab-outside-02.png',
-        'guide-img/routes-areas-eventide-forest-professors-lab-inside-00.png',
-        'guide-img/routes-areas-eventide-forest-professors-lab-inside-01.png',
+        "guide-img/routes-areas-eventide-forest-professors-lab-outside-00.png",
+        "guide-img/routes-areas-eventide-forest-professors-lab-outside-01.png",
+        "guide-img/routes-areas-eventide-forest-professors-lab-outside-02.png",
+        "guide-img/routes-areas-eventide-forest-professors-lab-inside-00.png",
+        "guide-img/routes-areas-eventide-forest-professors-lab-inside-01.png"
       ],
       dialogue: [
-        { who: 'Pecan', text: 'Yoohoo! <Player>, over here!' },
-        { who: 'Rival 1', text: 'Took you long enough, I was about to ask if we should go on without you.' },
-        { who: 'Rival 2', text: "Hey! It's only fair. They waited for us to pick our Pokémon, so it's only natural we wait for them." },
-        { who: 'Rival 2', text: 'Though it does feel like you took your sweet time to get here…' },
-        { who: '<Player>', text: 'Thanks for waiting. Anyways, you were saying, Pecan?' },
-        { who: 'Pecan', text: 'As I was saying, this is the Professor’s Lab.' },
-        { who: 'Pecan', text: "This small little opening in Eventide — there's a uniquely strange magnetic field and soil in this area that seems to allow those tall yellow trees you see grow here. Local to the Demastan Peaks—" },
-        { who: 'Pecan', text: "Sorry, I'm getting too far ahead of myself. Let's all go in!" },
-        { who: '???', text: 'And with that, you now have your Pokémon and your Pokédex. Sorry for the mixup earlier!' },
-        { who: 'Kayden', text: 'No worries, I understand that mix-ups can happen. Especially for a prestigious professor as yourself, Professor Hickory.' },
-        { who: 'Hickory', text: "Not at all! Sorry about my assistant, she can be a bit disorganized sometimes—" },
-        { who: 'Pecan', text: 'ME?! DISORGANIZED?!' },
-        { who: 'Hickory', text: "Yes, I'm very grateful for everything you do, Pecan. But please, let's not waste anymore time." },
-        { who: 'Hickory', text: "Now that you're all here, I'd like to give thanks to each and every one of you." },
-        { who: 'Hickory', text: "To aid you on your internship journey, I'll be giving you all your very own Pokédex 21.6. Please come up and grab yours." },
-      ],
+        {
+          who: "Pecan",
+          text: "Yoohoo! <Player>, over here!"
+        },
+        {
+          who: "Rival 1",
+          text: "Took you long enough, I was about to ask if we should go on without you."
+        },
+        {
+          who: "Rival 2",
+          text: "Hey! It's only fair. They waited for us to pick our Pokémon, so it's only natural we wait for them."
+        },
+        {
+          who: "Rival 2",
+          text: "Though it does feel like you took your sweet time to get here…"
+        },
+        {
+          who: "<Player>",
+          text: "Thanks for waiting. Anyways, you were saying, Pecan?"
+        },
+        {
+          who: "Pecan",
+          text: "As I was saying, this is the Professor’s Lab."
+        },
+        {
+          who: "Pecan",
+          text: "This small little opening in Eventide — there's a uniquely strange magnetic field and soil in this area that seems to allow those tall yellow trees you see grow here. Local to the Demastan Peaks—"
+        },
+        {
+          who: "Pecan",
+          text: "Sorry, I'm getting too far ahead of myself. Let's all go in!"
+        },
+        {
+          who: "???",
+          text: "And with that, you now have your Pokémon and your Pokédex. Sorry for the mixup earlier!"
+        },
+        {
+          who: "Kayden",
+          text: "No worries, I understand that mix-ups can happen. Especially for a prestigious professor as yourself, Professor Hickory."
+        },
+        {
+          who: "Hickory",
+          text: "Not at all! Sorry about my assistant, she can be a bit disorganized sometimes—"
+        },
+        {
+          who: "Pecan",
+          text: "ME?! DISORGANIZED?!"
+        },
+        {
+          who: "Hickory",
+          text: "Yes, I'm very grateful for everything you do, Pecan. But please, let's not waste anymore time."
+        },
+        {
+          who: "Hickory",
+          text: "Now that you're all here, I'd like to give thanks to each and every one of you."
+        },
+        {
+          who: "Hickory",
+          text: "To aid you on your internship journey, I'll be giving you all your very own Pokédex 21.6. Please come up and grab yours."
+        }
+      ]
     },
     {
-      id: 'route-2',
-      title: 'Route 2 — Fishing',
-      area: 'Route 2',
+      id: "route-2",
+      title: "Route 2 — Fishing",
+      area: "Route 2",
       blurb: "Meet Raul the fisherman, who teaches you the Drapallan style of fishing and gives you the Old Rod.",
       summary: {
         objectives: [
-          'Talk to Raul in the Fisherman’s House',
-          'Receive the Old Rod',
-          "Try fishing in the pond outside (watch for Raul's brother Johnathan)",
+          "Talk to Raul in the Fisherman’s House",
+          "Receive the Old Rod",
+          "Try fishing in the pond outside (watch for Raul's brother Johnathan)"
         ],
-        items: ['Old Rod'],
-        mons: ['Fishable Pokémon (with the Old Rod)'],
-        tip: 'The Old Rod lets you fish for water Pokémon. Great spot to expand your early team.',
+        items: [
+          "Old Rod"
+        ],
+        mons: [
+          "Fishable Pokémon (with the Old Rod)"
+        ],
+        tip: "The Old Rod lets you fish for water Pokémon. Great spot to expand your early team."
       },
       shots: [
-        'guide-img/routes-areas-route-2-00.png',
-        'guide-img/routes-areas-route-2-01.png',
-        'guide-img/routes-areas-route-2-02.png',
-        'guide-img/routes-areas-route-2-03.png',
-        'guide-img/routes-areas-route-2-fishermans-house-00.png',
-        'guide-img/routes-areas-route-2-fishermans-house-01.png',
+        "guide-img/routes-areas-route-2-00.png",
+        "guide-img/routes-areas-route-2-01.png",
+        "guide-img/routes-areas-route-2-02.png",
+        "guide-img/routes-areas-route-2-03.png",
+        "guide-img/routes-areas-route-2-fishermans-house-00.png",
+        "guide-img/routes-areas-route-2-fishermans-house-01.png"
       ],
       dialogue: [
-        { who: 'Raul', text: 'Everyone should know how to fish, Drapallan style.' },
-        { who: 'Raul', text: 'There’s just a sort of je ne sais quoi to our unique fishing style!' },
-        { who: 'Raul', text: "Our unique ecology here in Drapalla — the fish don't just bite, but they love to play." },
-        { who: 'Raul', text: "It's all that natural tug of war, and striking with swift strikes to bring them in." },
-        { who: 'Raul', text: "Here, take my old rod. It seems like you haven't heard of the melody of fishing just yet." },
-        { who: '', text: '(Player receives Old Rod!)' },
-        { who: 'Raul', text: 'Feel free to try fishing in the pond outside. Watch out for my brother Johnathan though — he’s a little stingy with our spot.' },
-        { who: '', text: 'After receiving the Old Rod:' },
-        { who: 'Raul', text: "Man, I love fishing. Don't abbreviate that." },
-      ],
+        {
+          who: "Raul",
+          text: "Everyone should know how to fish, Drapallan style."
+        },
+        {
+          who: "Raul",
+          text: "There’s just a sort of je ne sais quoi to our unique fishing style!"
+        },
+        {
+          who: "Raul",
+          text: "Our unique ecology here in Drapalla — the fish don't just bite, but they love to play."
+        },
+        {
+          who: "Raul",
+          text: "It's all that natural tug of war, and striking with swift strikes to bring them in."
+        },
+        {
+          who: "Raul",
+          text: "Here, take my old rod. It seems like you haven't heard of the melody of fishing just yet."
+        },
+        {
+          who: "",
+          text: "(Player receives Old Rod!)"
+        },
+        {
+          who: "Raul",
+          text: "Feel free to try fishing in the pond outside. Watch out for my brother Johnathan though — he’s a little stingy with our spot."
+        },
+        {
+          who: "",
+          text: "After receiving the Old Rod:"
+        },
+        {
+          who: "Raul",
+          text: "Man, I love fishing. Don't abbreviate that."
+        }
+      ]
     },
     {
-      id: 'pebpup-cave',
-      title: 'Pebpup Cave',
-      area: 'Pebpup Cave',
-      blurb: 'The story takes a dark turn. Strangers are distorting a Pokémon deep in the cave — and Pecan has been captured.',
+      id: "pebpup-cave",
+      title: "Pebpup Cave",
+      area: "Pebpup Cave",
+      blurb: "The story takes a dark turn. Strangers are distorting a Pokémon deep in the cave — and Pecan has been captured.",
       summary: {
         objectives: [
-          'Regroup with <Rival 1> at the cave',
-          'Pursue the two strangers deeper inside',
-          'Push toward the distortion source (help is on the way — Clara)',
+          "Regroup with <Rival 1> at the cave",
+          "Pursue the two strangers deeper inside",
+          "Push toward the distortion source (help is on the way — Clara)"
         ],
         items: [],
-        mons: ['Wild Pebpup', 'Rocweilers roam the cave'],
-        tip: 'This is a major plot beat introducing Team Void and "distortion." Heal and stock Poké Balls before going deep.',
-      },
-      shots: [
-        'guide-img/routes-areas-pebpup-cave-entrance-00.png',
-        'guide-img/routes-areas-pebpup-cave-entrance-01.png',
-        'guide-img/routes-areas-pebpup-cave-entrance-02.png',
-        'guide-img/routes-areas-pebpup-cave-main-room-00.png',
-        'guide-img/routes-areas-pebpup-cave-main-room-01.png',
-        'guide-img/routes-areas-pebpup-cave-main-room-02.png',
-        'guide-img/routes-areas-pebpup-cave-side-room-00.png',
-        'guide-img/routes-areas-pebpup-cave-side-room-01.png',
-      ],
-      dialogue: [
-        { who: 'Male', text: 'Did you hear that?' },
-        { who: 'Female', text: "It's probably just a Pebpup or something. Quit whining." },
-        { who: 'Female', text: 'Phase 1 is almost complete. This Pokémon is resonating at around 50%.' },
-        { who: 'Male', text: "You're certain no one will come here?" },
-        { who: 'Female', text: "No one enters here anymore. It's been abandoned since the local Rocweilers have been causing amuck for everyone who enters." },
-        { who: 'Male', text: "Sorry, it's my first day." },
-        { who: 'Female', text: 'And it might be your last.' },
-        { who: 'Female', text: "Now let's get a move on, we'll meet up with the others soon." },
-        { who: '', text: 'Meeting Rival 1:' },
-        { who: '<Player>', text: '<Rival 1>? Are you okay, what happened?' },
-        { who: 'Rival 1', text: "Oh, <Player>. It's pretty bad." },
-        { who: 'Rival 1', text: 'We got here first awhile ago studying the local Pebpup population. As I was inspecting some rocks, she went further inside the den.' },
-        { who: 'Rival 1', text: 'I heard those two talking about "distortion levels" and "unleashing the void"…' },
-        { who: 'Rival 1', text: 'I sent a message to Professor Hickory — he’s all the way in Ottava Town. He said someone named Clara is on the way.' },
-        { who: '<Player>', text: 'Clara… why does that sound familiar?' },
-        { who: 'Rival 1', text: "Shh... Pecan was captured. There's something going on with that Marmie." },
-        { who: '', text: 'Deeper in:' },
-        { who: 'Female', text: 'Distortion level, at 80%.' },
-        { who: 'Male', text: "I never thought we'd be able to manually distort a Pokémon before." },
-      ],
-    },
-    {
-      id: 'limerico-town',
-      title: 'Limerico Town',
-      area: 'Limerico Town',
-      blurb: 'A cosy farming town with friendly (and rambling) locals, a daycare, and the region’s first gym.',
-      summary: {
-        objectives: [
-          'Explore the town and chat with the locals',
-          'Visit the Daycare if you want a Pokémon raised',
-          'Head to the Limerico Gym when ready',
+        mons: [
+          "Wild Pebpup",
+          "Rocweilers roam the cave"
         ],
-        items: ['Free milk from Farmer Boris (if you say yes)'],
-        mons: ['Local Scafling & Bision (the milk source)'],
-        tip: 'The Daycare is run by Ryker’s daughter inside the daycare building. The quest boards aren’t finished yet — that’s an in-game joke.',
+        tip: "This is a major plot beat introducing Team Void and \"distortion.\" Heal and stock Poké Balls before going deep."
       },
       shots: [
-        'guide-img/towns-cities-limerico-town-outside-00.png',
-        'guide-img/towns-cities-limerico-town-outside-01.png',
-        'guide-img/towns-cities-limerico-town-outside-02.png',
-        'guide-img/towns-cities-limerico-town-outside-03.png',
-        'guide-img/towns-cities-limerico-town-outside-04.png',
-        'guide-img/towns-cities-limerico-town-outside-05.png',
+        "guide-img/routes-areas-pebpup-cave-entrance-00.png",
+        "guide-img/routes-areas-pebpup-cave-entrance-01.png",
+        "guide-img/routes-areas-pebpup-cave-entrance-02.png",
+        "guide-img/routes-areas-pebpup-cave-main-room-00.png",
+        "guide-img/routes-areas-pebpup-cave-main-room-01.png",
+        "guide-img/routes-areas-pebpup-cave-main-room-02.png",
+        "guide-img/routes-areas-pebpup-cave-side-room-00.png",
+        "guide-img/routes-areas-pebpup-cave-side-room-01.png"
       ],
       dialogue: [
-        { who: 'Farmer Boris', text: 'Hello young trainer, would you like some milk?' },
-        { who: '', text: 'If you say Yes:' },
-        { who: 'Farmer Boris', text: "Here you go! It's good isn't it? They're from our local Scafling and Bision." },
-        { who: '', text: 'If you say No:' },
-        { who: 'Farmer Boris', text: 'Your loss...' },
-        { who: 'Ryker', text: 'Welcome to our town! If you want us to raise one of your Pokémon, just talk to my daughter inside about it. We would love to take care of them for you!' },
-        { who: 'Stefan', text: "These darn young-uns, back in my day we didn't need these fancy bikes." },
-        { who: 'Stefan', text: 'We walked 20 miles uphill, both ways, 26 hours a day on one foot. While my other foot was starting a business!' },
-        { who: 'Stefan', text: "Back then, I fought two Knockewet's for lunch and now they do my taxes!" },
-        { who: 'Daisy', text: "It's a shame Clayton moved away to a different gym... He was kinda cute...!" },
-        { who: 'Linda', text: "Hey there young-uns, you know how these fancy schmancy quest boards work? Because I sure don't. Back in my day we just talked to each other." },
-        { who: 'Infomatic Squiddi', text: 'Hello there young traveller, would you like me to show you how these Quest Boards work?' },
-        { who: '', text: 'If you say Yes:' },
-        { who: 'Infomatic Squiddi', text: "Well, I would, but sadly we don't have it properly finished yet! Guess you'll have to wait for the next demo~" },
-      ],
+        {
+          who: "Male",
+          text: "Did you hear that?"
+        },
+        {
+          who: "Female",
+          text: "It's probably just a Pebpup or something. Quit whining."
+        },
+        {
+          who: "Female",
+          text: "Phase 1 is almost complete. This Pokémon is resonating at around 50%."
+        },
+        {
+          who: "Male",
+          text: "You're certain no one will come here?"
+        },
+        {
+          who: "Female",
+          text: "No one enters here anymore. It's been abandoned since the local Rocweilers have been causing amuck for everyone who enters."
+        },
+        {
+          who: "Male",
+          text: "Sorry, it's my first day."
+        },
+        {
+          who: "Female",
+          text: "And it might be your last."
+        },
+        {
+          who: "Female",
+          text: "Now let's get a move on, we'll meet up with the others soon."
+        },
+        {
+          who: "",
+          text: "Meeting Rival 1:"
+        },
+        {
+          who: "<Player>",
+          text: "<Rival 1>? Are you okay, what happened?"
+        },
+        {
+          who: "Rival 1",
+          text: "Oh, <Player>. It's pretty bad."
+        },
+        {
+          who: "Rival 1",
+          text: "We got here first awhile ago studying the local Pebpup population. As I was inspecting some rocks, she went further inside the den."
+        },
+        {
+          who: "Rival 1",
+          text: "I heard those two talking about \"distortion levels\" and \"unleashing the void\"…"
+        },
+        {
+          who: "Rival 1",
+          text: "I sent a message to Professor Hickory — he’s all the way in Ottava Town. He said someone named Clara is on the way."
+        },
+        {
+          who: "<Player>",
+          text: "Clara… why does that sound familiar?"
+        },
+        {
+          who: "Rival 1",
+          text: "Shh... Pecan was captured. There's something going on with that Marmie."
+        },
+        {
+          who: "",
+          text: "Deeper in:"
+        },
+        {
+          who: "Female",
+          text: "Distortion level, at 80%."
+        },
+        {
+          who: "Male",
+          text: "I never thought we'd be able to manually distort a Pokémon before."
+        }
+      ]
     },
     {
-      id: 'limerico-gym',
-      title: 'Limerico Gym — Clara',
-      area: 'Limerico Town',
-      blurb: 'Your first gym battle. Work through the gym trainers, then face Clara, protector of the town’s livestock.',
+      id: "limerico-town",
+      title: "Limerico Town",
+      area: "Limerico Town",
+      blurb: "A cosy farming town with friendly (and rambling) locals, a daycare, and the region’s first gym.",
       summary: {
         objectives: [
-          'Talk to Kaia at the front desk for gym info',
-          'Defeat the gym trainers Forest and Siesta',
-          'Battle Clara in the Gym Arena',
+          "Explore the town and chat with the locals",
+          "Visit the Daycare if you want a Pokémon raised",
+          "Head to the Limerico Gym when ready"
+        ],
+        items: [
+          "Free milk from Farmer Boris (if you say yes)"
+        ],
+        mons: [
+          "Local Scafling & Bision (the milk source)"
+        ],
+        tip: "The Daycare is run by Ryker’s daughter inside the daycare building. The quest boards aren’t finished yet — that’s an in-game joke."
+      },
+      shots: [
+        "guide-img/towns-cities-limerico-town-outside-00.png",
+        "guide-img/towns-cities-limerico-town-outside-01.png",
+        "guide-img/towns-cities-limerico-town-outside-02.png",
+        "guide-img/towns-cities-limerico-town-outside-03.png",
+        "guide-img/towns-cities-limerico-town-outside-04.png",
+        "guide-img/towns-cities-limerico-town-outside-05.png"
+      ],
+      dialogue: [
+        {
+          who: "Farmer Boris",
+          text: "Hello young trainer, would you like some milk?"
+        },
+        {
+          who: "",
+          text: "If you say Yes:"
+        },
+        {
+          who: "Farmer Boris",
+          text: "Here you go! It's good isn't it? They're from our local Scafling and Bision."
+        },
+        {
+          who: "",
+          text: "If you say No:"
+        },
+        {
+          who: "Farmer Boris",
+          text: "Your loss..."
+        },
+        {
+          who: "Ryker",
+          text: "Welcome to our town! If you want us to raise one of your Pokémon, just talk to my daughter inside about it. We would love to take care of them for you!"
+        },
+        {
+          who: "Stefan",
+          text: "These darn young-uns, back in my day we didn't need these fancy bikes."
+        },
+        {
+          who: "Stefan",
+          text: "We walked 20 miles uphill, both ways, 26 hours a day on one foot. While my other foot was starting a business!"
+        },
+        {
+          who: "Stefan",
+          text: "Back then, I fought two Knockewet's for lunch and now they do my taxes!"
+        },
+        {
+          who: "Daisy",
+          text: "It's a shame Clayton moved away to a different gym... He was kinda cute...!"
+        },
+        {
+          who: "Linda",
+          text: "Hey there young-uns, you know how these fancy schmancy quest boards work? Because I sure don't. Back in my day we just talked to each other."
+        },
+        {
+          who: "Infomatic Squiddi",
+          text: "Hello there young traveller, would you like me to show you how these Quest Boards work?"
+        },
+        {
+          who: "",
+          text: "If you say Yes:"
+        },
+        {
+          who: "Infomatic Squiddi",
+          text: "Well, I would, but sadly we don't have it properly finished yet! Guess you'll have to wait for the next demo~"
+        }
+      ]
+    },
+    {
+      id: "limerico-gym",
+      title: "Limerico Gym — Clara",
+      area: "Limerico Town",
+      blurb: "Your first gym battle. Work through the gym trainers, then face Clara, protector of the town’s livestock.",
+      summary: {
+        objectives: [
+          "Talk to Kaia at the front desk for gym info",
+          "Defeat the gym trainers Forest and Siesta",
+          "Battle Clara in the Gym Arena"
         ],
         items: [],
-        mons: ["Clara's team is ranch-themed: Cruspud, Scraqua, Boision"],
-        tip: 'Forest gives $352 and Siesta gives $416 on defeat. Beating each trainer makes the Pokémon they guard move. Heal before facing Clara.',
-      },
-      shots: [
-        'guide-img/towns-cities-limerico-town-limerico-gym-00.png',
-        'guide-img/towns-cities-limerico-town-limerico-gym-01.png',
-        'guide-img/towns-cities-limerico-town-limerico-gym-02.png',
-      ],
-      dialogue: [
-        { who: 'Kaia', text: 'Hi! Welcome to Limerico Gym. What would you like to know?' },
-        { who: '', text: 'About Clara:' },
-        { who: 'Kaia', text: 'Clara was born and raised here in Limerico! She quickly grew to stardom with her older brother Clayton — they became the Limerico Sibs.' },
-        { who: '', text: 'About the Gym:' },
-        { who: 'Kaia', text: 'She specializes in Pokémon that help her ranch: Cruspud deals with the crops, Scraqua waters and herds. And Boision she grew all by herself!' },
-        { who: 'Kaia', text: 'The trainers here are relaxing or protecting their hay. After beating them, the Pokémon will move!' },
-        { who: '', text: 'Gym trainer — Forest:' },
-        { who: 'Forest', text: "If you wanna feed the Scalfling early, you're gonna have to go through me!" },
-        { who: '', text: '(<Player> gets $352 for winning!)' },
-        { who: 'Forest', text: "Well fair's fair! I'll leave feeding time up to you." },
-        { who: '', text: 'Gym trainer — Siesta:' },
-        { who: 'Siesta', text: "I just gathered this hay! I'm not turning it over to the likes of you!" },
-        { who: '', text: '(<Player> gets $416 for winning!)' },
-        { who: 'Siesta', text: 'My hay...' },
-        { who: '', text: 'Meeting Clara:' },
-        { who: 'Clara', text: 'Ah! <Player>!' },
-        { who: '<Player>', text: 'You know my name finally?' },
-        { who: 'Clara', text: 'No, you just seemed like a <Player>.' },
-        { who: 'Clara', text: "I see you've beaten Forest and Siesta. You fought that Marmie really well — but I'm also no Marmie." },
-        { who: 'Clara', text: 'Up ahead is the Gym Arena. Good luck to ya, rookie!' },
-        { who: '', text: 'Gym Arena:' },
-        { who: 'Gym Arena Dude', text: 'Welcome everyone, to another round of gym battles! Our challenger comes from the sleepy town of Saudade — and can you believe it, it’s their first gym battle!' },
-        { who: 'Gym Arena Dude', text: 'Everyone give it up for... <Player>! And of course, our favorite gym leader, the protector of our livestock... Clara!' },
-        { who: 'Clara', text: "This may be your first gym battle, but I'm not gonna go easy on 'ya!" },
-      ],
-    },
-    {
-      id: 'saudade-town',
-      title: 'Saudade Town',
-      area: 'Saudade Town',
-      blurb: 'Your sleepy hometown — a wheat-farming village. Pick up your father’s Running Shoes from Mom and meet the locals.',
-      summary: {
-        objectives: [
-          'Talk to Mom to receive the Running Shoes',
-          'Meet the townsfolk',
-          'Optional — take Sadie’s "Strange Stone" minor quest',
+        mons: [
+          "Clara's team is ranch-themed: Cruspud, Scraqua, Boision"
         ],
-        items: ['Running Shoes (from Mom)'],
-        mons: [],
-        tip: 'Sadie’s Strange Stone quest sends you to Sedimite Grove in Eventide Forest — it’s between a green and an orange tree.',
+        tip: "Forest gives $352 and Siesta gives $416 on defeat. Beating each trainer makes the Pokémon they guard move. Heal before facing Clara."
       },
       shots: [
-        'guide-img/towns-cities-saudade-town-outside-00.png',
-        'guide-img/towns-cities-saudade-town-outside-01.png',
-        'guide-img/towns-cities-saudade-town-outside-02.png',
-        'guide-img/towns-cities-saudade-town-outside-03.png',
-        'guide-img/towns-cities-saudade-town-outside-04.png',
-        'guide-img/towns-cities-saudade-town-outside-05.png',
+        "guide-img/towns-cities-limerico-town-limerico-gym-00.png",
+        "guide-img/towns-cities-limerico-town-limerico-gym-01.png",
+        "guide-img/towns-cities-limerico-town-limerico-gym-02.png"
       ],
       dialogue: [
-        { who: '', text: 'Mom — Running Shoes:' },
-        { who: 'Mom', text: '<Player>! Honey! I’m glad I caught you!' },
-        { who: '<Player>', text: 'Mom! What is it?' },
-        { who: 'Mom', text: "I don't want to keep you long, but I just thought you should know that I found your father's old running shoes. I thought you'd want to use them." },
-        { who: '<Player>', text: "Oh, mom, you shouldn't have…" },
-        { who: 'Mom', text: "It's alright, sweetie, I insist." },
-        { who: '', text: '<Player> received the Running Shoes.' },
-        { who: 'Mom', text: "Okay! That's all. I'm rooting for you, <Player>." },
-        { who: '', text: 'Townsfolk:' },
-        { who: 'Florist Phu', text: 'Wheat, wheat, wheat… This town needs more variety in their plants. Although the amount of wheat here truly is impressive…' },
-        { who: 'Lass Maple', text: "The smell of fresh bread here is so cozy and nice… That's how I know I'm home!" },
-        { who: 'Lillia', text: "Oh, I don't think I've seen your faces around before, are you new here?" },
-        { who: 'Lillia', text: "(Yes) No wait, I remember you're the child of our old Gym Leader — oh how far you've grown!" },
-        { who: 'Zeryn', text: "The amount of sunlight, water and hard work that goes into this town's wheat and grain is sublime!" },
-        { who: 'Jinjoe', text: "The wind through the wheat kinda sounds like music, doesn't it? I wanna write a song about this town someday." },
-        { who: 'Youngster Colton', text: 'Careful in the wheat fields! I got lost in there for THREE HOURS! It was AWESOME!' },
-        { who: 'Kyara', text: 'At sunset, the wheat fields glow gold… it has a very nostalgic feeling to it.' },
-        { who: '', text: 'Minor Quest — Strange Stone (Sadie):' },
-        { who: 'Sadie', text: 'Hey, you! Take on my quest! I need you to get me a strange looking stone from Sedimite Grove.' },
-        { who: 'Sadie', text: "It's in Eventide Forest, between a green and an orange tree. Thanks! I'll be waiting for you." },
-      ],
+        {
+          who: "Kaia",
+          text: "Hi! Welcome to Limerico Gym. What would you like to know?"
+        },
+        {
+          who: "",
+          text: "About Clara:"
+        },
+        {
+          who: "Kaia",
+          text: "Clara was born and raised here in Limerico! She quickly grew to stardom with her older brother Clayton — they became the Limerico Sibs."
+        },
+        {
+          who: "",
+          text: "About the Gym:"
+        },
+        {
+          who: "Kaia",
+          text: "She specializes in Pokémon that help her ranch: Cruspud deals with the crops, Scraqua waters and herds. And Boision she grew all by herself!"
+        },
+        {
+          who: "Kaia",
+          text: "The trainers here are relaxing or protecting their hay. After beating them, the Pokémon will move!"
+        },
+        {
+          who: "",
+          text: "Gym trainer — Forest:"
+        },
+        {
+          who: "Forest",
+          text: "If you wanna feed the Scalfling early, you're gonna have to go through me!"
+        },
+        {
+          who: "",
+          text: "(<Player> gets $352 for winning!)"
+        },
+        {
+          who: "Forest",
+          text: "Well fair's fair! I'll leave feeding time up to you."
+        },
+        {
+          who: "",
+          text: "Gym trainer — Siesta:"
+        },
+        {
+          who: "Siesta",
+          text: "I just gathered this hay! I'm not turning it over to the likes of you!"
+        },
+        {
+          who: "",
+          text: "(<Player> gets $416 for winning!)"
+        },
+        {
+          who: "Siesta",
+          text: "My hay..."
+        },
+        {
+          who: "",
+          text: "Meeting Clara:"
+        },
+        {
+          who: "Clara",
+          text: "Ah! <Player>!"
+        },
+        {
+          who: "<Player>",
+          text: "You know my name finally?"
+        },
+        {
+          who: "Clara",
+          text: "No, you just seemed like a <Player>."
+        },
+        {
+          who: "Clara",
+          text: "I see you've beaten Forest and Siesta. You fought that Marmie really well — but I'm also no Marmie."
+        },
+        {
+          who: "Clara",
+          text: "Up ahead is the Gym Arena. Good luck to ya, rookie!"
+        },
+        {
+          who: "",
+          text: "Gym Arena:"
+        },
+        {
+          who: "Gym Arena Dude",
+          text: "Welcome everyone, to another round of gym battles! Our challenger comes from the sleepy town of Saudade — and can you believe it, it’s their first gym battle!"
+        },
+        {
+          who: "Gym Arena Dude",
+          text: "Everyone give it up for... <Player>! And of course, our favorite gym leader, the protector of our livestock... Clara!"
+        },
+        {
+          who: "Clara",
+          text: "This may be your first gym battle, but I'm not gonna go easy on 'ya!"
+        }
+      ]
     },
     {
-      id: 'aphora-town',
-      title: 'Aphora Town',
-      area: 'Aphora Town',
-      blurb: 'A quiet town of crystal-blue flowers and ancient murals — and the first hints of the region’s deeper lore.',
+      id: "aphora-town",
+      title: "Aphora Town",
+      area: "Aphora Town",
+      blurb: "A quiet town of crystal-blue flowers and ancient murals — and the first hints of the region’s deeper lore.",
       summary: {
         objectives: [
-          'Explore the town and read the three stone murals',
-          'Note the cipher on the broken wall',
-          'The northern path is blocked by Anji for now',
+          "Explore the town and read the three stone murals",
+          "Note the cipher on the broken wall",
+          "The northern path is blocked by Anji for now"
         ],
         items: [],
-        mons: ['Riled-up Boision near Sanchez (leave them be)'],
-        tip: 'The broken wall shows "PRIMXRDIXL" with the numbers 14-15-17-18-20 — a puzzle hint. Lore NPCs here discuss Light, Cosmic, and the Primordials.',
+        mons: [
+          "Riled-up Boision near Sanchez (leave them be)"
+        ],
+        tip: "The broken wall shows \"PRIMXRDIXL\" with the numbers 14-15-17-18-20 — a puzzle hint. Lore NPCs here discuss Light, Cosmic, and the Primordials."
       },
       shots: [
-        'guide-img/towns-cities-aphora-town-outside-00.png',
-        'guide-img/towns-cities-aphora-town-outside-01.png',
-        'guide-img/towns-cities-aphora-town-outside-02.png',
-        'guide-img/towns-cities-aphora-town-outside-03.png',
-        'guide-img/towns-cities-aphora-town-outside-04.png',
-        'guide-img/towns-cities-aphora-town-outside-05.png',
+        "guide-img/towns-cities-aphora-town-outside-00.png",
+        "guide-img/towns-cities-aphora-town-outside-01.png",
+        "guide-img/towns-cities-aphora-town-outside-02.png",
+        "guide-img/towns-cities-aphora-town-outside-03.png",
+        "guide-img/towns-cities-aphora-town-outside-04.png",
+        "guide-img/towns-cities-aphora-town-outside-05.png"
       ],
       dialogue: [
-        { who: 'Anji', text: "Sorry, can't let ya pass through right now. Haven't you seen the news? There are a ton of shady figures moving between towns lately." },
-        { who: 'Anji', text: "We're waiting for the call from the higher ups to see if they were caught. For now head back home, kid." },
-        { who: 'Sanchez', text: "Oh, sorry about my Boision, they seem a bit riled up right now. Best to leave them alone and let them chill out. I'll let you know once we leave." },
-        { who: 'Bianca', text: 'Ah, I remember when there were only 17 types, but no one nowadays seems to acknowledge that.' },
-        { who: '', text: 'Murals:' },
-        { who: '<Player>', text: 'It’s a stone wall that has a withered and washed out depiction of a Light type Pokémon.' },
-        { who: '<Player>', text: 'It’s a stone wall that has a distorted, indistinct depiction of a Cosmic type Pokémon.' },
-        { who: '<Player>', text: 'This wall is broken, but you can make out the following phrase followed by numbers: P R I M X R D I X L — 14 · 15 · 17 · 18 · 20' },
-        { who: 'Lars', text: 'The Light and Fairy types are often miscategorized. Fairy is the embodiment of Fantasy, Magic, and the unexplained. Light is the physical science property — bright, the antithesis to the "evil" of Dark.' },
-        { who: 'Marianne', text: "Primordials — the first beings to come into existence, even pre-dating Arc-. I shouldn't say its name out loud." },
-        { who: 'Cilan', text: 'The Cosmic type — mysterious yet foreboding. A lot of the Cosmic Pokémon feel quite otherworldly, and I can feel a strange aura from them.' },
-        { who: 'Tiff', text: 'The Aphora Flowers are unlike anywhere else in Drapalla — a beautiful crystal blue hue.' },
-        { who: 'Rylo', text: "This town is sooooooo boring. There's no battles or even a PokéMart here! Just a bunch of stupid paintings." },
-      ],
-    },
+        {
+          who: "Anji",
+          text: "Sorry, can't let ya pass through right now. Haven't you seen the news? There are a ton of shady figures moving between towns lately."
+        },
+        {
+          who: "Anji",
+          text: "We're waiting for the call from the higher ups to see if they were caught. For now head back home, kid."
+        },
+        {
+          who: "Sanchez",
+          text: "Oh, sorry about my Boision, they seem a bit riled up right now. Best to leave them alone and let them chill out. I'll let you know once we leave."
+        },
+        {
+          who: "Bianca",
+          text: "Ah, I remember when there were only 17 types, but no one nowadays seems to acknowledge that."
+        },
+        {
+          who: "",
+          text: "Murals:"
+        },
+        {
+          who: "<Player>",
+          text: "It’s a stone wall that has a withered and washed out depiction of a Light type Pokémon."
+        },
+        {
+          who: "<Player>",
+          text: "It’s a stone wall that has a distorted, indistinct depiction of a Cosmic type Pokémon."
+        },
+        {
+          who: "<Player>",
+          text: "This wall is broken, but you can make out the following phrase followed by numbers: P R I M X R D I X L — 14 · 15 · 17 · 18 · 20"
+        },
+        {
+          who: "Lars",
+          text: "The Light and Fairy types are often miscategorized. Fairy is the embodiment of Fantasy, Magic, and the unexplained. Light is the physical science property — bright, the antithesis to the \"evil\" of Dark."
+        },
+        {
+          who: "Marianne",
+          text: "Primordials — the first beings to come into existence, even pre-dating Arc-. I shouldn't say its name out loud."
+        },
+        {
+          who: "Cilan",
+          text: "The Cosmic type — mysterious yet foreboding. A lot of the Cosmic Pokémon feel quite otherworldly, and I can feel a strange aura from them."
+        },
+        {
+          who: "Tiff",
+          text: "The Aphora Flowers are unlike anywhere else in Drapalla — a beautiful crystal blue hue."
+        },
+        {
+          who: "Rylo",
+          text: "This town is sooooooo boring. There's no battles or even a PokéMart here! Just a bunch of stupid paintings."
+        }
+      ]
+    }
   ];
   return { CHAPTERS };
 })();
