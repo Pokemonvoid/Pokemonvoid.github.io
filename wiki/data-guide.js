@@ -868,14 +868,14 @@ window.VGUIDE = (function () {
         tip: "This is a major plot beat introducing Team Void and \"distortion.\" Heal and stock Poké Balls before going deep."
       },
       shots: [
+        "guide-img/routes-areas-pebpup-cave-entrance-02.png",
         "guide-img/routes-areas-pebpup-cave-entrance-00.png",
         "guide-img/routes-areas-pebpup-cave-entrance-01.png",
-        "guide-img/routes-areas-pebpup-cave-entrance-02.png",
         "guide-img/routes-areas-pebpup-cave-main-room-00.png",
         "guide-img/routes-areas-pebpup-cave-main-room-01.png",
-        "guide-img/routes-areas-pebpup-cave-main-room-02.png",
+        "guide-img/routes-areas-pebpup-cave-main-room-01.png",
         "guide-img/routes-areas-pebpup-cave-side-room-00.png",
-        "guide-img/routes-areas-pebpup-cave-side-room-01.png"
+        "guide-img/routes-areas-pebpup-cave-side-room-02.png"
       ],
       dialogue: [
         {
