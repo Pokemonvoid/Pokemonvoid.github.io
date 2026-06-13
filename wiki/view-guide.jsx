@@ -165,6 +165,11 @@ window.VIEWS = window.VIEWS || {};
                 )}
               </div>
             )}
+
+            {/* Credit */}
+            <div style={{ marginTop: 28, paddingTop: 14, borderTop: '1px solid #1d1838', fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#5f5980' }}>
+              Guide data compiled with help from <span style={{ color: '#8a83a8' }}>Darkfiredoom</span>.
+            </div>
           </div>
         </div>
 
