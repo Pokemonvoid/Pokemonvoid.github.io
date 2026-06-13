@@ -449,12 +449,24 @@ window.VGUIDE = (function () {
           text: "(Yes) No wait, I remember you're the child of our old Gym Leader — oh how far you've grown!"
         },
         {
+          who: "Lillia",
+          text: "(No) Ah, I see. I really miss the farmer's market here sometimes."
+        },
+        {
           who: "Zeryn",
           text: "The amount of sunlight, water and hard work that goes into this town's wheat and grain is sublime!"
         },
         {
           who: "Jinjoe",
           text: "The wind through the wheat kinda sounds like music, doesn't it? I wanna write a song about this town someday."
+        },
+        {
+          who: "Yui",
+          text: "If you've got time to stand around chatting, why not come help a gal like me stack some grain sacks?"
+        },
+        {
+          who: "Heimskur",
+          text: "We may have a ton of grain here in Saudade Town. But don't go tramplin' the fields, got it?"
         },
         {
           who: "Youngster Colton",
@@ -475,6 +487,10 @@ window.VGUIDE = (function () {
         {
           who: "Sadie",
           text: "It's in Eventide Forest, between a green and an orange tree. Thanks! I'll be waiting for you."
+        },
+        {
+          who: "Sadie",
+          text: "(Before getting the item) Go get it!"
         }
       ]
     },
