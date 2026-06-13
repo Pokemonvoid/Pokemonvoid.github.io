@@ -697,6 +697,103 @@ window.VGUIDE = (function () {
       ]
     },
     {
+      id: "route-5",
+      title: "Route 5",
+      area: "Route 5",
+      blurb: "On the way to the lab, <Rival 1> challenges you to a heartfelt battle after watching you fight Kayden.",
+      summary: {
+        objectives: [
+          "Battle <Rival 1>",
+          "Defeat the route trainers (Tina, Nikola)",
+          "Continue toward the lab"
+        ],
+        items: [],
+        mons: [
+          "Wild Pokémon in the grass"
+        ],
+        tip: "<Rival 1> awards 00 — a big payout. Tina gives 80, Nikola 4."
+      },
+      shots: [
+        "guide-img/routes-areas-route-5-00.png",
+        "guide-img/routes-areas-route-5-01.png",
+        "guide-img/routes-areas-route-5-02.png",
+        "guide-img/routes-areas-route-5-03.png",
+        "guide-img/routes-areas-route-5-04.png",
+        "guide-img/routes-areas-route-5-05.png",
+        "guide-img/routes-areas-route-5-06.png"
+      ],
+      dialogue: [
+        {
+          who: "???",
+          text: "<Player>!"
+        },
+        {
+          who: "Rival 1",
+          text: "I saw your battle back there with Kayden. I’ve wondered for years if you’re somehow secretly a genius…"
+        },
+        {
+          who: "Rival 1",
+          text: "I never felt the desire to battle until that moment. You just looked so cool."
+        },
+        {
+          who: "Rival 1",
+          text: "So let’s battle… I think that’s the best way for both of us to learn even more!"
+        },
+        {
+          who: "",
+          text: "(Player gets $900 for winning!)"
+        },
+        {
+          who: "",
+          text: "After battle:"
+        },
+        {
+          who: "Rival 1",
+          text: "Sigh… I never thought I’d be so engaged like that before. Let’s do this again sometime…"
+        },
+        {
+          who: "Rival 1",
+          text: "I won’t lose next time! Now come on! Let’s go to the lab!"
+        },
+        {
+          who: "",
+          text: "Route trainers — Tina:"
+        },
+        {
+          who: "Tina",
+          text: "I spent hours on this flower arrangement, what do you think?"
+        },
+        {
+          who: "Tina",
+          text: "(Once defeated) Oh, you trampled all over my flowers!"
+        },
+        {
+          who: "",
+          text: "(Player gets $280 for winning!)"
+        },
+        {
+          who: "Tina",
+          text: "I might lose the battle of Pokémon but not floristry."
+        },
+        {
+          who: "",
+          text: "Nikola:"
+        },
+        {
+          who: "Nikola",
+          text: "I only rock the Scraqua fit because they haven’t released the scrufpup fit."
+        },
+        {
+          who: "",
+          text: "(Player gets $64 for winning!)"
+        },
+        {
+          who: "Nikola",
+          text: "I kinda want a Pymood fit now…"
+        }
+      ]
+    },
+    {
       id: "professors-lab",
       title: "Professor's Lab",
       area: "Eventide Forest",
@@ -1160,6 +1257,136 @@ window.VGUIDE = (function () {
         {
           who: "Clara",
           text: "This may be your first gym battle, but I'm not gonna go easy on 'ya!"
+        }
+      ]
+    },
+    {
+      id: "route-4",
+      title: "Route 4",
+      area: "Route 4",
+      blurb: "A trainer-packed route near Acciome. The path to Apocrypha is blocked, and a few trainers share rumours and freebies.",
+      summary: {
+        objectives: [
+          "Battle the route trainers",
+          "Grab the free Net Balls from Guile",
+          "Note: the path to Apocrypha is blocked by Caspian"
+        ],
+        items: [
+          "Net Balls (free, from Guile)"
+        ],
+        mons: [
+          "Concewns & other Bug types nearby"
+        ],
+        tip: "Guile hands over Net Balls (better for Bug & Water types). Apocrypha is sealed off for now."
+      },
+      shots: [
+        "guide-img/routes-areas-route-4-00.png",
+        "guide-img/routes-areas-route-4-01.png",
+        "guide-img/routes-areas-route-4-02.png",
+        "guide-img/routes-areas-route-4-03.png",
+        "guide-img/routes-areas-route-4-04.png",
+        "guide-img/routes-areas-route-4-05.png",
+        "guide-img/routes-areas-route-4-06.png",
+        "guide-img/routes-areas-route-4-07.png",
+        "guide-img/routes-areas-route-4-08.png",
+        "guide-img/routes-areas-route-4-09.png"
+      ],
+      dialogue: [
+        {
+          who: "Caspian",
+          text: "We aren’t letting anyone into Apocrypha right now. Those hooligans are still running rampant with their dyed purple hair and cloaks."
+        },
+        {
+          who: "Caspian",
+          text: "Head back home until it’s safe."
+        },
+        {
+          who: "Felix",
+          text: "I’m thinking of transferring to Apocrypha, can you change my mind?"
+        },
+        {
+          who: "Felix",
+          text: "With strong trainers like you I still have so much to learn at Acciome!"
+        },
+        {
+          who: "Natty",
+          text: "They say the best way to evolve tartort is to walk in a circle 1000 times!"
+        },
+        {
+          who: "Natty",
+          text: "Wait... It’s a hoax? I need an item? Man..."
+        },
+        {
+          who: "Huebert",
+          text: "I beat Clara all by myself! Now I’m in my training arc. Get ready!"
+        },
+        {
+          who: "Huebert",
+          text: "Seems I need even more training."
+        },
+        {
+          who: "Jarron",
+          text: "I often ponder about my battle with Clara, I swear that she didn’t Sync-Tune before."
+        },
+        {
+          who: "Jarron",
+          text: "I remember seeing one of the Stone Hats myself when I was younger."
+        },
+        {
+          who: "Guile",
+          text: "Concewns and other bug types are pretty hard to catch sometimes. I’ve secretly learned how to utilize the secret technique by eating a \"Bug Bug Fruit\"."
+        },
+        {
+          who: "Guile",
+          text: "So yeah! I’ve had 100% catch rate since. You can take these — Net Balls! They increase the chances of catching Bug & Water type Pokémon!"
+        },
+        {
+          who: "Guile",
+          text: "Bugu Bugu— Wait that’s eerily familiar sounding..."
+        },
+        {
+          who: "Alain",
+          text: "This sand garden is the only thing that gives me peace, I love raking the sand."
+        },
+        {
+          who: "Eric",
+          text: "The statues above are dedicated to all of the alumni from Apocrypha. They might’ve not had the Champion, but they have many notable names!"
+        }
+      ]
+    },
+    {
+      id: "route-3",
+      title: "Route 3",
+      area: "Route 3",
+      blurb: "A short route guarded by a cheese-obsessed trainer.",
+      summary: {
+        objectives: [
+          "Battle Teddy",
+          "Pass through toward Aphora Town"
+        ],
+        items: [],
+        mons: [
+          "Wild Pokémon in the grass"
+        ],
+        tip: "A brief route — mostly a connector. Watch for Teddy."
+      },
+      shots: [
+        "guide-img/routes-areas-route-3-00.png",
+        "guide-img/routes-areas-route-3-01.png",
+        "guide-img/routes-areas-route-3-02.png",
+        "guide-img/routes-areas-route-3-03.png",
+        "guide-img/routes-areas-route-3-04.png",
+        "guide-img/routes-areas-route-3-05.png",
+        "guide-img/routes-areas-route-3-06.png"
+      ],
+      dialogue: [
+        {
+          who: "Teddy",
+          text: "Like a Powse chasing cheese, you’re caught!"
+        },
+        {
+          who: "Teddy",
+          text: "(Once defeated) I’m kind of craving cheese now..."
         }
       ]
     },
