@@ -515,8 +515,8 @@ window.VGUIDE = (function () {
         "guide-img/routes-areas-route-1-04.png",
         "guide-img/routes-areas-route-1-00.png",
         "guide-img/routes-areas-route-1-02.png",
-        "guide-img/routes-areas-route-1-03.png",
-        "guide-img/routes-areas-route-1-01.png"
+        "guide-img/routes-areas-route-1-01.png",
+        "guide-img/routes-areas-route-1-03.png"
       ],
       dialogue: [
         {
@@ -619,10 +619,10 @@ window.VGUIDE = (function () {
         tip: "Heal up before pushing through — the trainers chain together. Lorenzo uses a Reetle."
       },
       shots: [
-        "guide-img/routes-areas-eventide-forest-forest-00.png",
-        "guide-img/routes-areas-eventide-forest-forest-01.png",
-        "guide-img/routes-areas-eventide-forest-forest-02.png",
         "guide-img/routes-areas-eventide-forest-forest-03.png",
+        "guide-img/routes-areas-eventide-forest-forest-00.png",
+        "guide-img/routes-areas-eventide-forest-forest-02.png",
+        "guide-img/routes-areas-eventide-forest-forest-01.png",
         "guide-img/routes-areas-eventide-forest-forest-04.png"
       ],
       dialogue: [
