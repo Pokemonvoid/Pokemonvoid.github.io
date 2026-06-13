@@ -11,15 +11,47 @@ window.VIEWS = window.VIEWS || {};
   };
   const colorFor = (who) => SPEAKER_COLORS[who] || '#b6aee0';
 
+  // Map each chapter id -> the location slug used by the Locations tab
+  // (#/location/<slug>). Chapters with no real location (e.g. the intro) are omitted.
+  const LOC_SLUGS = {
+    'starter': 'saudade-town',
+    'saudade-town': 'saudade-town',
+    'route-1': 'route-1',
+    'eventide-forest': 'eventide-forest',
+    'route-5': 'route-5',
+    'professors-lab': 'professor-hickorys-lab',
+    'route-2': 'route-2',
+    'pebpup-cave': 'pebpup-cavern',
+    'limerico-town': 'limerico-town',
+    'limerico-gym': 'limerico-town',
+    'route-4': 'route-4',
+    'route-3': 'route-3',
+    'aphora-town': 'aphora-town',
+  };
+
+  // Renders a title so any embedded number uses the Silkscreen pixel font,
+  // matching how the Locations tab renders "Route 2", "Route 5", etc.
+  function RouteName({ text, size }) {
+    const parts = String(text).split(/(\d+)/);
+    return parts.map((p, i) =>
+      /^\d+$/.test(p)
+        ? <span key={i} style={{ fontFamily: "'Silkscreen', monospace", fontSize: size ? size * 0.82 : undefined, letterSpacing: 1 }}>{p}</span>
+        : <span key={i}>{p}</span>
+    );
+  }
+
   window.VIEWS.Guide = function Guide() {
     const [active, setActive] = React.useState(CHAPTERS.length ? CHAPTERS[0].id : null);
     const [showScript, setShowScript] = React.useState(true);
+    const [lightbox, setLightbox] = React.useState(null); // image src being viewed large, or null
 
     if (!CHAPTERS.length) {
       return (<div><PageHead kicker="WALKTHROUGH" title="Guide" sub="Step-by-step story walkthrough." /><Empty label="No chapters yet." /></div>);
     }
 
     const ch = CHAPTERS.find(c => c.id === active) || CHAPTERS[0];
+    const go = (hash) => { window.location.hash = hash; };
+    const locSlug = LOC_SLUGS[ch.id];
 
     return (
       <div>
@@ -37,8 +69,8 @@ window.VIEWS = window.VIEWS || {};
                     background: on ? 'linear-gradient(135deg, #2a2055, #1a1238)' : '#130f24',
                     border: `1px solid ${on ? '#5a47a0' : '#221d3a'}`, color: on ? '#fff' : '#b6aee0',
                     boxShadow: on ? '0 0 14px #8a5cff33' : 'none', transition: 'all .15s' }}>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: '#7a72a8' }}>{String(i + 1).padStart(2, '0')} · {c.area}</div>
-                  <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 15 }}>{c.title}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: '#7a72a8' }}>{String(i + 1).padStart(2, '0')} · <RouteName text={c.area} /></div>
+                  <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 15 }}><RouteName text={c.title} size={15} /></div>
                 </button>
               );
             })}
@@ -46,8 +78,18 @@ window.VIEWS = window.VIEWS || {};
 
           {/* Chapter content */}
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 28, color: '#fff', lineHeight: 1 }}>{ch.title}</div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#8a5cff', marginTop: 4, marginBottom: 14 }}>{ch.area}</div>
+            {/* Title — a button linking to the location info when one exists */}
+            {locSlug ? (
+              <button onClick={() => go('#/location/' + locSlug)}
+                title={'View location info for ' + ch.area}
+                style={{ cursor: 'pointer', background: 'transparent', border: 'none', padding: 0, textAlign: 'left', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 28, color: '#fff', lineHeight: 1 }}><RouteName text={ch.title} size={28} /></span>
+                <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, letterSpacing: 1, color: '#5cc8ff', border: '1px solid #5cc8ff55', borderRadius: 6, padding: '3px 7px' }}>LOCATION ›</span>
+              </button>
+            ) : (
+              <div style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 28, color: '#fff', lineHeight: 1 }}><RouteName text={ch.title} size={28} /></div>
+            )}
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#8a5cff', marginTop: 4, marginBottom: 14 }}><RouteName text={ch.area} /></div>
             {ch.blurb && <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, color: '#bdb6dd', lineHeight: 1.6, margin: '0 0 18px' }}>{ch.blurb}</p>}
 
             {/* Summary layer */}
@@ -84,12 +126,16 @@ window.VIEWS = window.VIEWS || {};
               </div>
             )}
 
-            {/* Screenshots, if any */}
+            {/* Screenshots — each is a button that opens a larger view */}
             {ch.shots && ch.shots.length > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10, marginBottom: 18 }}>
                 {ch.shots.map((src, i) => (
-                  <img key={i} src={src} alt={ch.title + ' screenshot'} loading="lazy"
-                    style={{ width: '100%', borderRadius: 10, border: '1px solid #2a2350', imageRendering: 'pixelated' }} />
+                  <button key={i} onClick={() => setLightbox(src)} title="Click to enlarge"
+                    style={{ cursor: 'zoom-in', padding: 0, border: '1px solid #2a2350', borderRadius: 10, overflow: 'hidden', background: '#0a0818', position: 'relative' }}>
+                    <img src={src} alt={ch.title + ' screenshot'} loading="lazy"
+                      style={{ display: 'block', width: '100%', imageRendering: 'pixelated' }} />
+                    <span style={{ position: 'absolute', bottom: 6, right: 6, fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#fff', background: 'rgba(10,8,24,0.7)', borderRadius: 5, padding: '3px 5px' }}>⤢ ENLARGE</span>
+                  </button>
                 ))}
               </div>
             )}
@@ -121,6 +167,19 @@ window.VIEWS = window.VIEWS || {};
             )}
           </div>
         </div>
+
+        {/* Lightbox overlay */}
+        {lightbox && (
+          <div onClick={() => setLightbox(null)}
+            style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(5,4,12,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, cursor: 'zoom-out' }}>
+            <div style={{ position: 'relative', maxWidth: '92vw', maxHeight: '92vh' }}>
+              <img src={lightbox} alt="Enlarged screenshot"
+                style={{ display: 'block', maxWidth: '92vw', maxHeight: '92vh', imageRendering: 'pixelated', borderRadius: 12, border: '1px solid #5a47a0', boxShadow: '0 0 40px #8a5cff44' }} />
+              <button onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+                style={{ position: 'absolute', top: -14, right: -14, width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', background: '#1a1238', border: '1px solid #5a47a0', color: '#fff', fontSize: 16, lineHeight: 1 }}>✕</button>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
