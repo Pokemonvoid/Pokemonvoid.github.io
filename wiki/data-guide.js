@@ -512,11 +512,11 @@ window.VGUIDE = (function () {
         tip: "Pecan's battle is a tutorial — you're meant to win. The $500 prize is a nice early boost."
       },
       shots: [
+        "guide-img/routes-areas-route-1-04.png",
         "guide-img/routes-areas-route-1-00.png",
-        "guide-img/routes-areas-route-1-01.png",
         "guide-img/routes-areas-route-1-02.png",
         "guide-img/routes-areas-route-1-03.png",
-        "guide-img/routes-areas-route-1-04.png"
+        "guide-img/routes-areas-route-1-01.png"
       ],
       dialogue: [
         {
