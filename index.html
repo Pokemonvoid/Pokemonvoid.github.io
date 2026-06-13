@@ -129,8 +129,10 @@
 
 <script src="wiki/data-dex.js"></script>
 <script src="wiki/data-game.js"></script>
+<script src="wiki/data-guide.js"></script>
 <script type="text/babel" src="wiki/ui.jsx"></script>
 <script type="text/babel" src="wiki/view-pokedex.jsx"></script>
+<script type="text/babel" src="wiki/view-guide.jsx"></script>
 <script type="text/babel" src="wiki/view-detail.jsx"></script>
 <script type="text/babel" src="wiki/view-moves.jsx"></script>
 <script type="text/babel" src="wiki/view-abilities.jsx"></script>
@@ -187,6 +189,7 @@
       case 'pokemon': content = <V.Detail param={param} />; break;
       case 'moves': content = <V.Moves param={param} />; break;
       case 'abilities': content = <V.Abilities />; break;
+      case 'guide': content = <V.Guide />; break;
       case 'items': content = <V.Items />; break;
       case 'locations': content = <V.Locations />; break;
       case 'location': content = <V.Location param={param} />; break;

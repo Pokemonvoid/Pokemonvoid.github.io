@@ -162,7 +162,7 @@
 
   // ---- Nav bar -----------------------------------------------------------
   const NAV = [
-    ['Pokédex', '#/pokedex'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
+    ['Pokédex', '#/pokedex'], ['Guide', '#/guide'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
     ['Items', '#/items'], ['Locations', '#/locations'],
     ['Type Calculator', '#/types'], ['Team Builder', '#/team'],
     ['Compare', '#/compare'],
