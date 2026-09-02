@@ -1,8 +1,8 @@
-/* Pokémon Solar Eclipse — full Pokémon detail page. window.VIEWS.Detail
+/* Pokémon Void — full Pokémon detail page. window.VIEWS.Detail
    Mirrors Void's view-detail routing: reached via #/pokemon/<dex>. */
 window.VIEWS = window.VIEWS || {};
 (function () {
-  const { DEX, TYPES, byDex } = window.VSEDEX;
+  const { DEX, TYPES, byDex } = window.VDEX;
   const { go, TypePill, AbilityPill, SpriteSlot, StatBars, PageHead, Empty } = window.VUI;
   const bstOf = s => Object.values(s).reduce((a, b) => a + b, 0);
 
