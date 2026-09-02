@@ -229,7 +229,7 @@ window.VIEWS = window.VIEWS || {};
 
   // ---- Full detail page --------------------------------------------------
   window.VIEWS.Detail = function Detail({ param }) {
-    const d = byDex[param];
+    const d = byDex(param);
     const [vi, setVi] = React.useState(0);
     React.useEffect(() => { setVi(0); }, [param]);
 
