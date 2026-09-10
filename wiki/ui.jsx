@@ -227,7 +227,7 @@
                 <a className="vsocial youtube" href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" title="Pokédex Fillers on YouTube">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>
                 </a>
-                <a className="vsocial download" href="https://www.mediafire.com/file/qiirj25m8s2fu78/Pokemon+Void+0.1.5+(encryptionfix).zip/file" target="_blank" rel="noopener noreferrer" title="Download Pokémon Void (latest)">
+                <a className="vsocial download" href="https://github.com/Pokemonvoid/Pokemonvoid.github.io/releases/download/v0.1.5/v0.1.5.zip" target="_blank" rel="noopener noreferrer" title="Download Pokémon Void (latest)">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
               </div>
