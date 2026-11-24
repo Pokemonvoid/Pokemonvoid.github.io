@@ -148,7 +148,7 @@ window.VIEWS = window.VIEWS || {};
 
   // ---- Head-to-Head: pick up to 3 Pokémon (any type) and compare directly ----
   function HeadToHead({ picks, setPicks, pickerFor, setPickerFor, pq, setPq }) {
-    const chosen = picks.map(dx => dx ? DEX.find(d => d.dex === dx) : null);
+    const chosen = picks.map(dx => dx ? window.VDEX.byDex(dx) : null);
     const active = chosen.filter(Boolean);
     // per-stat winner among the chosen (only when 2+)
     const best = {};

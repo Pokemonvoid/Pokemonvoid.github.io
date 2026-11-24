@@ -28,9 +28,13 @@ const norm = value => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, ''
 const list = value => value ? value.split(',').map(s => s.trim()) : [];
 const sort = values => [...values].sort();
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+const sourceFor = d => {
+  const s = base.find(s=>d.sourceSpecies ? s.id===d.sourceSpecies : norm(s.Name)===norm(d.name));
+  return d.sourceForm ? {...s,...forms.find(f=>f.id===`${d.sourceSpecies},${d.sourceForm}`)} : s;
+};
 const descriptions = [], differences = [], counts = {};
 for (const d of before.filter(d => !d.undiscovered)) {
-  const s = base.find(s => norm(s.Name) === norm(d.name));
+  const s = sourceFor(d);
   if (!s) throw new Error('Missing source species: ' + d.name);
   const changes = [];
   const check = (field, wiki, current) => { if (!equal(wiki,current)) { changes.push({field,wiki,current}); counts[field]=(counts[field]||0)+1; } };
@@ -76,9 +80,9 @@ for(let i=0;i<before.length;i++) {
 if(process.argv.includes('--update-descriptions'))fs.writeFileSync(dexPath,code);
 const visible=before.filter(d=>!d.undiscovered);
 const report={sources:source,visibleSpecies:visible.length,descriptionsUpdated:descriptions.length,descriptions,counts,differences,
-  evolutionReview:visible.map(d=>{const s=base.find(s=>norm(s.Name)===norm(d.name));return {name:d.name,source:[s.Evolution||s.Evolutions||[]].flat(),wiki:d.evo||null}}),
+  evolutionReview:visible.map(d=>{const s=sourceFor(d);return {name:d.name,source:[s.Evolution||s.Evolutions||[]].flat(),wiki:d.evo||null}}),
   formReview:forms.filter(f=>visible.some(d=>norm(d.name)===norm(base.find(s=>s.id===f.id.split(',')[0])?.Name))),
-  measurements:visible.map(d=>{const s=base.find(s=>norm(s.Name)===norm(d.name));return {name:d.name,wikiHeight:d.height,wikiWeight:d.weight,metres:s.Height||null,kilograms:s.Weight||null}}),
+  measurements:visible.map(d=>{const s=sourceFor(d);return {name:d.name,wikiHeight:d.height,wikiWeight:d.weight,metres:s.Height||null,kilograms:s.Weight||null}}),
   limits:['Location strings and encounter tables need reconciliation with map metadata and events.','Custom evolution and form conditions need script-level review.','Tutor compatibility does not establish TM numbering.','Height and weight values are recorded for unit/rounding review, not counted as direct mismatches.','Stats use source order HP, Attack, Defense, Speed, Sp. Atk, Sp. Def.']};
 fs.mkdirSync(path.join(root,'.release-prep'),{recursive:true});
 fs.writeFileSync(path.join(root,'.release-prep/pokemon-data-audit.json'),JSON.stringify(report,null,2)+'\n');

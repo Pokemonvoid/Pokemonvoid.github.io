@@ -43,9 +43,9 @@ const write = (file, value) => { fs.mkdirSync(path.dirname(file), { recursive: t
 const copy = (from, to) => { fs.mkdirSync(path.dirname(to), { recursive: true }); fs.copyFileSync(from, to); };
 // Verify identity mapping before changing public assets.
 for (const d of dex.filter(d => !d.undiscovered)) {
-  const s = species.find(s => normalize(s.Name) === normalize(d.name));
-  if (!s || order[Number(d.dex) - 1] !== s.id) throw new Error('Dex mapping mismatch: ' + d.name);
-  const id = s.id === 'KAMOLEON' ? 'KAMOLEON_1' : s.id;
+  const s = species.find(s => d.sourceSpecies ? s.id===d.sourceSpecies : normalize(s.Name) === normalize(d.name));
+  if (!s || order[Number(d.baseDex || d.dex) - 1] !== s.id) throw new Error('Dex mapping mismatch: ' + d.name);
+  const id = d.sourceArt || (s.id === 'KAMOLEON' ? 'KAMOLEON_1' : s.id);
   if (!fs.existsSync(path.join(graphics, 'Pokemon/Front', id + '.png'))) throw new Error('Missing front sprite: ' + s.id);
 }
 function importSprites(id, destination, prefix, publicEntry) {
@@ -62,6 +62,8 @@ function importSprites(id, destination, prefix, publicEntry) {
 const list = value => value ? value.split(',').map(s => s.trim()) : [];
 const stats = value => Object.fromEntries(['HP', 'ATK', 'DEF', 'SPE', 'SPA', 'SPD'].map((key, i) => [key, Number(list(value)[i])]));
 for (const s of species) {
+  const formEntries=dex.filter(d=>!d.undiscovered&&d.sourceSpecies===s.id);
+  if(formEntries.length){for(const d of formEntries){importSprites(d.sourceArt,path.join(root,'sprites'),d.dex,true);report.visibleSpecies++;}continue;}
   const d = dex.find(d => normalize(d.name) === normalize(s.Name));
   if (d && !d.undiscovered) {
     report.visibleSpecies++;

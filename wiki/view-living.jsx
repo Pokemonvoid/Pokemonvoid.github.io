@@ -28,7 +28,7 @@ window.VIEWS = window.VIEWS || {};
           name: (b && b.name) || ('Box ' + (i + 1)),
           slots: Array.from({ length: PER_BOX }, (_, k) => {
             const s = b && b.slots && b.slots[k];
-            return s && s.dex ? { dex: String(s.dex), normal: !!s.normal, shiny: !!s.shiny, anomaly: !!s.anomaly } : null;
+            return s && s.dex ? { dex: window.VDEX.canonicalDex(s.dex), normal: !!s.normal, shiny: !!s.shiny, anomaly: !!s.anomaly } : null;
           }),
         }));
         return v.boxes;
@@ -99,7 +99,7 @@ window.VIEWS = window.VIEWS || {};
           if (!s) { empties++; continue; }
           flush();
           const flag = (s.normal ? 1 : 0) + (s.shiny ? 2 : 0) + (s.anomaly ? 4 : 0);
-          out += parseInt(s.dex, 10).toString(36).padStart(2, '0') + flag.toString(36);
+          out += window.VDEX.dexToNumber(s.dex).toString(36).padStart(2, '0') + flag.toString(36);
         }
         flush();
         return (b.name || '') + '~' + out;
@@ -127,7 +127,7 @@ window.VIEWS = window.VIEWS || {};
               for (let k = 0; k < n && slots.length < PER_BOX; k++) slots.push(null);
               i = j;
             } else {                                // dex(2) + flag(1)
-              const dex = String(parseInt(body.slice(i, i + 2), 36)).padStart(3, '0');
+              const dex = window.VDEX.numberToDex(parseInt(body.slice(i, i + 2), 36));
               const flag = parseInt(body[i + 2], 36) || 0;
               slots.push({ dex, normal: !!(flag & 1), shiny: !!(flag & 2), anomaly: !!(flag & 4) });
               i += 3;
@@ -256,7 +256,7 @@ window.VIEWS = window.VIEWS || {};
         name: (b && b.name) || ('Box ' + (i + 1)),
         slots: Array.from({ length: PER_BOX }, (_, k) => {
           const s = b && b.slots && b.slots[k];
-          return s && s.dex ? { dex: String(s.dex), normal: !!s.normal, shiny: !!s.shiny, anomaly: !!s.anomaly } : null;
+          return s && s.dex ? { dex: window.VDEX.canonicalDex(s.dex), normal: !!s.normal, shiny: !!s.shiny, anomaly: !!s.anomaly } : null;
         }),
       }));
       setBoxes(norm);

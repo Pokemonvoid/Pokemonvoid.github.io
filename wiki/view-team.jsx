@@ -21,7 +21,7 @@ window.VIEWS = window.VIEWS || {};
     if (m && m.ivs) ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'].forEach(k => { if (Number.isFinite(m.ivs[k])) iv[k] = Math.max(0, Math.min(31, m.ivs[k] | 0)); });
     const nature = (m && typeof m.nature === 'string' && S().NATURES && S().NATURES[m.nature]) ? m.nature : 'Hardy';
     const ability = (m && typeof m.ability === 'string') ? m.ability : null;
-    return { dex: String(m.dex), moves: Array.isArray(m.moves) ? m.moves.slice(0, 4) : [], evs: ev, ivs: iv, nature, ability };
+    return { dex: window.VDEX.canonicalDex(m.dex), moves: Array.isArray(m.moves) ? m.moves.slice(0, 4) : [], evs: ev, ivs: iv, nature, ability };
   }
   function freshLoadout(name) { return { id: 'L' + Date.now() + Math.floor(Math.random() * 1000), name: name || 'New Team', members: [] }; }
   function loadAll() {
@@ -36,7 +36,7 @@ window.VIEWS = window.VIEWS || {};
       const old = JSON.parse(localStorage.getItem(OLD_KEY));
       if (Array.isArray(old) && old.length) {
         const lo = freshLoadout('My Team');
-        lo.members = old.filter(Boolean).slice(0, MAXTEAM).map(dex => ({ dex: String(dex), moves: [] }));
+        lo.members = old.filter(Boolean).slice(0, MAXTEAM).map(dex => ({ dex: window.VDEX.canonicalDex(dex), moves: [] }));
         return { loadouts: [lo], active: 0 };
       }
     } catch (e) {}
@@ -105,7 +105,7 @@ window.VIEWS = window.VIEWS || {};
           const id = G.moveToId(mv);
           return id ? id : '<' + mv + '>';
         }).join('');
-        return parseInt(m.dex, 10).toString(36) + '.' + ids + _encodeSpec(m) + _encodeAbility(m);
+        return window.VDEX.dexToNumber(m.dex).toString(36) + '.' + ids + _encodeSpec(m) + _encodeAbility(m);
       }).join(';');
       return 'VT2~' + loadout.name + '~' + parts;
     } catch (e) { return ''; }
@@ -184,13 +184,13 @@ window.VIEWS = window.VIEWS || {};
           if (atPos >= 0) {
             const idxStr = afterDot.slice(atPos + 1);
             afterDot = afterDot.slice(0, atPos);
-            const dexPad = padDex(parseInt(dexRaw, 36));
+            const dexPad = window.VDEX.numberToDex(parseInt(dexRaw, 36));
             const pool = _abilityPool(dexPad);
             const ai = parseInt(idxStr, 36);
             if (pool && pool[ai]) abilityName = pool[ai];
           }
           const [movesStr, specStr] = _specSplit(afterDot);
-          const base = { dex: padDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
+          const base = { dex: window.VDEX.numberToDex(parseInt(dexRaw, 36)), moves: _parseMoveIds(movesStr) };
           const spec = specStr ? _parseSpec(specStr) : null;
           const out = spec ? { ...base, ...spec } : base;
           if (abilityName) out.ability = abilityName;

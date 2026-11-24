@@ -67,11 +67,12 @@ const changes = [], stagedForms = [], spriteCopies = [];
 const formArt = {MAULMOT:'MAULMOT_C',HYDRENA:'HYDRENA_C',GRIZZLAWN:'GRIZZLAWN_F',BLIGHTATO:'BLIGHTATO_C',ROCWEILER:'ROCWEILER_M',ARMADISCO:'ARMADISCO_M'};
 const variants = [['Front',''],['Front/frame2','-f2'],['Back','-back'],['Front shiny','-shiny'],['Front shiny/frame2','-shiny-f2'],['Back shiny','-shiny-back'],['Front anomaly','-anomaly'],['Front anomaly/frame2','-anomaly-f2'],['Back anomaly','-anomaly-back']];
 for(const d of dex.filter(d=>!d.undiscovered)) {
-  const s = species.find(s=>norm(s.Name)===norm(d.name));
+  const baseSource = species.find(s=>d.sourceSpecies ? s.id===d.sourceSpecies : norm(s.Name)===norm(d.name));
+  const s = d.sourceForm ? {...baseSource,...forms.find(f=>f.id===`${d.sourceSpecies},${d.sourceForm}`)} : baseSource;
   if(!s)throw new Error('Missing species '+d.name);
   const next = {...d,...data(s,d)};
   const publicForms = [];
-  for(const form of forms.filter(f=>f.id.split(',')[0]===s.id)) {
+  for(const form of forms.filter(f=>d.sourceForm===undefined && f.id.split(',')[0]===s.id)) {
     const prepared = {name:form.FormName,...data({...s,...form},d),flavor:form.Pokedex||s.Pokedex};
     const art = s.id==='KAMOLEON' ? (form.id.endsWith(',1')?'KAMOLEON_1':'KAMOLEON_3') : formArt[s.id];
     if(!art || !fs.existsSync(path.join(source,'Graphics/Pokemon/Front',art+'.png'))) {
@@ -88,7 +89,7 @@ for(const d of dex.filter(d=>!d.undiscovered)) {
     }
     publicForms.push(prepared);
   }
-  if(s.id==='KAMOLEON')publicForms.unshift({name:'Low Friendship',...data(s,d),spriteSuffix:'low',flavor:s.Pokedex});
+  if(s.id==='KAMOLEON'&&d.sourceForm===undefined)publicForms.unshift({name:'Low Friendship',...data(s,d),spriteSuffix:'low',flavor:s.Pokedex});
   if(publicForms.length)next.forms=publicForms;
   const fields = Object.keys(next).filter(k=>JSON.stringify(d[k])!==JSON.stringify(next[k]));
   if(!fields.length)continue;
@@ -104,7 +105,7 @@ for(const s of species) {
     const child=dex.find(d=>!d.undiscovered&&norm(d.name)===norm(targetSource?.Name));
     if(!child)continue;
     const itemName=id=>items.find(item=>item.id===id)?.Name||id;
-    let label;
+    let label, details;
     if(method==='Level')label='Lv '+value;
     else if(method==='LevelMale'||method==='LevelFemale')label=`Lv ${value} (${method==='LevelMale'?'male':'female'})`;
     else if(method==='Item')label=itemName(value);
@@ -114,14 +115,18 @@ for(const s of species) {
     else if(method==='LevelFriendshipHigh'||method==='LevelFriendshipLow')label=`Lv ${value} (${method==='LevelFriendshipHigh'?'high':'low'} friendship)`;
     else if(method==='RarcraftTrashCan') {
       const branch={RACLANK:['Defense','MIGHTKNIGHTCOMIC'],RASOAR:['Attack','HARPYIECOMIC'],RAZOOM:['Speed','SUGARRUSHCOMIC']}[target];
-      label=`Lv ${value}+ at a trash can, first in party; hold ${itemName(branch[1])}, or have ${branch[0]} highest among Defense, Attack and Speed (ties favour Defense, then Attack)`;
+      const stat={Defense:'DEF',Attack:'ATK',Speed:'SPE'}[branch[0]];
+      label=`Lv ${value}+ · Trash can · Highest ${stat}`;
+      parent.evo={...parent.evo,note:'Put Rarcraft first in your party before using a trash can.'};
+      details=`Hold ${itemName(branch[1])} to choose this evolution instead of using stats. Without a comic, compare Defense, Attack and Speed; ties favour Defense, then Attack. The comic is consumed.`;
     } else if(method==='Event'&&target==='CERBAMENT') {
-      label='Use the Cerbament item with Gleeruption and Scorow in the party (combines both Pokémon)';
+      label='Use Cerbament item';
+      details='Have Gleeruption and Scorow in your party, then use the Cerbament item on either. Both combine into one Cerbament.';
     } else {
       label='Special evolution';
       evolutionLimits.push({species:s.id,target,method,value});
     }
-    child.evo={...child.evo,method:label};
+    child.evo={...child.evo,method:label,...(details?{details}:{})};
   }
 }
 const dexStart=dexCode.indexOf('  const DEX = ['), dexEnd=dexCode.indexOf('\n  ];',dexStart);

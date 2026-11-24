@@ -1723,7 +1723,8 @@ window.VDEX = (function () {
           "014",
           "015",
           "016"
-        ]
+        ],
+        "note": "Put Rarcraft first in your party before using a trash can."
       },
       "levelMoves": [
         {
@@ -1872,7 +1873,8 @@ window.VDEX = (function () {
       "flavor": "Inspired by the hero \"Might Knight\", Raclank shields themselves with a trash can. No amount of heat or blunt force can put a dent into it.",
       "evo": {
         "from": "013",
-        "method": "Lv 20+ at a trash can, first in party; hold Might Knight Comic, or have Defense highest among Defense, Attack and Speed (ties favour Defense, then Attack)"
+        "method": "Lv 20+ · Trash can · Highest DEF",
+        "details": "Hold Might Knight Comic to choose this evolution instead of using stats. Without a comic, compare Defense, Attack and Speed; ties favour Defense, then Attack. The comic is consumed."
       },
       "levelMoves": [
         {
@@ -2041,7 +2043,8 @@ window.VDEX = (function () {
       "flavor": "Inspired by the heroine \"Harpyie\", Rasoar use wings made out of newspapers to fly. Strangely, some of the newspapers showcase headlines from the future.",
       "evo": {
         "from": "013",
-        "method": "Lv 20+ at a trash can, first in party; hold Harpyie Comic, or have Attack highest among Defense, Attack and Speed (ties favour Defense, then Attack)"
+        "method": "Lv 20+ · Trash can · Highest ATK",
+        "details": "Hold Harpyie Comic to choose this evolution instead of using stats. Without a comic, compare Defense, Attack and Speed; ties favour Defense, then Attack. The comic is consumed."
       },
       "levelMoves": [
         {
@@ -2210,7 +2213,8 @@ window.VDEX = (function () {
       "flavor": "Inspired by the hero \"Sugar Rush\", Razoom fuels itself with fizzed up energy drinks, racing beyond the naked eye. But never enough for time travel.",
       "evo": {
         "from": "013",
-        "method": "Lv 20+ at a trash can, first in party; hold Sugar Rush Comic, or have Speed highest among Defense, Attack and Speed (ties favour Defense, then Attack)"
+        "method": "Lv 20+ · Trash can · Highest SPE",
+        "details": "Hold Sugar Rush Comic to choose this evolution instead of using stats. Without a comic, compare Defense, Attack and Speed; ties favour Defense, then Attack. The comic is consumed."
       },
       "levelMoves": [
         {
@@ -8106,7 +8110,12 @@ window.VDEX = (function () {
       },
       "flavor": "Karmold’s emotions are uncontrollable, so its body shows every color of the rainbow rather than shifting hues for camouflage.",
       "evo": {
-        "to": "053"
+        "to": [
+          "053A",
+          "053B",
+          "053C"
+        ],
+        "note": "Karmold evolves at Lv 32. The supplied files do not confirm which conditions select each Kamoleon form."
       },
       "levelMoves": [
         {
@@ -8233,8 +8242,8 @@ window.VDEX = (function () {
       "tutorMoves": []
     },
     {
-      "dex": "053",
-      "name": "Kamoleon",
+      "dex": "053A",
+      "name": "Kamoleon (Low)",
       "category": "Personality",
       "types": [
         "NORMAL",
@@ -8260,563 +8269,9 @@ window.VDEX = (function () {
       "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
       "evo": {
         "from": "052",
-        "method": "Lv 32"
+        "method": "Lv 32 · Form unconfirmed",
+        "details": "Karmold evolves at level 32. The supplied PBS names this friendship form, but the supplied form script defaults to Normal and does not define how to select this form. No friendship threshold is documented."
       },
-      "forms": [
-        {
-          "name": "Low Friendship",
-          "category": "Personality",
-          "types": [
-            "NORMAL",
-            "PSYCHIC"
-          ],
-          "stats": {
-            "HP": 74,
-            "ATK": 59,
-            "DEF": 54,
-            "SPE": 84,
-            "SPA": 120,
-            "SPD": 89
-          },
-          "height": "NaN'NaN\" ft",
-          "weight": "NaN lbs",
-          "abilities": [
-            "Color Change",
-            "Protean"
-          ],
-          "hidden": "Adaptability",
-          "catchRate": 45,
-          "baseFriendship": 50,
-          "baseExp": 155,
-          "growthRate": "Medium",
-          "eggGroups": [
-            "Monster",
-            "Dragon"
-          ],
-          "eggCycles": 5120,
-          "gender": {
-            "m": 50,
-            "f": 50
-          },
-          "evYield": {
-            "SPA": 2
-          },
-          "levelMoves": [
-            {
-              "lv": "0",
-              "name": "Mood Swing"
-            },
-            {
-              "lv": "1",
-              "name": "Mood Swing"
-            },
-            {
-              "lv": "1",
-              "name": "Guard Split"
-            },
-            {
-              "lv": "1",
-              "name": "Camouflage"
-            },
-            {
-              "lv": "1",
-              "name": "Reflect Type"
-            },
-            {
-              "lv": "1",
-              "name": "Lick"
-            },
-            {
-              "lv": "1",
-              "name": "Hypnosis"
-            },
-            {
-              "lv": "10",
-              "name": "Return"
-            },
-            {
-              "lv": "10",
-              "name": "Frustration"
-            },
-            {
-              "lv": "13",
-              "name": "Night Shade"
-            },
-            {
-              "lv": "17",
-              "name": "Glare"
-            },
-            {
-              "lv": "22",
-              "name": "Psybeam"
-            },
-            {
-              "lv": "25",
-              "name": "Miracle Eye"
-            },
-            {
-              "lv": "29",
-              "name": "Uproar"
-            },
-            {
-              "lv": "35",
-              "name": "R.G.Beam"
-            },
-            {
-              "lv": "39",
-              "name": "Role Play"
-            },
-            {
-              "lv": "44",
-              "name": "Wring Out"
-            },
-            {
-              "lv": "50",
-              "name": "Future Sight"
-            },
-            {
-              "lv": "54",
-              "name": "Nasty Plot"
-            },
-            {
-              "lv": "59",
-              "name": "Eerie Spell"
-            }
-          ],
-          "eggMoves": [],
-          "tmMoves": [
-            {
-              "lv": "TM04",
-              "name": "Work Up"
-            },
-            {
-              "lv": "TM02",
-              "name": "Double Team"
-            },
-            {
-              "lv": "TM03",
-              "name": "Revealing Light"
-            },
-            {
-              "lv": "TM05",
-              "name": "Protect"
-            },
-            {
-              "lv": "TM07",
-              "name": "Confuse Ray"
-            },
-            {
-              "lv": "TM09",
-              "name": "Thief"
-            },
-            {
-              "lv": "TM14",
-              "name": "Rest"
-            },
-            {
-              "lv": "TM15",
-              "name": "Thunder Wave"
-            }
-          ],
-          "tutorMoves": [],
-          "spriteSuffix": "low",
-          "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to."
-        },
-        {
-          "name": "Mid Friendship",
-          "category": "Personality",
-          "types": [
-            "NORMAL",
-            "PSYCHIC"
-          ],
-          "stats": {
-            "HP": 74,
-            "ATK": 59,
-            "DEF": 54,
-            "SPE": 84,
-            "SPA": 120,
-            "SPD": 89
-          },
-          "height": "NaN'NaN\" ft",
-          "weight": "NaN lbs",
-          "abilities": [
-            "Color Change",
-            "Protean"
-          ],
-          "hidden": "Adaptability",
-          "catchRate": 45,
-          "baseFriendship": 50,
-          "baseExp": 155,
-          "growthRate": "Medium",
-          "eggGroups": [
-            "Monster",
-            "Dragon"
-          ],
-          "eggCycles": 5120,
-          "gender": {
-            "m": 50,
-            "f": 50
-          },
-          "evYield": {
-            "SPA": 2
-          },
-          "levelMoves": [
-            {
-              "lv": "0",
-              "name": "Mood Swing"
-            },
-            {
-              "lv": "1",
-              "name": "Mood Swing"
-            },
-            {
-              "lv": "1",
-              "name": "Power Trick"
-            },
-            {
-              "lv": "1",
-              "name": "Camouflage"
-            },
-            {
-              "lv": "1",
-              "name": "Reflect Type"
-            },
-            {
-              "lv": "1",
-              "name": "Lick"
-            },
-            {
-              "lv": "1",
-              "name": "Hypnosis"
-            },
-            {
-              "lv": "10",
-              "name": "Return"
-            },
-            {
-              "lv": "10",
-              "name": "Frustration"
-            },
-            {
-              "lv": "13",
-              "name": "Night Shade"
-            },
-            {
-              "lv": "17",
-              "name": "Glare"
-            },
-            {
-              "lv": "22",
-              "name": "Psybeam"
-            },
-            {
-              "lv": "25",
-              "name": "Miracle Eye"
-            },
-            {
-              "lv": "29",
-              "name": "Uproar"
-            },
-            {
-              "lv": "35",
-              "name": "R.G.Beam"
-            },
-            {
-              "lv": "39",
-              "name": "Role Play"
-            },
-            {
-              "lv": "44",
-              "name": "Wring Out"
-            },
-            {
-              "lv": "50",
-              "name": "Future Sight"
-            },
-            {
-              "lv": "54",
-              "name": "Nasty Plot"
-            },
-            {
-              "lv": "59",
-              "name": "Dream Eater"
-            }
-          ],
-          "eggMoves": [],
-          "tmMoves": [
-            {
-              "lv": "TM04",
-              "name": "Work Up"
-            },
-            {
-              "lv": "TM02",
-              "name": "Double Team"
-            },
-            {
-              "lv": "TM03",
-              "name": "Revealing Light"
-            },
-            {
-              "lv": "TM05",
-              "name": "Protect"
-            },
-            {
-              "lv": "TM07",
-              "name": "Confuse Ray"
-            },
-            {
-              "lv": "TM09",
-              "name": "Thief"
-            },
-            {
-              "lv": "TM14",
-              "name": "Rest"
-            },
-            {
-              "lv": "TM15",
-              "name": "Thunder Wave"
-            }
-          ],
-          "tutorMoves": [],
-          "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
-          "spriteSuffix": "mid",
-          "spriteVariants": [
-            {
-              "label": "F1",
-              "suffix": "mid"
-            },
-            {
-              "label": "F2",
-              "suffix": "mid-f2"
-            },
-            {
-              "label": "Back",
-              "suffix": "mid-back"
-            },
-            {
-              "label": "Shiny F1",
-              "suffix": "mid-shiny"
-            },
-            {
-              "label": "Shiny F2",
-              "suffix": "mid-shiny-f2"
-            },
-            {
-              "label": "Shiny Back",
-              "suffix": "mid-shiny-back"
-            },
-            {
-              "label": "Anomaly F1",
-              "suffix": "mid-anomaly"
-            },
-            {
-              "label": "Anomaly F2",
-              "suffix": "mid-anomaly-f2"
-            },
-            {
-              "label": "Anomaly Back",
-              "suffix": "mid-anomaly-back"
-            }
-          ]
-        },
-        {
-          "name": "High Friendship",
-          "category": "Personality",
-          "types": [
-            "NORMAL",
-            "PSYCHIC"
-          ],
-          "stats": {
-            "HP": 74,
-            "ATK": 59,
-            "DEF": 54,
-            "SPE": 84,
-            "SPA": 120,
-            "SPD": 89
-          },
-          "height": "NaN'NaN\" ft",
-          "weight": "NaN lbs",
-          "abilities": [
-            "Color Change",
-            "Protean"
-          ],
-          "hidden": "Adaptability",
-          "catchRate": 45,
-          "baseFriendship": 50,
-          "baseExp": 155,
-          "growthRate": "Medium",
-          "eggGroups": [
-            "Monster",
-            "Dragon"
-          ],
-          "eggCycles": 5120,
-          "gender": {
-            "m": 50,
-            "f": 50
-          },
-          "evYield": {
-            "SPA": 2
-          },
-          "levelMoves": [
-            {
-              "lv": "0",
-              "name": "Mood Swing"
-            },
-            {
-              "lv": "1",
-              "name": "Mood Swing"
-            },
-            {
-              "lv": "1",
-              "name": "Guard Swap"
-            },
-            {
-              "lv": "1",
-              "name": "Camouflage"
-            },
-            {
-              "lv": "1",
-              "name": "Reflect Type"
-            },
-            {
-              "lv": "1",
-              "name": "Lick"
-            },
-            {
-              "lv": "1",
-              "name": "Hypnosis"
-            },
-            {
-              "lv": "10",
-              "name": "Return"
-            },
-            {
-              "lv": "10",
-              "name": "Frustration"
-            },
-            {
-              "lv": "13",
-              "name": "Night Shade"
-            },
-            {
-              "lv": "17",
-              "name": "Glare"
-            },
-            {
-              "lv": "22",
-              "name": "Psybeam"
-            },
-            {
-              "lv": "25",
-              "name": "Miracle Eye"
-            },
-            {
-              "lv": "29",
-              "name": "Uproar"
-            },
-            {
-              "lv": "35",
-              "name": "R.G.Beam"
-            },
-            {
-              "lv": "39",
-              "name": "Role Play"
-            },
-            {
-              "lv": "44",
-              "name": "Wring Out"
-            },
-            {
-              "lv": "50",
-              "name": "Future Sight"
-            },
-            {
-              "lv": "54",
-              "name": "Nasty Plot"
-            },
-            {
-              "lv": "59",
-              "name": "Rainbow Bolt"
-            }
-          ],
-          "eggMoves": [],
-          "tmMoves": [
-            {
-              "lv": "TM04",
-              "name": "Work Up"
-            },
-            {
-              "lv": "TM02",
-              "name": "Double Team"
-            },
-            {
-              "lv": "TM03",
-              "name": "Revealing Light"
-            },
-            {
-              "lv": "TM05",
-              "name": "Protect"
-            },
-            {
-              "lv": "TM07",
-              "name": "Confuse Ray"
-            },
-            {
-              "lv": "TM09",
-              "name": "Thief"
-            },
-            {
-              "lv": "TM14",
-              "name": "Rest"
-            },
-            {
-              "lv": "TM15",
-              "name": "Thunder Wave"
-            }
-          ],
-          "tutorMoves": [],
-          "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
-          "spriteSuffix": "high",
-          "spriteVariants": [
-            {
-              "label": "F1",
-              "suffix": "high"
-            },
-            {
-              "label": "F2",
-              "suffix": "high-f2"
-            },
-            {
-              "label": "Back",
-              "suffix": "high-back"
-            },
-            {
-              "label": "Shiny F1",
-              "suffix": "high-shiny"
-            },
-            {
-              "label": "Shiny F2",
-              "suffix": "high-shiny-f2"
-            },
-            {
-              "label": "Shiny Back",
-              "suffix": "high-shiny-back"
-            },
-            {
-              "label": "Anomaly F1",
-              "suffix": "high-anomaly"
-            },
-            {
-              "label": "Anomaly F2",
-              "suffix": "high-anomaly-f2"
-            },
-            {
-              "label": "Anomaly Back",
-              "suffix": "high-anomaly-back"
-            }
-          ]
-        }
-      ],
       "levelMoves": [
         {
           "lv": "0",
@@ -8950,7 +8405,354 @@ window.VDEX = (function () {
         "f": 50
       },
       "eggCycles": 5120,
-      "tutorMoves": []
+      "tutorMoves": [],
+      "formName": "Low Friendship",
+      "sourceSpecies": "KAMOLEON",
+      "sourceForm": 0,
+      "sourceArt": "KAMOLEON_2",
+      "baseDex": "053"
+    },
+    {
+      "dex": "053B",
+      "name": "Kamoleon (Mid)",
+      "category": "Personality",
+      "types": [
+        "NORMAL",
+        "PSYCHIC"
+      ],
+      "height": "NaN'NaN\" ft",
+      "weight": "NaN lbs",
+      "catchRate": 45,
+      "found": [],
+      "abilities": [
+        "Color Change",
+        "Protean"
+      ],
+      "hidden": "Adaptability",
+      "stats": {
+        "HP": 74,
+        "ATK": 59,
+        "DEF": 54,
+        "SPE": 84,
+        "SPA": 120,
+        "SPD": 89
+      },
+      "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
+      "evo": {
+        "from": "052",
+        "method": "Lv 32 · Form unconfirmed",
+        "details": "Karmold evolves at level 32. The supplied PBS names this friendship form, but the supplied form script defaults to Normal and does not define how to select this form. No friendship threshold is documented."
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Mood Swing"
+        },
+        {
+          "lv": "1",
+          "name": "Mood Swing"
+        },
+        {
+          "lv": "1",
+          "name": "Power Trick"
+        },
+        {
+          "lv": "1",
+          "name": "Camouflage"
+        },
+        {
+          "lv": "1",
+          "name": "Reflect Type"
+        },
+        {
+          "lv": "1",
+          "name": "Lick"
+        },
+        {
+          "lv": "1",
+          "name": "Hypnosis"
+        },
+        {
+          "lv": "10",
+          "name": "Return"
+        },
+        {
+          "lv": "10",
+          "name": "Frustration"
+        },
+        {
+          "lv": "13",
+          "name": "Night Shade"
+        },
+        {
+          "lv": "17",
+          "name": "Glare"
+        },
+        {
+          "lv": "22",
+          "name": "Psybeam"
+        },
+        {
+          "lv": "25",
+          "name": "Miracle Eye"
+        },
+        {
+          "lv": "29",
+          "name": "Uproar"
+        },
+        {
+          "lv": "35",
+          "name": "R.G.Beam"
+        },
+        {
+          "lv": "39",
+          "name": "Role Play"
+        },
+        {
+          "lv": "44",
+          "name": "Wring Out"
+        },
+        {
+          "lv": "50",
+          "name": "Future Sight"
+        },
+        {
+          "lv": "54",
+          "name": "Nasty Plot"
+        },
+        {
+          "lv": "59",
+          "name": "Dream Eater"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM07",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "TM09",
+          "name": "Thief"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "anomaly": null,
+      "evYield": {
+        "SPA": 2
+      },
+      "baseFriendship": 50,
+      "baseExp": 155,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Monster",
+        "Dragon"
+      ],
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "eggCycles": 5120,
+      "tutorMoves": [],
+      "formName": "Mid Friendship",
+      "sourceSpecies": "KAMOLEON",
+      "sourceForm": 1,
+      "sourceArt": "KAMOLEON_1",
+      "baseDex": "053"
+    },
+    {
+      "dex": "053C",
+      "name": "Kamoleon (High)",
+      "category": "Personality",
+      "types": [
+        "NORMAL",
+        "PSYCHIC"
+      ],
+      "height": "NaN'NaN\" ft",
+      "weight": "NaN lbs",
+      "catchRate": 45,
+      "found": [],
+      "abilities": [
+        "Color Change",
+        "Protean"
+      ],
+      "hidden": "Adaptability",
+      "stats": {
+        "HP": 74,
+        "ATK": 59,
+        "DEF": 54,
+        "SPE": 84,
+        "SPA": 120,
+        "SPD": 89
+      },
+      "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
+      "evo": {
+        "from": "052",
+        "method": "Lv 32 · Form unconfirmed",
+        "details": "Karmold evolves at level 32. The supplied PBS names this friendship form, but the supplied form script defaults to Normal and does not define how to select this form. No friendship threshold is documented."
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Mood Swing"
+        },
+        {
+          "lv": "1",
+          "name": "Mood Swing"
+        },
+        {
+          "lv": "1",
+          "name": "Guard Swap"
+        },
+        {
+          "lv": "1",
+          "name": "Camouflage"
+        },
+        {
+          "lv": "1",
+          "name": "Reflect Type"
+        },
+        {
+          "lv": "1",
+          "name": "Lick"
+        },
+        {
+          "lv": "1",
+          "name": "Hypnosis"
+        },
+        {
+          "lv": "10",
+          "name": "Return"
+        },
+        {
+          "lv": "10",
+          "name": "Frustration"
+        },
+        {
+          "lv": "13",
+          "name": "Night Shade"
+        },
+        {
+          "lv": "17",
+          "name": "Glare"
+        },
+        {
+          "lv": "22",
+          "name": "Psybeam"
+        },
+        {
+          "lv": "25",
+          "name": "Miracle Eye"
+        },
+        {
+          "lv": "29",
+          "name": "Uproar"
+        },
+        {
+          "lv": "35",
+          "name": "R.G.Beam"
+        },
+        {
+          "lv": "39",
+          "name": "Role Play"
+        },
+        {
+          "lv": "44",
+          "name": "Wring Out"
+        },
+        {
+          "lv": "50",
+          "name": "Future Sight"
+        },
+        {
+          "lv": "54",
+          "name": "Nasty Plot"
+        },
+        {
+          "lv": "59",
+          "name": "Rainbow Bolt"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM07",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "TM09",
+          "name": "Thief"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "anomaly": null,
+      "evYield": {
+        "SPA": 2
+      },
+      "baseFriendship": 50,
+      "baseExp": 155,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Monster",
+        "Dragon"
+      ],
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "eggCycles": 5120,
+      "tutorMoves": [],
+      "formName": "High Friendship",
+      "sourceSpecies": "KAMOLEON",
+      "sourceForm": 2,
+      "sourceArt": "KAMOLEON_3",
+      "baseDex": "053"
     },
     {
       "dex": "054",
@@ -16195,7 +15997,8 @@ window.VDEX = (function () {
           "105",
           "106"
         ],
-        "method": "Use the Cerbament item with Gleeruption and Scorow in the party (combines both Pokémon)"
+        "method": "Use Cerbament item",
+        "details": "Have Gleeruption and Scorow in your party, then use the Cerbament item on either. Both combine into one Cerbament."
       },
       "levelMoves": [
         {
@@ -17036,7 +16839,11 @@ window.VDEX = (function () {
     }
   ];
 
-  const byDex = (n) => DEX.find((d) => d.dex === String(n));
+  const canonicalDex = n => String(n).toUpperCase() === '053' ? '053B' : String(n).toUpperCase();
+  const byDex = n => DEX.find(d => d.dex === canonicalDex(n));
+  const FORM_SHARE_IDS = { '053A': 1053, '053B': 1054, '053C': 1055 };
+  const dexToNumber = n => FORM_SHARE_IDS[canonicalDex(n)] || Number(n);
+  const numberToDex = n => Object.keys(FORM_SHARE_IDS).find(k => FORM_SHARE_IDS[k] === n) || canonicalDex(String(n).padStart(3, '0'));
 
-  return { TYPES, DEX, STAT_LABELS, STAT_MAX, byDex };
+  return { TYPES, DEX, STAT_LABELS, STAT_MAX, byDex, canonicalDex, dexToNumber, numberToDex };
 })();
