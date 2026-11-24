@@ -13,9 +13,11 @@ window.VIEWS = window.VIEWS || {};
     const c = TYPES[type];
     const isSig = m.lv === '—';
     const isEgg = m.lv === 'EGG';
-    const isTM  = typeof m.lv === 'string' && m.lv.startsWith('TM');
-    const leftLabel = isSig ? 'SIG' : isEgg ? 'EGG' : isTM ? 'TM' : 'LV';
-    const leftValue = isSig ? '★' : isEgg ? '✦' : isTM ? m.lv.slice(2) : m.lv;
+    const isTM  = typeof m.lv === 'string' && /^(TM|HM)/.test(m.lv);
+    const isEvolution = String(m.lv) === '0';
+    const isTutor = m.lv === 'TUTOR';
+    const leftLabel = isSig ? 'SIG' : isEgg ? 'EGG' : isTM ? m.lv.slice(0, 2) : isEvolution ? 'EVO' : isTutor ? 'TUTOR' : 'LV';
+    const leftValue = isSig ? '★' : isEgg ? '✦' : isTM ? m.lv.slice(2) : isEvolution || isTutor ? '—' : m.lv;
     const leftSize  = (isSig || isEgg) ? 16 : 19;
     const leftColor = m.sig ? c.glow : '#fff';
     const Stat = ({ label, val }) => (
@@ -351,14 +353,14 @@ window.VIEWS = window.VIEWS || {};
     return (
       <div style={{ marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid #1d1838' }}>
         <H3>FORMS</H3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: 14 }}>
           {d.forms.map(form => {
             const formAccent = TYPES[(form.types || d.types)[0]].glow || accent;
             const total = form.stats ? Object.values(form.stats).reduce((a, b) => a + b, 0) : null;
             return (
-              <div key={form.name} style={{ display: 'grid', gridTemplateColumns: '210px 1fr', gap: 14, padding: 14, borderRadius: 12, background: '#0d0b20', border: `1px solid ${formAccent}44` }}>
+              <div key={form.name} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', alignContent: 'start', gap: 14, padding: 14, borderRadius: 12, background: '#0d0b20', border: `1px solid ${formAccent}44` }}>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignContent: 'flex-start' }}>
-                  {[['F1', form.spriteSuffix], ['F2', form.spriteSuffix + '-f2'], ['BACK', form.spriteSuffix + '-back']].map(([lbl, suf]) => (
+                  {(form.spriteVariants || [{label:'F1',suffix:form.spriteSuffix},{label:'F2',suffix:form.spriteSuffix+'-f2'},{label:'Back',suffix:form.spriteSuffix+'-back'}]).map(({label:lbl, suffix:suf}) => (
                     <div key={lbl} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                       <SpriteSlot dex={d.dex} name={form.name} size={62} accent={formAccent} suffix={suf} />
                       <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#6a6388', letterSpacing: 0.5 }}>{lbl}</span>
@@ -370,8 +372,7 @@ window.VIEWS = window.VIEWS || {};
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                     {(form.types || d.types).map(t => <TypePill key={t} t={t} sm />)}
                   </div>
-                  <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: formAccent, marginBottom: 6 }}>TRIGGER</div>
-                  <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>{form.trigger}</p>
+                  {form.trigger && <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#bdb6dd', lineHeight: 1.5 }}>{form.trigger}</p>}
                   {form.desc && <p style={{ margin: '0 0 10px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#8a83a8', lineHeight: 1.5 }}>{form.desc}</p>}
                   {form.stats && (
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#8a83a8' }}>
@@ -379,6 +380,22 @@ window.VIEWS = window.VIEWS || {};
                       <span style={{ padding: '4px 6px', borderRadius: 6, color: formAccent, background: '#100c24', border: `1px solid ${formAccent}55` }}>BST <span style={{ fontWeight: 700 }}>{total}</span></span>
                     </div>
                   )}
+                  {form.abilities && <p style={{ color: '#bdb6dd', fontSize: 13, lineHeight: 1.6 }}>Abilities: {form.abilities.join(' · ')}{form.hidden && <><br />Hidden: {form.hidden}</>}</p>}
+                  {form.flavor && <p style={{ color: '#8a83a8', fontSize: 13, lineHeight: 1.6 }}>{form.flavor}</p>}
+                  {form.levelMoves && <details style={{ marginTop: 14, color: '#bdb6dd' }}>
+                    <summary style={{ cursor: 'pointer', marginBottom: 14 }}>Learnset and breeding</summary>
+                    <InfoTable rows={[
+                      ['Egg Groups', form.eggGroups.join(' · ')],
+                      ['Egg Steps', form.eggCycles.toLocaleString()],
+                      ['Gender', form.gender ? `${form.gender.m}% male · ${form.gender.f}% female` : 'Genderless'],
+                      ['Catch Rate', form.catchRate],
+                      ['Base Friendship', form.baseFriendship],
+                      ['Base Experience', form.baseExp],
+                      ['Growth Rate', form.growthRate],
+                      ['EV Yield', Object.entries(form.evYield).map(([key,value])=>`${value} ${key}`).join(' · ')],
+                    ]} />
+                    <div style={{ marginTop: 18 }}><MoveSection title="LEVEL UP" moves={form.levelMoves} /><MoveSection title="TM / HM" moves={form.tmMoves} /><MoveSection title="EGG" moves={form.eggMoves} />{form.tutorMoves?.length > 0 && <MoveSection title="TUTOR" moves={form.tutorMoves} />}</div>
+                  </details>}
                 </div>
               </div>
             );
@@ -585,7 +602,8 @@ window.VIEWS = window.VIEWS || {};
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30 }}>
               <MoveSection title="MOVES · LEVEL UP" moves={d.levelMoves} />
               <div>
-                <MoveSection title="MOVES · TM" moves={d.tmMoves} />
+                <MoveSection title="MOVES · TM / HM" moves={d.tmMoves} />
+                {d.tutorMoves?.length > 0 && <MoveSection title="MOVES · TUTOR" moves={d.tutorMoves} />}
                 <MoveSection title="MOVES · EGG" moves={d.eggMoves} />
               </div>
             </div>

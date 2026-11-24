@@ -217,7 +217,7 @@ window.VIEWS = window.VIEWS || {};
     const learn = React.useMemo(() => {
       const names = new Set();
       const m = atkr.mon;
-      for (const arr of [m.levelMoves || [], m.tmMoves || [], m.eggMoves || []]) for (const mv of arr) names.add(mv.name || mv);
+      for (const arr of [m.levelMoves || [], m.tmMoves || [], m.tutorMoves || [], m.eggMoves || []]) for (const mv of arr) names.add(mv.name || mv);
       const list = [];
       names.forEach(n => { const mv = byMove(n); if (mv && mv.cls !== 'Status' && typeof mv.pow === 'number') list.push(mv); });
       return list.sort((a, b) => a.name.localeCompare(b.name));

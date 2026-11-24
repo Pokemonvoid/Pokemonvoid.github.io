@@ -21,8 +21,9 @@ window.VIEWS = window.VIEWS || {};
       idx[k].get(dex).add(how);
     };
     DEX.forEach(d => {
-      (d.levelMoves || []).forEach(m => add(m.name, d.dex, 'Level'));
-      (d.tmMoves || []).forEach(m => add(m.name, d.dex, 'TM'));
+      (d.levelMoves || []).forEach(m => add(m.name, d.dex, String(m.lv) === '0' ? 'Evolution' : 'Level'));
+      (d.tmMoves || []).forEach(m => add(m.name, d.dex, m.lv.startsWith('HM') ? 'HM' : 'TM'));
+      (d.tutorMoves || []).forEach(m => add(m.name, d.dex, 'Tutor'));
       (d.eggMoves || []).forEach(m => add(m.name, d.dex, 'Egg'));
     });
     _learnerIndex = idx;

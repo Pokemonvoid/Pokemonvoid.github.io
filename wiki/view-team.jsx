@@ -231,7 +231,7 @@ window.VIEWS = window.VIEWS || {};
   // a mon's learnable move names (deduped) from level/TM/egg lists
   function learnableMoves(dex) {
     const m = byDex(dex); if (!m) return [];
-    const all = [...(m.levelMoves || []), ...(m.tmMoves || []), ...(m.eggMoves || [])].map(x => x.name || x).filter(Boolean);
+    const all = [...(m.levelMoves || []), ...(m.tmMoves || []), ...(m.tutorMoves || []), ...(m.eggMoves || [])].map(x => x.name || x).filter(Boolean);
     return Array.from(new Set(all)).sort((a, b) => a.localeCompare(b));
   }
 
