@@ -114,10 +114,10 @@ window.VIEWS = window.VIEWS || {};
               const on = filters.includes(t);
               const c = TYPES[t];
               return (
-                <button key={t} onClick={() => toggle(t)} style={{
+                <button key={t} aria-pressed={on} onClick={() => toggle(t)} style={{
                   cursor: 'pointer', padding: '4px 10px', borderRadius: 999, fontFamily: "'Silkscreen', monospace", fontSize: 9, letterSpacing: 0.5,
-                  textTransform: 'uppercase', color: on ? c.fg : '#6a6388', background: on ? c.bg : 'transparent',
-                  border: `1px solid ${on ? c.glow : '#2a2545'}`, opacity: on ? 1 : 0.7,
+                  textTransform: 'uppercase', color: c.fg, background: on ? c.bg : c.bg + '66',
+                  border: `1px solid ${on ? c.glow : c.glow + '66'}`, boxShadow: on ? `0 0 0 1px ${c.glow}, inset 0 0 10px ${c.glow}22` : 'none',
                 }}>{c.name}</button>
               );
             })}
