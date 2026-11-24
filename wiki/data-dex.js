@@ -273,7 +273,9 @@ window.VDEX = (function () {
           "name": "Bulldoze"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Mapleaudino"
+      },
       "evYield": {
         "DEF": 1,
         "ATK": 1
@@ -411,7 +413,9 @@ window.VDEX = (function () {
           "name": "Revealing Light"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Mapleaudino"
+      },
       "evYield": {
         "DEF": 2,
         "ATK": 1
@@ -683,7 +687,9 @@ window.VDEX = (function () {
           "name": "Confuse Ray"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "eliasderzocker2"
+      },
       "evYield": {
         "SPE": 1,
         "ATK": 1
@@ -832,7 +838,9 @@ window.VDEX = (function () {
           "name": "Confuse Ray"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "eliasderzocker2"
+      },
       "evYield": {
         "SPE": 2,
         "ATK": 1
@@ -1104,7 +1112,9 @@ window.VDEX = (function () {
           "name": "Confuse Ray"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "thechosenbug"
+      },
       "evYield": {
         "SPD": 1,
         "SPA": 1
@@ -1258,7 +1268,9 @@ window.VDEX = (function () {
           "name": "Bulldoze"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "thechosenbug"
+      },
       "evYield": {
         "SPA": 2,
         "SPD": 1
@@ -1510,7 +1522,9 @@ window.VDEX = (function () {
           "name": "Rest"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Jade V"
+      },
       "evYield": {
         "SPE": 2
       },
@@ -1654,7 +1668,9 @@ window.VDEX = (function () {
           "name": "Rest"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Jade V"
+      },
       "evYield": {
         "SPA": 2,
         "SPE": 1
@@ -5847,7 +5863,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Wolfernix"
+      },
       "evYield": {
         "HP": 1,
         "ATK": 1
@@ -5985,7 +6003,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Wolfernix"
+      },
       "evYield": {
         "HP": 2,
         "ATK": 1
@@ -10957,7 +10977,9 @@ window.VDEX = (function () {
           "name": "Rest"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Sassyshoelace"
+      },
       "evYield": {
         "ATK": 2
       },
@@ -12395,7 +12417,9 @@ window.VDEX = (function () {
           "name": "Disarming Voice"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Sassyshoelace"
+      },
       "evYield": {
         "HP": 2
       },
@@ -12575,7 +12599,9 @@ window.VDEX = (function () {
           "name": "Confuse Ray"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Sassyshoelace"
+      },
       "evYield": {
         "SPA": 2
       },
@@ -12912,7 +12938,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Azel42"
+      },
       "evYield": {
         "HP": 2
       },
@@ -13065,7 +13093,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Azel42"
+      },
       "evYield": {
         "HP": 3
       },
