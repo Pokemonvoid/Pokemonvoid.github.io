@@ -296,18 +296,18 @@ window.VIEWS = window.VIEWS || {};
     return (
       <div style={{ marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid #1d1838' }}>
         <H3>SPRITE GALLERY</H3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 14 }}>
           {VARIANTS.map(v => {
             const isAnomaly = v.key === 'anomaly';
             const locked = isAnomaly && !anomalyRevealed;
             return (
-              <div key={v.key} style={{ padding: 14, borderRadius: 12, background: '#0d0b20', border: `1px solid ${v.color}33` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12, flexWrap: 'nowrap', overflowX: 'auto' }}>
+              <div key={v.key} style={{ display: 'grid', gridTemplateRows: '24px 132px minmax(36px, auto)', gap: 8, padding: 14, borderRadius: 12, background: '#0d0b20', border: `1px solid ${v.color}33` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'nowrap', overflowX: 'auto' }}>
                   <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: v.color, letterSpacing: 1, flexShrink: 0 }}>{v.label}</span>
                   {v.rate && <span title="Base odds for any encounter" style={{ flexShrink: 0, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 20, background: `${v.color}1a`, border: `1px solid ${v.color}44`, fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: v.color }}>★ {v.rate}</span>}
                   {v.eff && <span title={`Combined odds of finding this Pokémon (best spawn ${bestPct}%) and it being ${v.label.toLowerCase()}`} style={{ flexShrink: 0, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 9px', borderRadius: 20, background: '#0a0818', border: `1px solid ${v.color}33`, fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: '#dcd2ff' }}><span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: v.color, opacity: 0.9 }}>THIS MON</span> {v.eff}</span>}
                 </div>
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'center', filter: locked ? 'blur(7px) brightness(0.5)' : 'none', userSelect: locked ? 'none' : 'auto' }}>
                     {FRAMES.map(f => {
                       const suffix = sfx(v.prefix, f.suffix);
@@ -330,8 +330,9 @@ window.VIEWS = window.VIEWS || {};
                       <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#c45fff', letterSpacing: 1 }}>UNDISCOVERED</div>
                     </div>
                   )}
+                </div>
                   {isAnomaly && anomalyRevealed && (
-                    <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: 0 }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 20, background: 'linear-gradient(135deg, #c45fff22, #0a0818)', border: '1px solid #c45fff55', boxShadow: '0 0 14px #c45fff22' }}>
                         <span style={{ fontSize: 11, color: '#c45fff' }}>✦</span>
                         <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 7, color: '#9a8fc8', letterSpacing: 0.5 }}>DISCOVERED BY</span>
@@ -339,7 +340,6 @@ window.VIEWS = window.VIEWS || {};
                       </div>
                     </div>
                   )}
-                </div>
               </div>
             );
           })}

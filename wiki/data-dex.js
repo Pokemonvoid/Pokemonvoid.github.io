@@ -13997,7 +13997,9 @@ window.VDEX = (function () {
           "name": "Rest"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "cryodor."
+      },
       "evYield": {
         "HP": 1
       },
@@ -14141,7 +14143,9 @@ window.VDEX = (function () {
           "name": "Rest"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "cryodor."
+      },
       "evYield": {
         "HP": 2
       },
@@ -14583,7 +14587,7 @@ window.VDEX = (function () {
         }
       ],
       "anomaly": {
-        "discoverer": ".vaereth."
+        "discoverer": "Cryodor"
       },
       "evYield": {
         "DEF": 1
@@ -14726,7 +14730,7 @@ window.VDEX = (function () {
         }
       ],
       "anomaly": {
-        "discoverer": ".vaereth."
+        "discoverer": "Cryodor"
       },
       "evYield": {
         "DEF": 2
