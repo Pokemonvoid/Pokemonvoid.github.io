@@ -54,7 +54,7 @@ function data(s, old) {
   const inches = Math.round(Number(s.Height)*100/2.54);
   return {
     category:s.Category, types:list(s.Types), stats:Object.fromEntries(['HP','ATK','DEF','SPE','SPA','SPD'].map((key,i)=>[key,stats[i]])),
-    height:`${Math.floor(inches/12)}'${String(inches%12).padStart(2,'0')}" ft`, weight:`${Number((Number(s.Weight)*2.2046226218).toFixed(1))} lbs`,
+    height:Number.isFinite(inches) ? `${Math.floor(inches/12)}'${String(inches%12).padStart(2,'0')}" ft` : 'Unknown', weight:s.Weight && Number.isFinite(Number(s.Weight)) ? `${Number((Number(s.Weight)*2.2046226218).toFixed(1))} lbs` : 'Unknown',
     abilities:list(s.Abilities).map(abilityName), hidden:list(s.HiddenAbilities).map(abilityName).join(', '),
     catchRate:Number(s.CatchRate),baseFriendship:Number(s.Happiness),baseExp:Number(s.BaseExp),growthRate:s.GrowthRate,
     eggGroups:list(s.EggGroups).map(g=>eggNames[g]||g),eggCycles:Number(s.HatchSteps),
@@ -73,6 +73,8 @@ for(const d of dex.filter(d=>!d.undiscovered)) {
   const next = {...d,...data(s,d)};
   const publicForms = [];
   for(const form of forms.filter(f=>d.sourceForm===undefined && f.id.split(',')[0]===s.id)) {
+    // Removed from the game; older source packages still include this form.
+    if (form.id === 'INFLATUFT,1') continue;
     const prepared = {name:form.FormName,...data({...s,...form},d),flavor:form.Pokedex||s.Pokedex};
     const art = s.id==='KAMOLEON' ? (form.id.endsWith(',1')?'KAMOLEON_1':'KAMOLEON_3') : formArt[s.id];
     if(!art || !fs.existsSync(path.join(source,'Graphics/Pokemon/Front',art+'.png'))) {

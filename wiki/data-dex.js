@@ -7616,8 +7616,8 @@ window.VDEX = (function () {
         "LIGHT",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 240,
       "found": [
         "Route 4"
@@ -7778,8 +7778,8 @@ window.VDEX = (function () {
         "LIGHT",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 150,
       "found": [],
       "abilities": [
@@ -7932,8 +7932,8 @@ window.VDEX = (function () {
         "LIGHT",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 75,
       "found": [],
       "abilities": [
@@ -8089,8 +8089,8 @@ window.VDEX = (function () {
         "NORMAL",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 120,
       "found": [
         "Eventide Forest"
@@ -8114,8 +8114,7 @@ window.VDEX = (function () {
           "053A",
           "053B",
           "053C"
-        ],
-        "note": "Karmold evolves at Lv 32. The supplied files do not confirm which conditions select each Kamoleon form."
+        ]
       },
       "levelMoves": [
         {
@@ -8249,8 +8248,8 @@ window.VDEX = (function () {
         "NORMAL",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -8269,8 +8268,7 @@ window.VDEX = (function () {
       "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
       "evo": {
         "from": "052",
-        "method": "Lv 32 · Form unconfirmed",
-        "details": "Karmold evolves at level 32. The supplied PBS names this friendship form, but the supplied form script defaults to Normal and does not define how to select this form. No friendship threshold is documented."
+        "method": "Lv 32 · Low friendship"
       },
       "levelMoves": [
         {
@@ -8420,8 +8418,8 @@ window.VDEX = (function () {
         "NORMAL",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -8440,8 +8438,7 @@ window.VDEX = (function () {
       "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
       "evo": {
         "from": "052",
-        "method": "Lv 32 · Form unconfirmed",
-        "details": "Karmold evolves at level 32. The supplied PBS names this friendship form, but the supplied form script defaults to Normal and does not define how to select this form. No friendship threshold is documented."
+        "method": "Lv 32 · Mid friendship"
       },
       "levelMoves": [
         {
@@ -8591,8 +8588,8 @@ window.VDEX = (function () {
         "NORMAL",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -8611,8 +8608,7 @@ window.VDEX = (function () {
       "flavor": "Kamoleon’s personality mirrors its trainer. As their bond deepens, it shifts from the chaotic Karmold to the temperament it grows closest to.",
       "evo": {
         "from": "052",
-        "method": "Lv 32 · Form unconfirmed",
-        "details": "Karmold evolves at level 32. The supplied PBS names this friendship form, but the supplied form script defaults to Normal and does not define how to select this form. No friendship threshold is documented."
+        "method": "Lv 32 · High friendship"
       },
       "levelMoves": [
         {
@@ -8835,8 +8831,8 @@ window.VDEX = (function () {
         "NORMAL",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 170,
       "found": [
         "Route 2",
@@ -8981,8 +8977,8 @@ window.VDEX = (function () {
         "GHOST",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 100,
       "found": [],
       "abilities": [
@@ -9137,8 +9133,8 @@ window.VDEX = (function () {
         "FAIRY",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 100,
       "found": [],
       "abilities": [
@@ -9306,8 +9302,8 @@ window.VDEX = (function () {
         "WATER",
         "NORMAL"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 190,
       "found": [
         "Route 3"
@@ -9459,8 +9455,8 @@ window.VDEX = (function () {
         "WATER",
         "NORMAL"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 75,
       "found": [],
       "abilities": [
@@ -9614,8 +9610,8 @@ window.VDEX = (function () {
       "types": [
         "COSMIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 190,
       "found": [
         "Route 5"
@@ -9767,8 +9763,8 @@ window.VDEX = (function () {
         "COSMIC",
         "FAIRY"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 70,
       "found": [],
       "abilities": [
@@ -9921,8 +9917,8 @@ window.VDEX = (function () {
       "types": [
         "WATER"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 180,
       "found": [
         "Route 2",
@@ -10067,8 +10063,8 @@ window.VDEX = (function () {
       "types": [
         "WATER"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 125,
       "found": [],
       "abilities": [
@@ -10287,8 +10283,8 @@ window.VDEX = (function () {
       "types": [
         "ROCK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [
         "Quest: Strange Stone (from Sadie, Saudade Town)"
@@ -10451,8 +10447,8 @@ window.VDEX = (function () {
         "ROCK",
         "FIRE"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -10629,8 +10625,8 @@ window.VDEX = (function () {
         "ROCK",
         "WATER"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -10807,8 +10803,8 @@ window.VDEX = (function () {
         "ROCK",
         "GRASS"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -10985,8 +10981,8 @@ window.VDEX = (function () {
         "ROCK",
         "ELECTRIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -11167,8 +11163,8 @@ window.VDEX = (function () {
         "ROCK",
         "STEEL"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -11345,8 +11341,8 @@ window.VDEX = (function () {
         "ROCK",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -11523,8 +11519,8 @@ window.VDEX = (function () {
         "ROCK",
         "ICE"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -11701,8 +11697,8 @@ window.VDEX = (function () {
         "ROCK",
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -11883,8 +11879,8 @@ window.VDEX = (function () {
         "ROCK",
         "GHOST"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -12065,8 +12061,8 @@ window.VDEX = (function () {
         "ROCK",
         "LIGHT"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -12247,8 +12243,8 @@ window.VDEX = (function () {
         "ROCK",
         "COSMIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -12501,8 +12497,8 @@ window.VDEX = (function () {
       "types": [
         "COSMIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 130,
       "found": [
         "Route 5"
@@ -12632,8 +12628,8 @@ window.VDEX = (function () {
       "types": [
         "COSMIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 60,
       "found": [],
       "abilities": [
@@ -12764,8 +12760,8 @@ window.VDEX = (function () {
         "COSMIC",
         "LIGHT"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 20,
       "found": [],
       "abilities": [
@@ -12920,7 +12916,7 @@ window.VDEX = (function () {
         "GROUND"
       ],
       "height": "1'00\" ft",
-      "weight": "NaN lbs",
+      "weight": "Unknown",
       "catchRate": 190,
       "found": [
         "Route 5"
@@ -13055,8 +13051,8 @@ window.VDEX = (function () {
         "NORMAL",
         "GHOST"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 50,
       "found": [],
       "abilities": [
@@ -13201,8 +13197,8 @@ window.VDEX = (function () {
       "types": [
         "FIRE"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 250,
       "found": [
         "Route 4"
@@ -13351,8 +13347,8 @@ window.VDEX = (function () {
       "types": [
         "FIRE"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 120,
       "found": [],
       "abilities": [
@@ -13504,8 +13500,8 @@ window.VDEX = (function () {
       "types": [
         "FIRE"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -13674,8 +13670,8 @@ window.VDEX = (function () {
         "WATER",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 200,
       "found": [
         "Route 3"
@@ -13826,8 +13822,8 @@ window.VDEX = (function () {
         "WATER",
         "PSYCHIC"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 80,
       "found": [],
       "abilities": [
@@ -13971,8 +13967,8 @@ window.VDEX = (function () {
       "types": [
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 180,
       "found": [
         "Route 5"
@@ -14132,8 +14128,8 @@ window.VDEX = (function () {
         "FLYING",
         "FIGHTING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 50,
       "found": [],
       "abilities": [
@@ -14291,8 +14287,8 @@ window.VDEX = (function () {
         "WATER",
         "ROCK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 190,
       "found": [
         "Pebpup Cavern"
@@ -14416,8 +14412,8 @@ window.VDEX = (function () {
         "WATER",
         "ROCK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 75,
       "found": [],
       "abilities": [
@@ -14635,8 +14631,8 @@ window.VDEX = (function () {
       "types": [
         "WATER"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 245,
       "found": [
         "Route 2",
@@ -14777,8 +14773,8 @@ window.VDEX = (function () {
         "WATER",
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 120,
       "found": [],
       "abilities": [
@@ -14918,8 +14914,8 @@ window.VDEX = (function () {
         "WATER",
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -15062,8 +15058,8 @@ window.VDEX = (function () {
         "LIGHT",
         "STEEL"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 90,
       "found": [
         "Route 4"
@@ -15233,8 +15229,8 @@ window.VDEX = (function () {
             "SPA": 58,
             "SPD": 79
           },
-          "height": "NaN'NaN\" ft",
-          "weight": "NaN lbs",
+          "height": "Unknown",
+          "weight": "Unknown",
           "abilities": [
             "Dancer"
           ],
@@ -15523,8 +15519,8 @@ window.VDEX = (function () {
       "types": [
         "FIRE"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 190,
       "found": [
         "Route 4"
@@ -15668,8 +15664,8 @@ window.VDEX = (function () {
         "FIRE",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 90,
       "found": [],
       "abilities": [
@@ -15821,8 +15817,8 @@ window.VDEX = (function () {
         "FIRE",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 90,
       "found": [],
       "abilities": [
@@ -15974,8 +15970,8 @@ window.VDEX = (function () {
         "FIRE",
         "DARK"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 10,
       "found": [],
       "abilities": [
@@ -16131,8 +16127,8 @@ window.VDEX = (function () {
         "DARK",
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 245,
       "found": [
         "Route 4"
@@ -16285,8 +16281,8 @@ window.VDEX = (function () {
         "DARK",
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 95,
       "found": [],
       "abilities": [
@@ -16443,8 +16439,8 @@ window.VDEX = (function () {
         "DARK",
         "FLYING"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 45,
       "found": [],
       "abilities": [
@@ -16604,8 +16600,8 @@ window.VDEX = (function () {
         "ROCK",
         "LIGHT"
       ],
-      "height": "NaN'NaN\" ft",
-      "weight": "NaN lbs",
+      "height": "Unknown",
+      "weight": "Unknown",
       "catchRate": 150,
       "found": [
         "Namano Cave"

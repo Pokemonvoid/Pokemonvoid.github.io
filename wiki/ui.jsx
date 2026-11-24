@@ -25,7 +25,8 @@
   // ---- Sprite slot (auto-loads sprites/<dex>.png if present) -------------
   function SpriteSlot({ dex, name, size = 120, label, accent = '#8a5cff', suffix }) {
     const knownBase = dex && window.SPRITE_SET && window.SPRITE_SET.has(String(dex));
-    const hasSrc = dex && (suffix !== undefined || knownBase || !window.SPRITE_SET);
+    const entry = dex && window.VDEX.byDex(dex);
+    const hasSrc = dex && (suffix !== undefined || knownBase || (entry && !entry.undiscovered) || !window.SPRITE_SET);
     const cacheKey = window.SPRITE_VERSION ? `?v=${window.SPRITE_VERSION}` : '';
     const src = hasSrc ? `sprites/${dex}${suffix ? '-' + suffix : ''}.png${cacheKey}` : null;
     const [ok, setOk] = React.useState(false);

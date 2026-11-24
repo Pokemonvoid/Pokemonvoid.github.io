@@ -213,7 +213,7 @@
 
   // Load sprite manifest (lists dex numbers that have a sprites/<dex>.png) so we
   // only request images that exist — keeps the console clean until art is added.
-  fetch('sprites/manifest.json')
+  fetch('sprites/manifest.json', { cache: 'no-store' })
     .then(r => r.ok ? r.json() : [])
     .catch(() => [])
     .then(list => {

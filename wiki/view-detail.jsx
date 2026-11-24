@@ -111,7 +111,6 @@ window.VIEWS = window.VIEWS || {};
           <EvoCard m={result} current={current} size={92} width={132} />
         </div>
         {method && <div style={{ position: 'relative', marginTop: 14, textAlign: 'center', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#dcc9ff', lineHeight: 1.5 }}>{method}</div>}
-        {result.evo?.details && <EvolutionDetails entries={[result]} />}
       </div>
     );
   }
@@ -210,15 +209,6 @@ window.VIEWS = window.VIEWS || {};
     );
   }
 
-  function EvolutionDetails({ entries }) {
-    const detailed = entries.filter(m => m.evo?.details);
-    if (!detailed.length) return null;
-    return <details style={{ position: 'relative', marginTop: 12, padding: '12px 16px', border: '1px solid #2a2243', borderRadius: 10, color: '#bdb0d8', fontSize: 13, lineHeight: 1.6 }}>
-      <summary style={{ cursor: 'pointer' }}>Evolution details & alternate methods</summary>
-      {detailed.map(m => <p key={m.dex} style={{ margin: '10px 0 0' }}><strong style={{ color: '#eee6ff' }}>{m.name}: </strong>{m.evo.details}</p>)}
-    </details>;
-  }
-
   function Evolution({ d }) {
     const fusion = findFusion(d);
     const tree = buildEvoTree(d);
@@ -232,9 +222,6 @@ window.VIEWS = window.VIEWS || {};
       <div style={{ minHeight: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16, background: 'radial-gradient(circle at 50% 50%, #171134 0%, #0d0a20 60%, transparent 80%)', border: '1px solid #221d3a', fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#8a7fb0' }}>{d.legendary ? 'A one-of-a-kind being. It does not evolve.' : 'Does not evolve.'}</div>
     );
     const isRadial = tree.children.length >= 4;
-    const entries = [];
-    const collect = n => { entries.push(n.data); n.children.forEach(c => collect(c.node)); };
-    collect(tree);
     return (
       <React.Fragment>
         {tree.data.evo?.note && <p style={{ margin: '0 0 12px', color: '#bdb0d8', fontSize: 13, lineHeight: 1.5 }}>{tree.data.evo.note}</p>}
@@ -243,7 +230,6 @@ window.VIEWS = window.VIEWS || {};
             <EvoNode node={tree} current={d.dex} />
           </div>
         )}
-        <EvolutionDetails entries={entries} />
         {fusion && <FusionPanel fusion={fusion} current={d.dex} />}
       </React.Fragment>
     );
