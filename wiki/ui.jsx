@@ -162,7 +162,7 @@
 
   // ---- Nav bar -----------------------------------------------------------
   const NAV = [
-    ['Pokédex', '#/pokedex'], ['Guide', '#/guide'], ['Dev Log', '#/devlog'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
+    ['Pokédex', '#/pokedex'], ['Guide—Coming Soon', '#/guide'], ['Dev Log', '#/devlog'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
     ['Items', '#/items'], ['Locations', '#/locations'],
     ['Type Calculator', '#/types'], ['Team Builder', '#/team'],
     ['Compare', '#/compare'],
@@ -191,16 +191,29 @@
           .vsocial.discord:hover { color: #fff; background: #5865F2; border-color: #5865F2; box-shadow: 0 0 14px #5865F277; }
           .vsocial.youtube:hover { color: #fff; background: #FF0000; border-color: #FF0000; box-shadow: 0 0 14px #ff000066; }
           .vsocial.download:hover { color: #fff; background: #8a5cff; border-color: #8a5cff; box-shadow: 0 0 14px #8a5cff77; }
-          @keyframes vnavGuideGlow { 0%,100% { box-shadow: 0 0 14px #2fd8c044, inset 0 0 10px #2fd8c01a; } 50% { box-shadow: 0 0 22px #2fd8c077, inset 0 0 14px #2fd8c033; } }
-          .vnav-guide { font-weight: 600; color: #b8fff2; border-color: #2a7d72; background: linear-gradient(135deg, #103a36, #0c241f); animation: vnavGuideGlow 2.8s ease-in-out infinite; padding-left: 24px; }
-          .vnav-guide::after { background: linear-gradient(90deg, #2fd8c0, #5cffd0); }
-          .vnav-guide:hover { color: #fff; border-color: #5cffd0; background: linear-gradient(135deg, #16544c, #103a36); box-shadow: 0 0 20px #2fd8c088, inset 0 0 12px #2fd8c033; }
-          .vnav-guide::before { content: '📖'; position: absolute; top: 50%; left: 7px; right: auto; transform: translateY(-50%); font-size: 11px; opacity: 1; animation: none; }
-          .vnav-guide:hover::before { animation: none; }
           .v-navtop { display: flex; align-items: center; gap: 16px; }
-          .v-navlinks { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 10px 0 2px; }
+          .v-navlinks { display: flex; flex-direction: column; gap: 8px; padding: 14px 0 8px; }
+          .v-navgroup { display: flex; gap: 8px; }
+          .v-navgroup .vnav-link { flex: 1 0 auto; text-align: center; white-space: nowrap; padding: 9px 14px; }
+          .v-navgroup + .v-navgroup { padding-top: 8px; border-top: 1px solid #211a38; }
+          .vnav-link:focus-visible { outline: 2px solid #b49aff; outline-offset: 3px; }
+          .vnav-link.vnav-disabled { color: #9b91b5; background: #100d1d; border: 1px dashed #39304f; cursor: default; box-shadow: none; transform: none; font-weight: 400; }
+          .vnav-disabled::before, .vnav-disabled::after { display: none; }
+          @media (max-width: 900px) {
+            .v-navgroup { overflow-x: auto; padding-bottom: 4px; }
+            .v-navgroup .vnav-link { flex: 0 0 auto; }
+          }
+          @media (max-width: 640px) {
+            .v-navtop { flex-wrap: wrap; gap: 12px; }
+            .v-navright { width: 100%; }
+            .v-navsearch { flex: 1; min-width: 0 !important; }
+            .v-navsearch input { min-width: 0; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .vnav-link, .vnav-link::before { animation: none !important; transition: none; }
+          }
         `}</style>
-        <div className="v-navbar-inner" style={{ maxWidth: 1240, margin: '0 auto', padding: '13px 24px 6px' }}>
+        <div className="v-navbar-inner" style={{ maxWidth: 1240, margin: '0 auto', padding: '16px 24px 8px' }}>
           <div className="v-navtop">
             <a href="#/pokedex" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
               <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'radial-gradient(circle at 38% 32%, #1a1640, #05030c)', border: '1px solid #8a5cff', boxShadow: '0 0 12px #8a5cff77' }} />
@@ -218,7 +231,7 @@
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 13px', borderRadius: 8, background: '#15112a', border: '1px solid #2a2545', minWidth: 180 }}>
+              <div className="v-navsearch" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 13px', borderRadius: 8, background: '#15112a', border: '1px solid #2a2545', minWidth: 180 }}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6a6388" strokeWidth="1.6"><circle cx="6" cy="6" r="4.2" /><path d="M9.5 9.5L13 13" strokeLinecap="round" /></svg>
                 <input value={query} onChange={(e) => { setQuery(e.target.value); if (!route.startsWith('/pokedex')) go('#/pokedex'); }}
                   placeholder="Search the void…" spellCheck={false}
@@ -226,9 +239,15 @@
               </div>
             </div>
           </div>
-          <nav className="v-navlinks">
-            {NAV.map(([n, h]) => (
-              <a key={h} href={h} className={'vnav-link' + (h === '#/guide' ? ' vnav-guide' : '') + (active(h) ? ' vnav-active' : '')}>{n}</a>
+          <nav className="v-navlinks" aria-label="Main navigation">
+            {[NAV.slice(0, 7), NAV.slice(7)].map((group, i) => (
+              <div className="v-navgroup" key={i} role="group" aria-label={i === 0 ? 'Wiki' : 'Tools'}>
+                {group.map(([n, h]) => h === '#/guide' ? (
+                  <span key={h} className="vnav-link vnav-disabled" role="link" aria-disabled="true" title="The guide is being updated for the new story.">{n}</span>
+                ) : (
+                  <a key={h} href={h} aria-current={active(h) ? 'page' : undefined} className={'vnav-link' + (active(h) ? ' vnav-active' : '')}>{n}</a>
+                ))}
+              </div>
             ))}
           </nav>
         </div>
