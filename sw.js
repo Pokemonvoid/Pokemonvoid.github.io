@@ -44,12 +44,8 @@ const PRECACHE_URLS = [
   './wiki/view-team.jsx',
   './wiki/view-compare.jsx',
   './wiki/view-living.jsx',
-  './wiki/view-catch.jsx',
   './wiki/view-nuzlocke.jsx',
   './wiki/view-riddles.jsx',
-  './wiki/view-battle.jsx',
-  './wiki/view-vote.jsx',
-  './wiki/view-leaderboard.jsx',
   './wiki/view-damage.jsx'
 ];
 
@@ -84,7 +80,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Only handle GET. Anything else (e.g. Supabase POSTs for the leaderboard)
+  // Only handle GET. Other request methods
   // goes straight to the network, untouched.
   if (req.method !== 'GET') return;
 
