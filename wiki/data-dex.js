@@ -3637,6 +3637,7 @@ window.VDEX = (function () {
       "tutorMoves": [],
       "sourceSpecies": "MAULMOT",
       "sourceForm": 1,
+      "sourceArt": "MAULMOT_C",
       "baseDex": "024",
       "availableSprites": [
         "",

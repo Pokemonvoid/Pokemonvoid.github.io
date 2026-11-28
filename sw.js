@@ -18,7 +18,7 @@
   itself or want to guarantee a hard cache reset.
 */
 
-const CACHE_VERSION = 'voiddex-chapter1-release-v6';
+const CACHE_VERSION = 'voiddex-chapter1-release-v7';
 const APP_CACHE = CACHE_VERSION + '-app';
 const IMG_CACHE = CACHE_VERSION + '-img';
 
