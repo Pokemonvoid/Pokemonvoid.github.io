@@ -169,6 +169,7 @@ window.VIEWS = window.VIEWS || {};
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {(t.team || []).map((m, i) => {
             const mon = m.dex ? byDex(m.dex) : null;
+            if(m.dex && (!mon || mon.undiscovered))return <div key={i} style={{color:"#8a83a8",fontSize:13}}>Unrevealed Pokémon · Lv {m.lv}</div>;
             const accent = mon ? TYPES[mon.types[0]].glow : '#8a5cff';
             const Inner = (
               <React.Fragment>
@@ -181,6 +182,7 @@ window.VIEWS = window.VIEWS || {};
                     {m.ability && <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#9a8fc8', fontWeight: 600 }}>{m.ability}</span>}
                   </div>
                   {m.moves && m.moves.length > 0 && <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: '#a49dc0', marginTop: 3, lineHeight: 1.4 }}>{m.moves.join(' · ')}</div>}
+                  {m.note && <div style={{ fontSize: 12, color: '#c4b2e6', marginTop: 4, lineHeight: 1.5 }}>{m.note}</div>}
                 </div>
               </React.Fragment>
             );
@@ -207,6 +209,8 @@ window.VIEWS = window.VIEWS || {};
                             {o.lv && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#a89fce', fontWeight: 700 }}>Lv {o.lv}</span>}
                           </span>
                           {o.moves && o.moves.length > 0 && <span style={{ display: 'block', fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: '#a49dc0', marginTop: 2 }}>{o.moves.join(' · ')}</span>}
+                          {o.ability && <span style={{ display: 'block', fontSize: 12, color: '#9a8fc8', marginTop: 3 }}>{o.ability}</span>}
+                          {o.note && <span style={{ display: 'block', fontSize: 12, color: '#c4b2e6', marginTop: 3, lineHeight: 1.5 }}>{o.note}</span>}
                         </span>
                       </button>
                     </div>
@@ -223,185 +227,110 @@ window.VIEWS = window.VIEWS || {};
   const H3 = ({ children }) => <h3 style={{ margin: '0 0 14px', fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 1, color: '#8a5cff' }}>{children}</h3>;
 
   // ---------- detail ----------
-  window.VIEWS.Location = function Location({ param }) {
-    const r = locBySlug(param);
-    if (!r) return <Empty label={'No location named “' + param + '”.'} />;
-    const trs = r.npcs || [];
-    const idx = ROUTES.findIndex(x => x.slug === r.slug);
-    const prev = ROUTES[(idx - 1 + ROUTES.length) % ROUTES.length];
-    const next = ROUTES[(idx + 1) % ROUTES.length];
-    const endgame = r.kind === 'Dungeon';
-    const accent = endgame ? '#8a5cff' : '#33d6ff';
-
-    const NavBtn = ({ m, dir }) => (
-      <button onClick={() => go('#/location/' + m.slug)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 9, background: '#0e0b1f', border: '1px solid #221d3a', color: '#b8b0e0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13 }}>
-        {dir === 'prev' && '‹'} {m.name} {dir === 'next' && '›'}
-      </button>
-    );
-
-    return (
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-          <button onClick={() => go('#/locations')} style={{ cursor: 'pointer', background: 'transparent', border: 'none', fontFamily: "'Silkscreen', monospace", fontSize: 11, letterSpacing: 1, color: '#8a5cff' }}>‹ LOCATIONS</button>
-          <div style={{ display: 'flex', gap: 8 }}><NavBtn m={prev} dir="prev" /><NavBtn m={next} dir="next" /></div>
-        </div>
-
-        {/* hero banner */}
-        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: `1px solid ${accent}44`, marginBottom: 24, background: `radial-gradient(ellipse at 25% 0%, ${accent}22, #0a0818 60%)` }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'radial-gradient(1px 1px at 14% 28%, #fff7, transparent), radial-gradient(1px 1px at 72% 22%, #fff5, transparent), radial-gradient(2px 2px at 40% 60%, #b89bff66, transparent), radial-gradient(1px 1px at 88% 70%, #fff5, transparent)' }} />
-          <div style={{ position: 'relative', padding: '34px 30px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', minHeight: 150 }}>
-            <div>
-              <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, letterSpacing: 2, color: accent, marginBottom: 10 }}>{r.kind.toUpperCase()}{r.tag.toUpperCase() !== r.kind.toUpperCase() ? ' · ' + r.tag.toUpperCase() : ''}</div>
-              <h1 style={{ margin: 0, fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 52, lineHeight: 1, color: '#fff', textShadow: `0 0 30px ${accent}66` }}><RouteName text={r.name} size={52} /></h1>
-              <p style={{ margin: '14px 0 0', fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, color: '#bdb6dd', lineHeight: 1.6, maxWidth: 620, textWrap: 'pretty' }}>{r.desc}</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 16 }}>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#8a83a8', textAlign: 'right' }}>
-                <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: '#5f5980', marginBottom: 4 }}>ENCOUNTER</div>{r.encounter}
-              </div>
-              {(() => {
-                const recs = recommendFor(r.slug);
-                if (recs.length === 0) return null;
-                return (
-                  <div style={{ minWidth: 320, padding: '18px 20px', borderRadius: 14, background: 'rgba(12,10,28,0.55)', border: `1px solid ${accent}44`, backdropFilter: 'blur(2px)' }}>
-                    <div style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: accent, letterSpacing: 0.5, marginBottom: 14, textAlign: 'right' }}>★ RECOMMENDED TEAM</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {recs.map((dx, i) => {
-                        const m = byDex(dx); if (!m) return null;
-                        const c = TYPES[m.types[0]].glow;
-                        return (
-                          <button key={dx} onClick={() => go('#/pokemon/' + dx)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 13, padding: '10px 14px', borderRadius: 11, background: '#0e0b1f', border: `1px solid ${c}44`, textAlign: 'left' }}>
-                            <span style={{ flex: '0 0 auto', fontFamily: "'Space Mono', monospace", fontSize: 14, color: '#5f5980', width: 16 }}>{i + 1}</span>
-                            <SpriteSlot dex={dx} name={m.name} size={56} accent={c} />
-                            <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                              <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 19, color: '#fff', lineHeight: 1.1 }}>{m.name}</span>
-                              <span style={{ display: 'flex', gap: 4, marginTop: 4 }}>{m.types.map(t => <span key={t} style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: TYPES[t].fg, background: TYPES[t].bg, borderRadius: 3, padding: '2px 6px', letterSpacing: 0.4 }}>{TYPES[t].name.toUpperCase()}</span>)}</span>
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 28, alignItems: 'start' }}>
-          {/* main column */}
-          <div>
-            <section style={{ marginBottom: 30 }}>
-              <H3>WILD POKÉMON</H3>
-              {(!r.encounters || r.encounters.length === 0) ? <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#6a6388' }}>No wild Pokémon here.</div> : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {r.encounters.map((e, i) => {
-                    const m = byDex(e.dex); if (!m) return null;
-                    const accent = TYPES[m.types[0]].glow;
-                    return (
-                      <button key={e.dex + '-' + i} onClick={() => go('#/pokemon/' + e.dex)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, padding: '8px 14px', borderRadius: 12, background: '#0e0b1f', border: '1px solid #221d3a', textAlign: 'left' }}>
-                        <div style={{ flex: '0 0 auto' }}><SpriteSlot dex={e.dex} name={m.name} size={48} accent={accent} /></div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                            <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 10, color: '#6f6896' }}>No.{m.dex}</span>
-                            <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 17, color: '#fff' }}>{m.name}</span>
-                          </div>
-                          <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>{m.types.map(t => <TypePill key={t} t={t} sm onClick={(ev) => { ev.stopPropagation(); go('#/pokemon/' + e.dex); }} />)}</div>
-                        </div>
-                        <div style={{ flex: '0 0 auto', textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 15, color: '#c9bfff', textShadow: '0 0 8px #8a5cff66' }}>{e.pct}%</span>
-                          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#a89fce', fontWeight: 700 }}>Lv {e.lv}{e.method === 'Fishing' ? ' · 🎣' : ''}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-
-            <section>
-              <H3>TRAINERS</H3>
-              {trs.length === 0 ? <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#6a6388' }}>No trainers to battle here.</div> : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>{trs.map(t => <TrainerCard key={t.name} t={t} />)}</div>
-              )}
-            </section>
-          </div>
-
-          {/* side column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            {r.map && (
-              <section>
-                <H3>MAP</H3>
-                <img src={'maps/' + r.map} alt={r.name + ' map'} loading="lazy"
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                  style={{ width: '100%', borderRadius: 12, border: '1px solid #221d3a', display: 'block' }} />
-              </section>
-            )}
-
-            {r.exits && (
-              <section>
-                <H3>EXITS</H3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {r.exits.split('|').map((ex, i) => {
-                    const txt = ex.trim();
-                    // destination is the text after the dash
-                    const dashIdx = Math.max(txt.lastIndexOf('—'), txt.lastIndexOf('-'));
-                    const dest = dashIdx >= 0 ? txt.slice(dashIdx + 1).trim() : txt;
-                    // strip parentheticals like "(Western Entrance)" for matching
-                    const destClean = dest.replace(/\s*\(.*?\)\s*/g, '').trim().toLowerCase();
-                    // 1) exact name match
-                    let target = ROUTES.find(rr => rr.name.toLowerCase() === destClean);
-                    // 2) the destination is a prefix of a location name ("Acciome" -> "Acciome City")
-                    if (!target && destClean) target = ROUTES.find(rr => rr.name.toLowerCase().startsWith(destClean + ' ') || destClean.startsWith(rr.name.toLowerCase() + ' '));
-                    // 3) any location name appears as a whole word anywhere in the exit text
-                    if (!target) {
-                      const low = txt.toLowerCase();
-                      const cands = ROUTES.filter(rr => low.includes(rr.name.toLowerCase()));
-                      // prefer the longest matching name (so "Route 5" beats "Route")
-                      if (cands.length) target = cands.sort((a, b) => b.name.length - a.name.length)[0];
-                    }
-                    const common = { padding: '9px 13px', borderRadius: 9, background: '#0e0b1f', border: '1px solid #221d3a', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 };
-                    return target
-                      ? <button key={i} onClick={() => go('#/location/' + target.slug)} style={{ ...common, cursor: 'pointer', color: '#cdbfff', textAlign: 'left' }}>
-                          <span>{txt}</span><span style={{ color: '#8a5cff' }}>›</span>
-                        </button>
-                      : <div key={i} style={{ ...common, color: '#8a83a8' }}>{txt}</div>;
-                  })}
-                </div>
-              </section>
-            )}
-
-            {r.quests && r.quests.length > 0 && (
-              <section>
-                <H3>QUESTS</H3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {r.quests.map(q => (
-                    <div key={q} style={{ padding: '10px 14px', borderRadius: 10, background: '#1a1238', border: '1px solid #3a2f6e', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: '#cdbfff', fontWeight: 600 }}>{q}</div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <section>
-              <H3>ITEMS</H3>
-              {r.items.length === 0 ? <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#6a6388' }}>None catalogued.</div> : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {r.items.map((it, i) => {
-                  const item = itemByName(it) || { name: it };
-                  const col = ITEM_COLORS[item.cat] || '#8a5cff';
-                  return (
-                    <button key={it + i} onClick={() => go('#/items')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, background: '#0e0b1f', border: '1px solid #221d3a', textAlign: 'left' }}>
-                      <ItemIcon item={item} color={col} size={30} />
-                      <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: '#cdbfff', fontWeight: 600 }}>{it}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              )}
-            </section>
-          </div>
-        </div>
-      </div>
-    );
+  window.VIEWS.Location = function Location({param}) {
+    return <AreaJournal key={param} param={param}/>;
   };
+  function AreaMap({file,name,pickups=[],connections=[],onConnection}) {
+    const storageKey='void_map_pickups_v1:'+file;
+    const [saveError,setSaveError]=React.useState(false);
+    const readCollected=()=>{try{const saved=JSON.parse(localStorage.getItem(storageKey)||'{}');return saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:{};}catch{return {};}};
+    const [collected,setCollected]=React.useState(readCollected);
+    const pickupKey=item=>String(item.event)+':'+item.id;
+    React.useEffect(()=>{
+      const sync=event=>{if(event.key===storageKey||event.key===null)setCollected(readCollected());};
+      window.addEventListener('storage',sync);
+      return ()=>window.removeEventListener('storage',sync);
+    },[storageKey]);
+    const togglePickup=item=>{
+      if(suppressClick.current)return;
+      const key=pickupKey(item),next={...collected};
+      if(next[key])delete next[key];else next[key]=true;
+      setCollected(next);setSelectedItem(item);
+      try{localStorage.setItem(storageKey,JSON.stringify(next));setSaveError(false);}catch{setSaveError(true);}
+    };
+    const collectedCount=pickups.filter(item=>collected[pickupKey(item)]).length;
+    const [showItems,setShowItems]=React.useState(true);
+    const [selectedItem,setSelectedItem]=React.useState(null);
+    const [zoom, setZoom] = React.useState(1);
+    const viewportRef = React.useRef(null);
+    const artRef = React.useRef(null);
+    const zoomRef = React.useRef(1);
+    const dragRef = React.useRef(null);
+    const suppressClick = React.useRef(false);
+    const [dragging, setDragging] = React.useState(false);
+    const zoomAt = React.useCallback((requested, clientX, clientY) => {
+      const viewport = viewportRef.current, art = artRef.current;
+      if (!viewport || !art) return;
+      const next = Math.max(1, Math.min(4, requested));
+      const bounds = viewport.getBoundingClientRect();
+      const x = clientX === undefined ? viewport.clientWidth / 2 : clientX - bounds.left;
+      const y = clientY === undefined ? viewport.clientHeight / 2 : clientY - bounds.top;
+      const oldWidth = art.getBoundingClientRect().width;
+      const mapX = viewport.scrollLeft + x, mapY = viewport.scrollTop + y;
+      art.style.width = next * 100 + '%';
+      const ratio = art.getBoundingClientRect().width / oldWidth;
+      viewport.scrollLeft = mapX * ratio - x;
+      viewport.scrollTop = mapY * ratio - y;
+      zoomRef.current = next;
+      setZoom(next);
+    }, []);
+    React.useEffect(() => {
+      const viewport = viewportRef.current;
+      const wheel = event => {
+        event.preventDefault();
+        const units = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientHeight : 1;
+        const delta = Math.max(-160, Math.min(160, event.deltaY * units));
+        zoomAt(zoomRef.current * Math.exp(-delta * .0025), event.clientX, event.clientY);
+      };
+      viewport.addEventListener('wheel', wheel, {passive:false});
+      return () => viewport.removeEventListener('wheel', wheel);
+    }, [zoomAt]);
+    const {startDrag,moveDrag,endDrag}=React.useMemo(()=>window.VoidMapGestures({dragRef,suppressClick,zoomRef,zoomAt,setDragging}),[zoomAt]);
+
+    return <div className="zone-map-viewer">
+      <div className="zone-map-controls"><span>{pickups.length?collectedCount+" / "+pickups.length+" collected":"Explore the area"}</span>{pickups.length>0&&<button type="button" aria-pressed={showItems} onClick={()=>{setShowItems(v=>!v);setSelectedItem(null);}}>Items ({pickups.length})</button>}<div><button type="button" aria-label="Zoom out of area map" disabled={zoom<=1} onClick={()=>zoomAt(zoomRef.current/1.25)}>−</button><button type="button" aria-label="Reset area map zoom" onClick={()=>{zoomAt(1);viewportRef.current.scrollTo(0,0);}}>{Math.round(zoom*100)}%</button><button type="button" aria-label="Zoom into area map" disabled={zoom>=4} onClick={()=>zoomAt(zoomRef.current*1.25)}>+</button></div></div>
+      <div ref={viewportRef} className={'zone-map-viewport'+(dragging?' dragging':'')} tabIndex={0} role="region" aria-label={name+' zoomable area map'} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag} onPointerLeave={event=>{if(dragRef.current&&!dragRef.current.moved)endDrag(event);}} onDragStart={event=>event.preventDefault()} onKeyDown={event=>{if(event.key==='+'||event.key==='='){event.preventDefault();zoomAt(zoomRef.current*1.25);}else if(event.key==='-'){event.preventDefault();zoomAt(zoomRef.current/1.25);}else if(event.key==='0'){event.preventDefault();zoomAt(1);viewportRef.current.scrollTo(0,0);}}}>
+        <div ref={artRef} className="zone-map-art" style={{width:zoom*100+'%'}}><img src={'maps/'+file} alt={name+' area map'} draggable={false}/>{showItems&&pickups.map((item,i)=><button type="button" className={"zone-pickup"+(collected[pickupKey(item)]?" collected":"")} aria-pressed={!!collected[pickupKey(item)]} key={item.event+'-'+item.id} style={{left:item.left+'%',top:item.top+'%'}} aria-label={item.name+(item.quantity>1?' ×'+item.quantity:'')} title={item.name+(item.quantity>1?' ×'+item.quantity:'')} onClick={()=>togglePickup(item)}><img src={itemByName(item.name).icon} alt="" draggable={false}/>{collected[pickupKey(item)]&&<span className="zone-collected-check" aria-hidden="true">✓</span>}</button>)}{connections.map(c=><button type="button" className={"zone-map-exit"+(c.left<20?" edge-left":c.left>80?" edge-right":"")} key={c.event} style={{left:c.left+'%',top:c.top+'%'}} onClick={()=>{if(!suppressClick.current)onConnection(c);}} aria-label={'Go to '+c.name}>↗<span>{c.name}</span></button>)}</div>
+      </div>{selectedItem&&showItems&&<div className="zone-pickup-info" role="status"><strong>{selectedItem.name}{selectedItem.quantity>1?' ×'+selectedItem.quantity:''}</strong><span><b>{collected[pickupKey(selectedItem)]?"Collected · ":"Not collected · "}</b>{selectedItem.description || (selectedItem.hidden?'Hidden item':'Ground pickup')}</span><button type="button" aria-label="Close item information" onClick={()=>setSelectedItem(null)}>×</button></div>}<p className="zone-map-help">Drag to pan · Scroll or pinch to zoom</p>{pickups.length>0&&<p className="zone-collection-note" role={saveError?'alert':undefined}>{saveError?'Progress could not be saved in this browser.':'Click an item to collect it; click again to undo. Progress is saved in this browser.'}</p>}
+    </div>;
+  }
+  function AreaJournal({param}) {
+    const [section,setSection]=React.useState('overview');
+    const [questIndex,setQuestIndex]=React.useState(0);
+    const [mapIndex,setMapIndex]=React.useState(0);
+    const r=locBySlug(param);
+    if(!r)return <Empty label={'No location named “'+param+'”.'}/>;
+    const areaMaps=r.maps||[], activeMap=areaMaps[mapIndex];
+    const quests=r.questGuide||[], people=r.npcs||[];
+    const encounters=(r.encounters||[]).filter(e=>{const m=byDex(e.dex);return m&&!m.undiscovered;});
+    const methods=[...new Set(encounters.map(e=>e.method))];
+    const methodName=m=>({Land:'Tall grass',OldRod:'Old Rod',Cave:'Cave',Fishing:'Fishing'}[m]||m);
+    const tabs=[['overview','Overview',null],...(quests.length?[['quests','Quests',quests.length]]:[]),...(encounters.length?[['pokemon','Pokémon',new Set(encounters.map(e=>e.dex)).size]]:[]),...(people.length?[['people','People',people.length]]:[]),...(r.items.length?[['items','Items',r.items.length]]:[])];
+    const quest=quests[questIndex];
+    const exits=(r.exits||'').split('|').map(x=>x.trim()).filter(Boolean);
+    const related=r.related||[];
+    const recommendations=recommendFor(r.slug);
+    return <div className="zone">
+      <a className="zone-back" href="#/locations">← Back to Interactable Map</a>
+      <header className="zone-heading"><div><span className="zone-kicker">DRAPALLA / {r.kind}</span><h1>{r.name}</h1></div><span className="zone-tag">AREA JOURNAL</span></header>
+      <div className="zone-layout">
+        <aside className="zone-atlas">
+          <div className="zone-panel-head"><span>AREA MAP</span><span>{r.name}</span></div>
+          {areaMaps.length>1&&<div className="zone-map-controls" role="group" aria-label="Cavern area">{areaMaps.map((m,i)=><button key={m.file} type="button" aria-pressed={i===mapIndex} onClick={()=>setMapIndex(i)}>{m.name}</button>)}</div>}
+          {r.map?<AreaMap key={activeMap?.file||r.map} file={activeMap?.file||r.map} name={activeMap?r.name+" — "+activeMap.name:r.name} pickups={activeMap?.pickups||r.pickups||[]} connections={activeMap?.connections||[]} onConnection={c=>{if(c.file){const next=areaMaps.findIndex(m=>m.file===c.file);if(next>=0)setMapIndex(next);}else if(c.slug)go('#/location/'+c.slug);}}/>:<div className="zone-no-map">Area map coming soon</div>}
+          {(exits.length>0||related.length>0)&&<div className="zone-connections"><span className="zone-kicker">CONNECTIONS & PLACES</span>{exits.map((text,i)=>{const destination=text.split(/[—–]/).pop().replace(/\s*\(.*?\)/g,'').trim().toLowerCase();const target=ROUTES.find(x=>x.name.toLowerCase()===destination)||ROUTES.find(x=>x.name.toLowerCase().startsWith(destination+' '))||ROUTES.filter(x=>text.toLowerCase().includes(x.name.toLowerCase())).sort((a,b)=>b.name.length-a.name.length)[0];return target?<a key={i} href={'#/location/'+target.slug}>{text}<span>›</span></a>:<p key={i}>{text}</p>;})}{related.map(p=><a key={p.slug} href={'#/location/'+p.slug}>{p.name}<span>›</span></a>)}</div>}
+        </aside>
+        <section className="zone-journal" aria-label={r.name+' journal'}>
+          <nav className="zone-tabs" aria-label="Area sections">{tabs.map(([id,label,count])=><button key={id} aria-pressed={section===id} onClick={()=>setSection(id)}>{label}{count!==null&&<small>{count}</small>}</button>)}</nav>
+          <div className="zone-content">
+            {section==='overview'&&<div><span className="zone-kicker">FIELD NOTES</span><h2>Welcome to {r.name}</h2><p className="zone-description">{r.desc}</p>{r.encounter&&<div className="zone-environment"><span>Wild encounters</span><strong>{r.encounter}</strong></div>}<div className="zone-notes">{(r.notes||[]).map(([title,text],i)=><article key={title}><span className="zone-note-number">{String(i+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>{quests.length>0&&<button className="zone-next" onClick={()=>setSection('quests')}>Open quest journal <span>{quests.length} {quests.length===1?'quest':'quests'} ›</span></button>}</div>}
+            {section==='quests'&&quest&&<div><span className="zone-kicker">QUEST JOURNAL</span><h2>Stories & side quests</h2><div className="zone-quests"><nav aria-label="Choose a quest">{quests.map((q,i)=><button key={q.title} aria-pressed={i===questIndex} onClick={()=>setQuestIndex(i)}><small>{q.kind}</small><strong>{q.title}</strong></button>)}</nav><article className="zone-quest"><span className="zone-kicker">{quest.kind}</span><h3>{quest.title}</h3><p>{quest.description}</p><dl>{quest.giver&&<><dt>Speak to</dt><dd>{quest.giver}</dd></>}{quest.report&&<><dt>Return to</dt><dd>{quest.report}</dd></>}{quest.requires?.length>0&&<><dt>Complete first</dt><dd>{quest.requires.join(' · ')}</dd></>}</dl>{quest.reward&&<div className="zone-reward"><span>REWARD</span><strong>{quest.reward}</strong></div>}</article></div></div>}
+            {section==='pokemon'&&<div><span className="zone-kicker">ENCOUNTER LOG</span><h2>Wild Pokémon</h2><p className="zone-hint">Chances apply within each encounter method. Unrevealed Pokémon remain hidden.</p>{methods.map(method=><section key={method} className="zone-method"><h3>{methodName(method)}</h3>{encounters.filter(e=>e.method===method).map((e,i)=>{const m=byDex(e.dex);return <a className="zone-mon" key={e.dex+'-'+i} href={'#/pokemon/'+e.dex}><SpriteSlot dex={e.dex} name={m.name} size={52}/><div><strong>{m.name}</strong><span>{m.types.map(t=>TYPES[t].name).join(' / ')}</span></div><div className="zone-rate"><strong>{e.pct}%</strong><span>Lv {e.lv}</span></div></a>;})}</section>)}{recommendations.length>0&&<section className="zone-method"><h3>Suggested partners</h3><div className="zone-partners">{recommendations.map(dx=>{const m=byDex(dx);return <a key={dx} href={'#/pokemon/'+dx}><SpriteSlot dex={dx} name={m.name} size={48}/><span>{m.name}</span></a>;})}</div></section>}</div>}
+            {section==='people'&&<div><span className="zone-kicker">TRAINERS & PEOPLE</span><h2>Who you’ll meet</h2><div className="zone-people">{people.map((t,i)=><TrainerCard key={t.name+i} t={t}/>)}</div></div>}
+            {section==='items'&&<div><span className="zone-kicker">ITEM LOG</span><h2>Things to collect</h2><div className="zone-items">{r.items.map((name,i)=>{const item=itemByName(name);return <a key={name+i} href="#/items"><ItemIcon item={item} size={40}/><strong>{name}</strong><span>›</span></a>;})}</div></div>}
+          </div>
+        </section>
+      </div>
+    </div>;
+  }
 })();

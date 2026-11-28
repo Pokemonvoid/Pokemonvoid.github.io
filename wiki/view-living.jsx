@@ -39,6 +39,7 @@ window.VIEWS = window.VIEWS || {};
   function saveState(boxes) {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, boxes }));
+      window.dispatchEvent(new Event('void-living-dex-change'));
       // also keep a rolling, timestamped backup so an accidental wipe of the main key
       // (cleared site data, a bad write, a browser eviction) can be recovered. We only
       // back up when there's REAL data, so we never overwrite good backups with an empty

@@ -1828,7 +1828,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "Isoi"
+      },
       "evYield": {
         "SPE": 1
       },
@@ -2856,7 +2858,10 @@ window.VDEX = (function () {
           "name": "Rest"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "3nder27",
+        "artPending": true
+      },
       "evYield": {
         "HP": 1
       },
@@ -3189,7 +3194,7 @@ window.VDEX = (function () {
       },
       "flavor": "Despite its tiny size, Marmie brims with fighting spirit. Swinging its tiny fists at foes ten times larger, though they land like soft and fluffy pats.",
       "evo": {
-        "to": "024"
+        "to": "024A"
       },
       "levelMoves": [
         {
@@ -3289,7 +3294,9 @@ window.VDEX = (function () {
           "name": "Low Sweep"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "!GooberGoose69"
+      },
       "evYield": {
         "ATK": 1
       },
@@ -3307,7 +3314,7 @@ window.VDEX = (function () {
       "tutorMoves": []
     },
     {
-      "dex": "024",
+      "dex": "024A",
       "name": "Maulmot",
       "category": "Humble",
       "types": [
@@ -3449,7 +3456,9 @@ window.VDEX = (function () {
           "name": "Bulldoze"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "!GooberGoose69"
+      },
       "evYield": {
         "ATK": 1,
         "HP": 1
@@ -3466,180 +3475,174 @@ window.VDEX = (function () {
       },
       "eggCycles": 3840,
       "tutorMoves": [],
-      "forms": [
+      "sourceSpecies": "MAULMOT",
+      "sourceForm": 0,
+      "baseDex": "024"
+    },
+    {
+      "dex": "024B",
+      "name": "Corrupted Maulmot",
+      "category": "Warrior",
+      "types": [
+        "FIGHTING",
+        "COSMIC"
+      ],
+      "height": "9'10\" ft",
+      "weight": "647.5 lbs",
+      "catchRate": 25,
+      "found": [],
+      "abilities": [
+        "Fur Coat",
+        "Sheer Force"
+      ],
+      "hidden": "Mind's Eye",
+      "stats": {
+        "HP": 95,
+        "ATK": 115,
+        "DEF": 70,
+        "SPE": 105,
+        "SPA": 20,
+        "SPD": 65
+      },
+      "flavor": "Maulmot’s refusal to fight leaves it defenseless against creeping corruption, trapped in its own mind, helpless watching its fists swing",
+      "levelMoves": [
         {
-          "name": "Corrupted Maulmot",
-          "category": "Warrior",
-          "types": [
-            "FIGHTING",
-            "COSMIC"
-          ],
-          "stats": {
-            "HP": 95,
-            "ATK": 115,
-            "DEF": 70,
-            "SPE": 105,
-            "SPA": 20,
-            "SPD": 65
-          },
-          "height": "9'10\" ft",
-          "weight": "647.5 lbs",
-          "abilities": [
-            "Fur Coat",
-            "Sheer Force"
-          ],
-          "hidden": "Mind's Eye",
-          "catchRate": 25,
-          "baseFriendship": 0,
-          "baseExp": 194,
-          "growthRate": "Slow",
-          "eggGroups": [
-            "Field"
-          ],
-          "eggCycles": 3840,
-          "gender": {
-            "m": 50,
-            "f": 50
-          },
-          "evYield": {
-            "ATK": 1,
-            "SPE": 1
-          },
-          "levelMoves": [
-            {
-              "lv": "0",
-              "name": "Eclipse Strike"
-            },
-            {
-              "lv": "1",
-              "name": "Eclipse Strike"
-            },
-            {
-              "lv": "1",
-              "name": "Psycho Cut"
-            },
-            {
-              "lv": "1",
-              "name": "Gamma Charge"
-            },
-            {
-              "lv": "1",
-              "name": "Power Trip"
-            },
-            {
-              "lv": "1",
-              "name": "Leer"
-            },
-            {
-              "lv": "1",
-              "name": "Work Up"
-            },
-            {
-              "lv": "1",
-              "name": "Fake Out"
-            },
-            {
-              "lv": "12",
-              "name": "Arm Thrust"
-            },
-            {
-              "lv": "15",
-              "name": "Focus Energy"
-            },
-            {
-              "lv": "19",
-              "name": "Comet Punch"
-            },
-            {
-              "lv": "22",
-              "name": "Beat Up"
-            },
-            {
-              "lv": "27",
-              "name": "Vital Throw"
-            },
-            {
-              "lv": "31",
-              "name": "Bulk Up"
-            },
-            {
-              "lv": "36",
-              "name": "Slash"
-            },
-            {
-              "lv": "40",
-              "name": "Astro Jab"
-            },
-            {
-              "lv": "45",
-              "name": "Sacred Sword"
-            },
-            {
-              "lv": "49",
-              "name": "Yawn"
-            },
-            {
-              "lv": "54",
-              "name": "Stellar Blade"
-            }
-          ],
-          "eggMoves": [],
-          "tmMoves": [
-            {
-              "lv": "TM04",
-              "name": "Work Up"
-            },
-            {
-              "lv": "TM02",
-              "name": "Double Team"
-            },
-            {
-              "lv": "TM05",
-              "name": "Protect"
-            },
-            {
-              "lv": "TM09",
-              "name": "Thief"
-            },
-            {
-              "lv": "TM14",
-              "name": "Rest"
-            },
-            {
-              "lv": "TM15",
-              "name": "Thunder Wave"
-            },
-            {
-              "lv": "TM16",
-              "name": "Low Sweep"
-            },
-            {
-              "lv": "TM08",
-              "name": "Bulldoze"
-            }
-          ],
-          "tutorMoves": [],
-          "flavor": "Maulmot’s refusal to fight leaves it defenseless against creeping corruption, trapped in its own mind, helpless watching its fists swing",
-          "spriteSuffix": "form-1",
-          "spriteVariants": [
-            {
-              "label": "F1",
-              "suffix": "form-1"
-            },
-            {
-              "label": "F2",
-              "suffix": "form-1-f2"
-            },
-            {
-              "label": "Back",
-              "suffix": "form-1-back"
-            },
-            {
-              "label": "Shiny F1",
-              "suffix": "form-1-shiny"
-            }
-          ]
+          "lv": "0",
+          "name": "Eclipse Strike"
+        },
+        {
+          "lv": "1",
+          "name": "Eclipse Strike"
+        },
+        {
+          "lv": "1",
+          "name": "Psycho Cut"
+        },
+        {
+          "lv": "1",
+          "name": "Gamma Charge"
+        },
+        {
+          "lv": "1",
+          "name": "Power Trip"
+        },
+        {
+          "lv": "1",
+          "name": "Leer"
+        },
+        {
+          "lv": "1",
+          "name": "Work Up"
+        },
+        {
+          "lv": "1",
+          "name": "Fake Out"
+        },
+        {
+          "lv": "12",
+          "name": "Arm Thrust"
+        },
+        {
+          "lv": "15",
+          "name": "Focus Energy"
+        },
+        {
+          "lv": "19",
+          "name": "Comet Punch"
+        },
+        {
+          "lv": "22",
+          "name": "Beat Up"
+        },
+        {
+          "lv": "27",
+          "name": "Vital Throw"
+        },
+        {
+          "lv": "31",
+          "name": "Bulk Up"
+        },
+        {
+          "lv": "36",
+          "name": "Slash"
+        },
+        {
+          "lv": "40",
+          "name": "Astro Jab"
+        },
+        {
+          "lv": "45",
+          "name": "Sacred Sword"
+        },
+        {
+          "lv": "49",
+          "name": "Yawn"
+        },
+        {
+          "lv": "54",
+          "name": "Stellar Blade"
         }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM09",
+          "name": "Thief"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        },
+        {
+          "lv": "TM16",
+          "name": "Low Sweep"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        }
+      ],
+      "anomaly": null,
+      "evYield": {
+        "ATK": 1,
+        "SPE": 1
+      },
+      "baseFriendship": 0,
+      "baseExp": 194,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Field"
+      ],
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "eggCycles": 3840,
+      "tutorMoves": [],
+      "sourceSpecies": "MAULMOT",
+      "sourceForm": 1,
+      "baseDex": "024",
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny"
       ]
     },
     {
@@ -5098,42 +5101,167 @@ window.VDEX = (function () {
     },
     {
       "dex": "035",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Scallery",
+      "category": "Drake Cake",
       "types": [
-        "NORMAL"
+        "GRASS",
+        "DRAGON"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 70,
+        "ATK": 70,
+        "DEF": 100,
+        "SPE": 70,
+        "SPA": 130,
+        "SPD": 100
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "5'07\" ft",
+      "weight": "269.2 lbs",
+      "abilities": [
+        "Lingering Aroma",
+        "Just Desserts"
+      ],
+      "hidden": "Supersweet Syrup",
+      "catchRate": 45,
+      "baseFriendship": 50,
+      "baseExp": 170,
+      "growthRate": "Erratic",
+      "eggGroups": [
+        "Grass",
+        "Dragon"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "SPA": 2
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Snap Trap"
+        },
+        {
+          "lv": "0",
+          "name": "Dragon Breath"
+        },
+        {
+          "lv": "1",
+          "name": "Snap Trap"
+        },
+        {
+          "lv": "1",
+          "name": "Dragon Breath"
+        },
+        {
+          "lv": "1",
+          "name": "Absorb"
+        },
+        {
+          "lv": "1",
+          "name": "Sweet Scent"
+        },
+        {
+          "lv": "1",
+          "name": "Natural Gift"
+        },
+        {
+          "lv": "5",
+          "name": "Growth"
+        },
+        {
+          "lv": "10",
+          "name": "Breaking Swipe"
+        },
+        {
+          "lv": "15",
+          "name": "Leaf Tornado"
+        },
+        {
+          "lv": "20",
+          "name": "Aromatic Mist"
+        },
+        {
+          "lv": "25",
+          "name": "Chilling Water"
+        },
+        {
+          "lv": "30",
+          "name": "Syrup Bomb"
+        },
+        {
+          "lv": "35",
+          "name": "Scary Face"
+        },
+        {
+          "lv": "40",
+          "name": "Dragon Pulse"
+        },
+        {
+          "lv": "45",
+          "name": "Stockpile"
+        },
+        {
+          "lv": "45",
+          "name": "Spit Up"
+        },
+        {
+          "lv": "45",
+          "name": "Swallow"
+        },
+        {
+          "lv": "50",
+          "name": "Energy Ball"
+        },
+        {
+          "lv": "55",
+          "name": "Outrage"
+        },
+        {
+          "lv": "60",
+          "name": "Solar Beam"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Scallery emit an edible sweet mucus. This mucus makes anything taste like a delectable berry cupcake, though it never changes nutritional value.",
+      "found": [],
+      "sourceSpecies": "SCALLERY",
+      "sourceArt": "SCALLERY",
+      "anomaly": {
+        "discoverer": "BeckS"
+      },
       "evo": {
         "from": "034",
-        "method": "item ???"
+        "method": "Whipped Dream"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "036",
@@ -5184,11 +5312,11 @@ window.VDEX = (function () {
         },
         {
           "lv": "13",
-          "name": "Odor Sleuth"
+          "name": "Aqua Jet"
         },
         {
           "lv": "16",
-          "name": "Aqua Jet"
+          "name": "Odor Sleuth"
         },
         {
           "lv": "19",
@@ -5340,11 +5468,11 @@ window.VDEX = (function () {
         },
         {
           "lv": "13",
-          "name": "Odor Sleuth"
+          "name": "Aqua Jet"
         },
         {
           "lv": "16",
-          "name": "Aqua Jet"
+          "name": "Odor Sleuth"
         },
         {
           "lv": "19",
@@ -7753,7 +7881,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "randomad."
+      },
       "evYield": {
         "SPE": 1
       },
@@ -7906,7 +8036,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "randomad."
+      },
       "evYield": {
         "SPA": 1,
         "ATK": 1
@@ -8063,7 +8195,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "randomad."
+      },
       "evYield": {
         "SPE": 2,
         "ATK": 1
@@ -8222,7 +8356,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "BeckS"
+      },
       "evYield": {
         "SPA": 1
       },
@@ -8387,7 +8523,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "BeckS"
+      },
       "evYield": {
         "SPA": 2
       },
@@ -8752,76 +8890,315 @@ window.VDEX = (function () {
     },
     {
       "dex": "054",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Petitour",
+      "category": "Builder",
       "types": [
-        "NORMAL"
+        "BUG"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 50,
+        "ATK": 54,
+        "DEF": 54,
+        "SPE": 42,
+        "SPA": 40,
+        "SPD": 70
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Lightning Rod"
+      ],
+      "hidden": "No Guard",
+      "catchRate": 200,
+      "baseFriendship": 50,
+      "baseExp": 63,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Bug"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Flash"
+        },
+        {
+          "lv": "5",
+          "name": "Charge"
+        },
+        {
+          "lv": "9",
+          "name": "Charge Beam"
+        },
+        {
+          "lv": "13",
+          "name": "Bug Bite"
+        },
+        {
+          "lv": "17",
+          "name": "Endure"
+        },
+        {
+          "lv": "21",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "25",
+          "name": "Parabolic Charge"
+        },
+        {
+          "lv": "30",
+          "name": "Signal Beam"
+        },
+        {
+          "lv": "34",
+          "name": "Iron Defense"
+        },
+        {
+          "lv": "38",
+          "name": "Iron Head"
+        },
+        {
+          "lv": "42",
+          "name": "Zing Zap"
+        },
+        {
+          "lv": "46",
+          "name": "Electric Terrain"
+        },
+        {
+          "lv": "50",
+          "name": "Wild Charge"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Pounce"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM07",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Petitour stores charge in its metallic shell, but its durable carapace makes it a target for poachers seeking materials.",
+      "found": [],
+      "sourceSpecies": "PETITOUR",
+      "sourceArt": "PETITOUR",
+      "anomaly": null,
       "evo": {
         "to": "055"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "055",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Voltiguer",
+      "category": "Architect",
       "types": [
-        "NORMAL"
+        "BUG",
+        "ELECTRIC"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 70,
+        "ATK": 69,
+        "DEF": 69,
+        "SPE": 72,
+        "SPA": 90,
+        "SPD": 100
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "levelMoves": [],
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Levitate"
+      ],
+      "hidden": "No Guard",
+      "catchRate": 75,
+      "baseFriendship": 50,
+      "baseExp": 173,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Bug"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 1,
+        "SPD": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Fell Stinger"
+        },
+        {
+          "lv": "1",
+          "name": "Fell Stinger"
+        },
+        {
+          "lv": "1",
+          "name": "Wild Charge"
+        },
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Flash"
+        },
+        {
+          "lv": "1",
+          "name": "Charge"
+        },
+        {
+          "lv": "1",
+          "name": "Charge Beam"
+        },
+        {
+          "lv": "13",
+          "name": "Bug Bite"
+        },
+        {
+          "lv": "17",
+          "name": "Endure"
+        },
+        {
+          "lv": "21",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "25",
+          "name": "Parabolic Charge"
+        },
+        {
+          "lv": "30",
+          "name": "Signal Beam"
+        },
+        {
+          "lv": "34",
+          "name": "Agility"
+        },
+        {
+          "lv": "38",
+          "name": "Drill Run"
+        },
+        {
+          "lv": "42",
+          "name": "Zing Zap"
+        },
+        {
+          "lv": "46",
+          "name": "Electric Terrain"
+        },
+        {
+          "lv": "50",
+          "name": "Quiver Dance"
+        },
+        {
+          "lv": "55",
+          "name": "Zap Cannon"
+        }
+      ],
       "eggMoves": [],
-      "tmMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM07",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        },
+        {
+          "lv": "TM01",
+          "name": "Aerial Ace"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "This Pokemon's body is almost entirely made up of electricity. Voltiguer's powerful energy output attracts hunters hoping to harvest its voltage.",
+      "found": [],
+      "sourceSpecies": "VOLTIGUER",
+      "sourceArt": "VOLTIGUER",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "evo": {
+        "from": "054",
+        "method": "Near the Route 2 windmills"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "056",
@@ -8952,7 +9329,9 @@ window.VDEX = (function () {
           "name": "Thunder Wave"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "MaxToshio"
+      },
       "evYield": {
         "DEF": 1
       },
@@ -9108,7 +9487,9 @@ window.VDEX = (function () {
           "name": "Confuse Ray"
         }
       ],
-      "anomaly": null,
+      "anomaly": {
+        "discoverer": "MaxToshio"
+      },
       "evYield": {
         "SPA": 2
       },
@@ -10204,77 +10585,323 @@ window.VDEX = (function () {
     },
     {
       "dex": "065",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Walewep",
+      "category": "Sidestep",
       "types": [
-        "NORMAL"
+        "FIGHTING"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 60,
+        "ATK": 63,
+        "DEF": 55,
+        "SPE": 54,
+        "SPA": 42,
+        "SPD": 50
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Steadfast",
+        "Scrappy"
+      ],
+      "hidden": "Stampede",
+      "catchRate": 190,
+      "baseFriendship": 50,
+      "baseExp": 70,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Field"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 75,
+        "f": 25
+      },
+      "evYield": {
+        "ATK": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Leer"
+        },
+        {
+          "lv": "5",
+          "name": "Endure"
+        },
+        {
+          "lv": "8",
+          "name": "Quick Attack"
+        },
+        {
+          "lv": "12",
+          "name": "Counter"
+        },
+        {
+          "lv": "15",
+          "name": "Revenge"
+        },
+        {
+          "lv": "19",
+          "name": "Double Team"
+        },
+        {
+          "lv": "22",
+          "name": "Headbutt"
+        },
+        {
+          "lv": "26",
+          "name": "Swagger"
+        },
+        {
+          "lv": "29",
+          "name": "Smart Strike"
+        },
+        {
+          "lv": "33",
+          "name": "Taunt"
+        },
+        {
+          "lv": "36",
+          "name": "Jump Kick"
+        },
+        {
+          "lv": "40",
+          "name": "Swords Dance"
+        },
+        {
+          "lv": "43",
+          "name": "Double-Edge"
+        },
+        {
+          "lv": "47",
+          "name": "Reversal"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Skull Bash"
+        },
+        {
+          "lv": "EGG",
+          "name": "Focus Energy"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        },
+        {
+          "lv": "TM16",
+          "name": "Low Sweep"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Walewep uses its small stature to stay nimble, relying on instinct to dodge and block attacks before striking back with a swift counter.",
+      "found": [],
+      "sourceSpecies": "WALEWEP",
+      "sourceArt": "WALEWEP",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "evo": {
+        "to": "066"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2"
+      ]
     },
     {
       "dex": "066",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Knockewet",
+      "category": "Strengthen",
       "types": [
-        "NORMAL"
+        "FIGHTING",
+        "STEEL"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 100,
+        "ATK": 103,
+        "DEF": 85,
+        "SPE": 84,
+        "SPA": 52,
+        "SPD": 80
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Rock Head",
+        "Scrappy"
+      ],
+      "hidden": "Stampede",
+      "catchRate": 70,
+      "baseFriendship": 50,
+      "baseExp": 194,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Field"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 75,
+        "f": 25
+      },
+      "evYield": {
+        "ATK": 1,
+        "HP": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Head Bonk"
+        },
+        {
+          "lv": "1",
+          "name": "Head Bonk"
+        },
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Leer"
+        },
+        {
+          "lv": "1",
+          "name": "Endure"
+        },
+        {
+          "lv": "1",
+          "name": "Quick Attack"
+        },
+        {
+          "lv": "12",
+          "name": "Counter"
+        },
+        {
+          "lv": "15",
+          "name": "Revenge"
+        },
+        {
+          "lv": "19",
+          "name": "Double Team"
+        },
+        {
+          "lv": "22",
+          "name": "Headbutt"
+        },
+        {
+          "lv": "26",
+          "name": "Swagger"
+        },
+        {
+          "lv": "29",
+          "name": "Smart Strike"
+        },
+        {
+          "lv": "34",
+          "name": "Taunt"
+        },
+        {
+          "lv": "38",
+          "name": "Jump Kick"
+        },
+        {
+          "lv": "43",
+          "name": "Swords Dance"
+        },
+        {
+          "lv": "47",
+          "name": "Double-Edge"
+        },
+        {
+          "lv": "52",
+          "name": "Reversal"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        },
+        {
+          "lv": "TM16",
+          "name": "Low Sweep"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "This Pokémon uses its antlers to strike with pure strength and speed— its punches said to rival those of a professional boxer.",
+      "found": [],
+      "sourceSpecies": "KNOCKEWET",
+      "sourceArt": "KNOCKEWET",
+      "anomaly": null,
       "evo": {
         "from": "065",
-        "method": "Knock Out 20 Pokemon"
+        "method": "Special evolution"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2"
+      ]
     },
     {
       "dex": "067",
@@ -10776,7 +11403,7 @@ window.VDEX = (function () {
         }
       ],
       "anomaly": {
-        "discoverer": "Sassyshoelace"
+        "discoverer": "Jiz3o"
       },
       "evYield": {
         "ATK": 2
@@ -12216,7 +12843,7 @@ window.VDEX = (function () {
         }
       ],
       "anomaly": {
-        "discoverer": "Sassyshoelace"
+        "discoverer": "Hud1019"
       },
       "evYield": {
         "HP": 2
@@ -12419,76 +13046,328 @@ window.VDEX = (function () {
     },
     {
       "dex": "079",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Bunlet",
+      "category": "Pork Bun",
       "types": [
-        "NORMAL"
+        "FAIRY"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 50,
+        "ATK": 50,
+        "DEF": 52,
+        "SPE": 40,
+        "SPA": 30,
+        "SPD": 68
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Food Coma",
+        "Well-Baked Body"
+      ],
+      "hidden": "Unaware",
+      "catchRate": 120,
+      "baseFriendship": 50,
+      "baseExp": 72,
+      "growthRate": "Erratic",
+      "eggGroups": [
+        "Field",
+        "Mineral"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "SPD": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Mud Sport"
+        },
+        {
+          "lv": "5",
+          "name": "Fairy Wind"
+        },
+        {
+          "lv": "8",
+          "name": "Harden"
+        },
+        {
+          "lv": "11",
+          "name": "Flame Charge"
+        },
+        {
+          "lv": "16",
+          "name": "Aromatic Mist"
+        },
+        {
+          "lv": "20",
+          "name": "Secret Power"
+        },
+        {
+          "lv": "23",
+          "name": "Stockpile"
+        },
+        {
+          "lv": "23",
+          "name": "Spit Up"
+        },
+        {
+          "lv": "23",
+          "name": "Swallow"
+        },
+        {
+          "lv": "26",
+          "name": "Strange Steam"
+        },
+        {
+          "lv": "31",
+          "name": "Body Slam"
+        },
+        {
+          "lv": "35",
+          "name": "Safeguard"
+        },
+        {
+          "lv": "38",
+          "name": "Play Rough"
+        },
+        {
+          "lv": "41",
+          "name": "Power Swap"
+        },
+        {
+          "lv": "46",
+          "name": "Heat Crash"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Play Rough"
+        },
+        {
+          "lv": "EGG",
+          "name": "Play Nice"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM06",
+          "name": "Disarming Voice"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Bunlet are born from fields of wheat, aiding in their growth. Are a known source of natural yeast.",
+      "found": [],
+      "sourceSpecies": "BUNLET",
+      "sourceArt": "BUNLET",
+      "anomaly": null,
       "evo": {
         "to": "080"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "080",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Boarger",
+      "category": "Pork Burger",
       "types": [
-        "NORMAL"
+        "FAIRY"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 100,
+        "ATK": 70,
+        "DEF": 82,
+        "SPE": 50,
+        "SPA": 50,
+        "SPD": 98
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "levelMoves": [],
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Food Coma",
+        "Well-Baked Body"
+      ],
+      "hidden": "Unaware",
+      "catchRate": 60,
+      "baseFriendship": 50,
+      "baseExp": 181,
+      "growthRate": "Erratic",
+      "eggGroups": [
+        "Field",
+        "Mineral"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "HP": 1,
+        "SPD": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Overcook"
+        },
+        {
+          "lv": "1",
+          "name": "Overcook"
+        },
+        {
+          "lv": "1",
+          "name": "Autotomize"
+        },
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Mud Sport"
+        },
+        {
+          "lv": "5",
+          "name": "Fairy Wind"
+        },
+        {
+          "lv": "8",
+          "name": "Harden"
+        },
+        {
+          "lv": "11",
+          "name": "Flame Charge"
+        },
+        {
+          "lv": "16",
+          "name": "Aromatic Mist"
+        },
+        {
+          "lv": "20",
+          "name": "Secret Power"
+        },
+        {
+          "lv": "24",
+          "name": "Stockpile"
+        },
+        {
+          "lv": "24",
+          "name": "Spit Up"
+        },
+        {
+          "lv": "24",
+          "name": "Swallow"
+        },
+        {
+          "lv": "28",
+          "name": "Strange Steam"
+        },
+        {
+          "lv": "34",
+          "name": "Body Slam"
+        },
+        {
+          "lv": "39",
+          "name": "Safeguard"
+        },
+        {
+          "lv": "43",
+          "name": "Play Rough"
+        },
+        {
+          "lv": "47",
+          "name": "Power Swap"
+        },
+        {
+          "lv": "53",
+          "name": "Heat Crash"
+        }
+      ],
       "eggMoves": [],
-      "tmMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM06",
+          "name": "Disarming Voice"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Boargers seem to be the original source of where burgers came from, though surprisingly Boargers don't taste as well as they look.",
+      "found": [],
+      "sourceSpecies": "BOARGER",
+      "sourceArt": "BOARGER",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "evo": {
+        "from": "079",
+        "method": "Lv 22"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "081",
@@ -13071,7 +13950,7 @@ window.VDEX = (function () {
       "flavor": "Amalgaton are larger, braver Bunbris. Though still playful at heart, their size makes most trainers either battle them or flee from fear.",
       "evo": {
         "from": "084",
-        "method": "Special evolution"
+        "method": "Level up at Lv. 21+ with five other Bunbris in your party"
       },
       "levelMoves": [
         {
@@ -14549,80 +15428,470 @@ window.VDEX = (function () {
     },
     {
       "dex": "095",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Thortane",
+      "category": "Security",
       "types": [
-        "NORMAL"
+        "GROUND"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 50,
+        "ATK": 50,
+        "DEF": 70,
+        "SPE": 70,
+        "SPA": 40,
+        "SPD": 40
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Rough Skin",
+        "Cold-Blooded"
+      ],
+      "hidden": "Dry Skin",
+      "catchRate": 225,
+      "baseFriendship": 50,
+      "baseExp": 62,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Dragon",
+        "Monster"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "DEF": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Tail Whip"
+        },
+        {
+          "lv": "6",
+          "name": "Sand Attack"
+        },
+        {
+          "lv": "10",
+          "name": "Smack Down"
+        },
+        {
+          "lv": "15",
+          "name": "Sand Tomb"
+        },
+        {
+          "lv": "19",
+          "name": "Spike Cannon"
+        },
+        {
+          "lv": "24",
+          "name": "Fake Tears"
+        },
+        {
+          "lv": "28",
+          "name": "Sandstorm"
+        },
+        {
+          "lv": "33",
+          "name": "Scorching Sands"
+        },
+        {
+          "lv": "37",
+          "name": "Morning Sun"
+        },
+        {
+          "lv": "37",
+          "name": "Heal Pulse"
+        },
+        {
+          "lv": "42",
+          "name": "High Horsepower"
+        },
+        {
+          "lv": "46",
+          "name": "Dragon Dance"
+        },
+        {
+          "lv": "51",
+          "name": "Solar Beam"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Breaking Swipe"
+        },
+        {
+          "lv": "EGG",
+          "name": "Spikes"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Thortane lives a secluded life far away from others,it uses its thorns as a self defense mechanism against predators.",
+      "found": [],
+      "sourceSpecies": "THORTANE",
+      "sourceArt": "THORTANE",
+      "anomaly": null,
       "evo": {
         "to": "096"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "096",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Palazard",
+      "category": "Fender",
       "types": [
-        "NORMAL"
+        "GROUND",
+        "DRAGON"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 90,
+        "ATK": 70,
+        "DEF": 120,
+        "SPE": 80,
+        "SPA": 80,
+        "SPD": 80
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Rough Skin",
+        "Cold-Blooded"
+      ],
+      "hidden": "Dry Skin",
+      "catchRate": 55,
+      "baseFriendship": 50,
+      "baseExp": 175,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Dragon",
+        "Monster"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "DEF": 1,
+        "ATK": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Dragon Tail"
+        },
+        {
+          "lv": "1",
+          "name": "Dragon Tail"
+        },
+        {
+          "lv": "1",
+          "name": "Needle Arm"
+        },
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "1",
+          "name": "Tail Whip"
+        },
+        {
+          "lv": "1",
+          "name": "Sand Attack"
+        },
+        {
+          "lv": "1",
+          "name": "Smack Down"
+        },
+        {
+          "lv": "15",
+          "name": "Sand Tomb"
+        },
+        {
+          "lv": "19",
+          "name": "Spike Cannon"
+        },
+        {
+          "lv": "24",
+          "name": "Fake Tears"
+        },
+        {
+          "lv": "28",
+          "name": "Sandstorm"
+        },
+        {
+          "lv": "33",
+          "name": "Scorching Sands"
+        },
+        {
+          "lv": "37",
+          "name": "Morning Sun"
+        },
+        {
+          "lv": "37",
+          "name": "Heal Pulse"
+        },
+        {
+          "lv": "42",
+          "name": "High Horsepower"
+        },
+        {
+          "lv": "46",
+          "name": "Dragon Dance"
+        },
+        {
+          "lv": "52",
+          "name": "Scale Shot"
+        },
+        {
+          "lv": "57",
+          "name": "Solar Beam"
+        },
+        {
+          "lv": "63",
+          "name": "Fissure"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "This Pokémon embodies the creed that offense is the best defense. Its thorns shield it, then launch as deadly projectiles",
+      "found": [],
+      "sourceSpecies": "PALAZARD",
+      "sourceArt": "PALAZARD",
+      "anomaly": null,
       "evo": {
         "from": "095",
         "method": "Lv 48"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ],
+      "forms": [
+        {
+          "name": "Mega Palazard",
+          "category": "Electric Spike",
+          "types": [
+            "GROUND",
+            "DRAGON"
+          ],
+          "stats": {
+            "HP": 90,
+            "ATK": 90,
+            "DEF": 150,
+            "SPE": 60,
+            "SPA": 130,
+            "SPD": 100
+          },
+          "height": "Unknown",
+          "weight": "Unknown",
+          "abilities": [
+            "Solar Power"
+          ],
+          "hidden": "Solar Power",
+          "catchRate": 55,
+          "baseFriendship": 50,
+          "baseExp": 175,
+          "growthRate": "Medium",
+          "eggGroups": [
+            "Dragon",
+            "Monster"
+          ],
+          "eggCycles": 5120,
+          "gender": {
+            "m": 50,
+            "f": 50
+          },
+          "evYield": {
+            "DEF": 1,
+            "ATK": 1
+          },
+          "levelMoves": [
+            {
+              "lv": "0",
+              "name": "Dragon Tail"
+            },
+            {
+              "lv": "1",
+              "name": "Dragon Tail"
+            },
+            {
+              "lv": "1",
+              "name": "Needle Arm"
+            },
+            {
+              "lv": "1",
+              "name": "Tackle"
+            },
+            {
+              "lv": "1",
+              "name": "Tail Whip"
+            },
+            {
+              "lv": "1",
+              "name": "Sand Attack"
+            },
+            {
+              "lv": "1",
+              "name": "Smack Down"
+            },
+            {
+              "lv": "15",
+              "name": "Sand Tomb"
+            },
+            {
+              "lv": "19",
+              "name": "Spike Cannon"
+            },
+            {
+              "lv": "24",
+              "name": "Fake Tears"
+            },
+            {
+              "lv": "28",
+              "name": "Sandstorm"
+            },
+            {
+              "lv": "33",
+              "name": "Scorching Sands"
+            },
+            {
+              "lv": "37",
+              "name": "Morning Sun"
+            },
+            {
+              "lv": "37",
+              "name": "Heal Pulse"
+            },
+            {
+              "lv": "42",
+              "name": "High Horsepower"
+            },
+            {
+              "lv": "46",
+              "name": "Dragon Dance"
+            },
+            {
+              "lv": "52",
+              "name": "Scale Shot"
+            },
+            {
+              "lv": "57",
+              "name": "Solar Beam"
+            },
+            {
+              "lv": "63",
+              "name": "Fissure"
+            }
+          ],
+          "eggMoves": [],
+          "tmMoves": [
+            {
+              "lv": "TM04",
+              "name": "Work Up"
+            },
+            {
+              "lv": "TM03",
+              "name": "Revealing Light"
+            },
+            {
+              "lv": "TM05",
+              "name": "Protect"
+            },
+            {
+              "lv": "TM08",
+              "name": "Bulldoze"
+            },
+            {
+              "lv": "TM15",
+              "name": "Thunder Wave"
+            }
+          ],
+          "tutorMoves": [],
+          "flavor": "When palazard mega evolves it gains even more thorns and frills, it uses its frills to absorb the electricity and counter attack its opponents.",
+          "spriteSuffix": "form-1",
+          "spriteVariants": [
+            {
+              "label": "F1",
+              "suffix": "form-1"
+            },
+            {
+              "label": "Shiny F1",
+              "suffix": "form-1-shiny"
+            }
+          ]
+        }
+      ]
     },
     {
       "dex": "097",
@@ -15403,114 +16672,491 @@ window.VDEX = (function () {
     },
     {
       "dex": "101",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Scrufpup",
+      "category": "Scout",
       "types": [
-        "NORMAL"
+        "GRASS"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 60,
+        "ATK": 40,
+        "DEF": 60,
+        "SPE": 50,
+        "SPA": 30,
+        "SPD": 60
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Grass Pelt",
+        "Moxie"
+      ],
+      "hidden": "Grassy Surge",
+      "catchRate": 230,
+      "baseFriendship": 50,
+      "baseExp": 55,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Field",
+        "Grass"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "HP": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Tackle"
+        },
+        {
+          "lv": "3",
+          "name": "Growl"
+        },
+        {
+          "lv": "5",
+          "name": "Absorb"
+        },
+        {
+          "lv": "7",
+          "name": "Bite"
+        },
+        {
+          "lv": "10",
+          "name": "Mega Drain"
+        },
+        {
+          "lv": "13",
+          "name": "Howl"
+        },
+        {
+          "lv": "16",
+          "name": "Bullet Seed"
+        },
+        {
+          "lv": "19",
+          "name": "Noble Roar"
+        },
+        {
+          "lv": "22",
+          "name": "Grassy Terrain"
+        },
+        {
+          "lv": "25",
+          "name": "Crunch"
+        },
+        {
+          "lv": "28",
+          "name": "Accelerock"
+        },
+        {
+          "lv": "33",
+          "name": "Giga Drain"
+        },
+        {
+          "lv": "36",
+          "name": "Seed Bomb"
+        },
+        {
+          "lv": "39",
+          "name": "Synthesis"
+        },
+        {
+          "lv": "42",
+          "name": "Cleansing Light"
+        },
+        {
+          "lv": "45",
+          "name": "Rock Slide"
+        },
+        {
+          "lv": "48",
+          "name": "Power Whip"
+        },
+        {
+          "lv": "51",
+          "name": "Grassy Glide"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Thunder Fang"
+        },
+        {
+          "lv": "EGG",
+          "name": "Autotomize"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Playful Scrufpup hoards rocks like treasure. Over time, they harden into rocky pads on its paws.",
+      "found": [],
+      "sourceSpecies": "SCRUFPUP",
+      "sourceArt": "SCRUFPUP",
+      "anomaly": null,
       "evo": {
         "to": "102"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "102",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Cyocotta",
+      "category": "Seam Break",
       "types": [
-        "NORMAL"
+        "GRASS",
+        "ROCK"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 90,
+        "ATK": 70,
+        "DEF": 80,
+        "SPE": 60,
+        "SPA": 70,
+        "SPD": 70
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "evo": {
-        "to": "103"
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Grass Pelt",
+        "Moxie"
+      ],
+      "hidden": "Grassy Surge",
+      "catchRate": 110,
+      "baseFriendship": 50,
+      "baseExp": 130,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Field",
+        "Grass"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
       },
-      "levelMoves": [],
+      "evYield": {
+        "HP": 1,
+        "DEF": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Scratch"
+        },
+        {
+          "lv": "1",
+          "name": "Growl"
+        },
+        {
+          "lv": "1",
+          "name": "Absorb"
+        },
+        {
+          "lv": "1",
+          "name": "Bite"
+        },
+        {
+          "lv": "10",
+          "name": "Mega Drain"
+        },
+        {
+          "lv": "13",
+          "name": "Howl"
+        },
+        {
+          "lv": "16",
+          "name": "Bullet Seed"
+        },
+        {
+          "lv": "19",
+          "name": "Noble Roar"
+        },
+        {
+          "lv": "22",
+          "name": "Grassy Terrain"
+        },
+        {
+          "lv": "25",
+          "name": "Crunch"
+        },
+        {
+          "lv": "28",
+          "name": "Accelerock"
+        },
+        {
+          "lv": "34",
+          "name": "Giga Drain"
+        },
+        {
+          "lv": "38",
+          "name": "Seed Bomb"
+        },
+        {
+          "lv": "41",
+          "name": "Synthesis"
+        },
+        {
+          "lv": "44",
+          "name": "Cleansing Light"
+        },
+        {
+          "lv": "48",
+          "name": "Rock Slide"
+        },
+        {
+          "lv": "51",
+          "name": "Power Whip"
+        },
+        {
+          "lv": "55",
+          "name": "Grassy Glide"
+        }
+      ],
       "eggMoves": [],
-      "tmMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Its rocky pads sharpen into talons. With a single swipe, its stone claws can crack massive rocks.",
+      "found": [],
+      "sourceSpecies": "CYOCOTTA",
+      "sourceArt": "CYOCOTTA",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "evo": {
+        "to": "103",
+        "from": "101",
+        "method": "Lv 30"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "103",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Dendrir",
+      "category": "Grove Titan",
       "types": [
-        "NORMAL"
+        "GRASS",
+        "ROCK"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 110,
+        "ATK": 85,
+        "DEF": 100,
+        "SPE": 75,
+        "SPA": 70,
+        "SPD": 80
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "levelMoves": [],
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Grass Pelt",
+        "Moxie"
+      ],
+      "hidden": "Grassy Surge",
+      "catchRate": 45,
+      "baseFriendship": 50,
+      "baseExp": 250,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Field",
+        "Grass"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "HP": 2,
+        "DEF": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Stone Edge"
+        },
+        {
+          "lv": "1",
+          "name": "Stone Edge"
+        },
+        {
+          "lv": "1",
+          "name": "Scratch"
+        },
+        {
+          "lv": "1",
+          "name": "Growl"
+        },
+        {
+          "lv": "1",
+          "name": "Absorb"
+        },
+        {
+          "lv": "1",
+          "name": "Bite"
+        },
+        {
+          "lv": "10",
+          "name": "Mega Drain"
+        },
+        {
+          "lv": "13",
+          "name": "Howl"
+        },
+        {
+          "lv": "16",
+          "name": "Bullet Seed"
+        },
+        {
+          "lv": "19",
+          "name": "Noble Roar"
+        },
+        {
+          "lv": "22",
+          "name": "Grassy Terrain"
+        },
+        {
+          "lv": "25",
+          "name": "Crunch"
+        },
+        {
+          "lv": "28",
+          "name": "Accelerock"
+        },
+        {
+          "lv": "34",
+          "name": "Giga Drain"
+        },
+        {
+          "lv": "38",
+          "name": "Seed Bomb"
+        },
+        {
+          "lv": "41",
+          "name": "Synthesis"
+        },
+        {
+          "lv": "44",
+          "name": "Cleansing Light"
+        },
+        {
+          "lv": "48",
+          "name": "Rock Slide"
+        },
+        {
+          "lv": "51",
+          "name": "Power Whip"
+        },
+        {
+          "lv": "55",
+          "name": "Grassy Glide"
+        }
+      ],
       "eggMoves": [],
-      "tmMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM08",
+          "name": "Bulldoze"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Forests guarded by Dendrir endure for centuries, as intruders soon fear the scrape of its claws across the earth.",
+      "found": [],
+      "sourceSpecies": "DENDRIR",
+      "sourceArt": "DENDRIR",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "evo": {
+        "from": "102",
+        "method": "Leaf Stone"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "104",
@@ -16726,118 +18372,1527 @@ window.VDEX = (function () {
       "tutorMoves": []
     },
     {
-      "dex": "113",
-      "name": "???",
-      "category": "Undiscovered",
+      "dex": "112",
+      "name": "SC0R-X30",
+      "category": "Beacon",
       "types": [
-        "NORMAL"
+        "ROCK",
+        "LIGHT"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 70,
+        "ATK": 109,
+        "DEF": 81,
+        "SPE": 70,
+        "SPA": 89,
+        "SPD": 81
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Clear Body",
+        "Analytic"
+      ],
+      "hidden": "Download",
+      "catchRate": 45,
+      "baseFriendship": 30,
+      "baseExp": 189,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Undiscovered"
+      ],
+      "eggCycles": 5120,
+      "gender": null,
+      "evYield": {
+        "ATK": 1,
+        "SPA": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Rewind Beam"
+        },
+        {
+          "lv": "1",
+          "name": "Rewind Beam"
+        },
+        {
+          "lv": "1",
+          "name": "Psycho Cut"
+        },
+        {
+          "lv": "1",
+          "name": "Solar Blade"
+        },
+        {
+          "lv": "1",
+          "name": "Hidden Power"
+        },
+        {
+          "lv": "1",
+          "name": "Harden"
+        },
+        {
+          "lv": "1",
+          "name": "Vise Grip"
+        },
+        {
+          "lv": "1",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "13",
+          "name": "Disable"
+        },
+        {
+          "lv": "16",
+          "name": "Wonder Room"
+        },
+        {
+          "lv": "21",
+          "name": "Ancient Power"
+        },
+        {
+          "lv": "24",
+          "name": "Light Sphere"
+        },
+        {
+          "lv": "29",
+          "name": "Imprison"
+        },
+        {
+          "lv": "32",
+          "name": "Rock Blast"
+        },
+        {
+          "lv": "37",
+          "name": "Recover"
+        },
+        {
+          "lv": "40",
+          "name": "Smite"
+        },
+        {
+          "lv": "45",
+          "name": "Sparkling Aegis"
+        },
+        {
+          "lv": "48",
+          "name": "Bright Blade"
+        },
+        {
+          "lv": "54",
+          "name": "Power Shift"
+        },
+        {
+          "lv": "60",
+          "name": "Guillotine"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM01",
+          "name": "Aerial Ace"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Little is known of SCOR‑X30. Researchers call it curious yet volatile, more living experiment than wild Pokémon.",
+      "found": [],
+      "sourceSpecies": "SC0RX30",
+      "sourceArt": "SC0RX30",
+      "anomaly": null,
+      "genderless": true,
+      "evo": {
+        "from": "111",
+        "method": "Level up holding Upgrade"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ],
+      "forms": [
+        {
+          "name": "Mega SC0R-X30",
+          "category": "Ancient Photon",
+          "types": [
+            "ROCK",
+            "LIGHT"
+          ],
+          "stats": {
+            "HP": 70,
+            "ATK": 99,
+            "DEF": 101,
+            "SPE": 80,
+            "SPA": 149,
+            "SPD": 101
+          },
+          "height": "Unknown",
+          "weight": "Unknown",
+          "abilities": [
+            "Filter"
+          ],
+          "hidden": "Filter",
+          "catchRate": 45,
+          "baseFriendship": 30,
+          "baseExp": 189,
+          "growthRate": "Slow",
+          "eggGroups": [
+            "Undiscovered"
+          ],
+          "eggCycles": 5120,
+          "gender": null,
+          "evYield": {
+            "ATK": 1,
+            "SPA": 1
+          },
+          "levelMoves": [
+            {
+              "lv": "0",
+              "name": "Rewind Beam"
+            },
+            {
+              "lv": "1",
+              "name": "Rewind Beam"
+            },
+            {
+              "lv": "1",
+              "name": "Psycho Cut"
+            },
+            {
+              "lv": "1",
+              "name": "Solar Blade"
+            },
+            {
+              "lv": "1",
+              "name": "Hidden Power"
+            },
+            {
+              "lv": "1",
+              "name": "Harden"
+            },
+            {
+              "lv": "1",
+              "name": "Vise Grip"
+            },
+            {
+              "lv": "1",
+              "name": "Revealing Light"
+            },
+            {
+              "lv": "13",
+              "name": "Disable"
+            },
+            {
+              "lv": "16",
+              "name": "Wonder Room"
+            },
+            {
+              "lv": "21",
+              "name": "Ancient Power"
+            },
+            {
+              "lv": "24",
+              "name": "Light Sphere"
+            },
+            {
+              "lv": "29",
+              "name": "Imprison"
+            },
+            {
+              "lv": "32",
+              "name": "Rock Blast"
+            },
+            {
+              "lv": "37",
+              "name": "Recover"
+            },
+            {
+              "lv": "40",
+              "name": "Smite"
+            },
+            {
+              "lv": "45",
+              "name": "Sparkling Aegis"
+            },
+            {
+              "lv": "48",
+              "name": "Bright Blade"
+            },
+            {
+              "lv": "54",
+              "name": "Power Shift"
+            },
+            {
+              "lv": "60",
+              "name": "Guillotine"
+            }
+          ],
+          "eggMoves": [],
+          "tmMoves": [
+            {
+              "lv": "TM04",
+              "name": "Work Up"
+            },
+            {
+              "lv": "TM01",
+              "name": "Aerial Ace"
+            },
+            {
+              "lv": "TM03",
+              "name": "Revealing Light"
+            },
+            {
+              "lv": "TM05",
+              "name": "Protect"
+            },
+            {
+              "lv": "TM14",
+              "name": "Rest"
+            },
+            {
+              "lv": "TM15",
+              "name": "Thunder Wave"
+            },
+            {
+              "lv": "TM02",
+              "name": "Double Team"
+            }
+          ],
+          "tutorMoves": [],
+          "flavor": "This ancient Pokémon has existed since dawn. Scientists failed to alter it, yet many believe it inspired human invention",
+          "spriteSuffix": "form-1",
+          "spriteVariants": [
+            {
+              "label": "F1",
+              "suffix": "form-1"
+            },
+            {
+              "label": "Back",
+              "suffix": "form-1-back"
+            },
+            {
+              "label": "Shiny F1",
+              "suffix": "form-1-shiny"
+            },
+            {
+              "label": "Shiny Back",
+              "suffix": "form-1-shiny-back"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dex": "113",
+      "name": "Radbit",
+      "category": "Shock Hop",
+      "types": [
+        "POISON",
+        "ELECTRIC"
+      ],
+      "stats": {
+        "HP": 60,
+        "ATK": 70,
+        "DEF": 30,
+        "SPE": 50,
+        "SPA": 60,
+        "SPD": 40
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Static",
+        "Poison Touch"
+      ],
+      "hidden": "Volt Absorb",
+      "catchRate": 250,
+      "baseFriendship": 50,
+      "baseExp": 65,
+      "growthRate": "Fast",
+      "eggGroups": [
+        "Water 1",
+        "Human-Like"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Smog"
+        },
+        {
+          "lv": "1",
+          "name": "Growl"
+        },
+        {
+          "lv": "5",
+          "name": "Poison Gas"
+        },
+        {
+          "lv": "9",
+          "name": "Nuzzle"
+        },
+        {
+          "lv": "15",
+          "name": "Acid Spray"
+        },
+        {
+          "lv": "20",
+          "name": "Spark"
+        },
+        {
+          "lv": "24",
+          "name": "Corrosive Gas"
+        },
+        {
+          "lv": "30",
+          "name": "Acid Armor"
+        },
+        {
+          "lv": "35",
+          "name": "Poison Jab"
+        },
+        {
+          "lv": "39",
+          "name": "Discharge"
+        },
+        {
+          "lv": "45",
+          "name": "Toxic Spikes"
+        },
+        {
+          "lv": "50",
+          "name": "Gamma Charge"
+        },
+        {
+          "lv": "54",
+          "name": "Gunk Shot"
+        },
+        {
+          "lv": "60",
+          "name": "Plasma Fists"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Ion Deluge"
+        },
+        {
+          "lv": "EGG",
+          "name": "Feint Attack"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM01",
+          "name": "Aerial Ace"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM09",
+          "name": "Thief"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Radbit channels both poison and electricity through their cheeks, it speeds past enemies by electrifying the field and poisoning opponents.",
+      "found": [],
+      "sourceSpecies": "RADBIT",
+      "sourceArt": "RADBIT",
+      "anomaly": null,
       "evo": {
         "to": "114"
       },
-      "levelMoves": [],
-      "eggMoves": [],
-      "tmMoves": [],
-      "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "114",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Raditoad",
+      "category": "Venom Dash",
       "types": [
-        "NORMAL"
+        "POISON",
+        "ELECTRIC"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 87,
+        "ATK": 120,
+        "DEF": 64,
+        "SPE": 78,
+        "SPA": 87,
+        "SPD": 74
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "levelMoves": [],
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Static",
+        "Poison Touch"
+      ],
+      "hidden": "Volt Absorb",
+      "catchRate": 70,
+      "baseFriendship": 50,
+      "baseExp": 170,
+      "growthRate": "Fast",
+      "eggGroups": [
+        "Water 1",
+        "Human-Like"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 2
+      },
+      "levelMoves": [
+        {
+          "lv": "0",
+          "name": "Poizap Dart"
+        },
+        {
+          "lv": "1",
+          "name": "Poizap Dart"
+        },
+        {
+          "lv": "1",
+          "name": "Smog"
+        },
+        {
+          "lv": "1",
+          "name": "Growl"
+        },
+        {
+          "lv": "1",
+          "name": "Poison Gas"
+        },
+        {
+          "lv": "1",
+          "name": "Nuzzle"
+        },
+        {
+          "lv": "15",
+          "name": "Acid Spray"
+        },
+        {
+          "lv": "20",
+          "name": "Spark"
+        },
+        {
+          "lv": "24",
+          "name": "Corrosive Gas"
+        },
+        {
+          "lv": "30",
+          "name": "Acid Armor"
+        },
+        {
+          "lv": "35",
+          "name": "Poison Jab"
+        },
+        {
+          "lv": "41",
+          "name": "Discharge"
+        },
+        {
+          "lv": "49",
+          "name": "Toxic Spikes"
+        },
+        {
+          "lv": "56",
+          "name": "Gamma Charge"
+        },
+        {
+          "lv": "62",
+          "name": "Gunk Shot"
+        },
+        {
+          "lv": "70",
+          "name": "Plasma Fists"
+        }
+      ],
       "eggMoves": [],
-      "tmMoves": [],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM01",
+          "name": "Aerial Ace"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM09",
+          "name": "Thief"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        },
+        {
+          "lv": "TM15",
+          "name": "Thunder Wave"
+        },
+        {
+          "lv": "TM16",
+          "name": "Low Sweep"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "Raditoad becomes so fast it you can barely see it move after it's run over 1000 miles, the only thing that remains is poisonous radiation and some sparks.",
+      "found": [],
+      "sourceSpecies": "RADITOAD",
+      "sourceArt": "RADITOAD",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "evo": {
+        "from": "113",
+        "method": "Lv 37"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back",
+        "anomaly",
+        "anomaly-f2",
+        "anomaly-back"
+      ]
     },
     {
       "dex": "115",
-      "name": "???",
-      "category": "Undiscovered",
+      "name": "Mimimite",
+      "category": "Disguise",
       "types": [
-        "NORMAL"
+        "GHOST",
+        "FAIRY"
       ],
-      "height": "???",
-      "weight": "???",
-      "catchRate": "???",
-      "found": [],
-      "abilities": [],
-      "hidden": null,
       "stats": {
-        "HP": 0,
-        "ATK": 0,
-        "DEF": 0,
-        "SPA": 0,
-        "SPD": 0,
-        "SPE": 0
+        "HP": 55,
+        "ATK": 90,
+        "DEF": 90,
+        "SPE": 76,
+        "SPA": 50,
+        "SPD": 115
       },
-      "flavor": "This Pokémon has not yet been catalogued in the VOIDDEX.",
-      "levelMoves": [],
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Disguise"
+      ],
+      "hidden": "Rocky Payload",
+      "catchRate": 45,
+      "baseFriendship": 50,
+      "baseExp": 167,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Amorphous"
+      ],
+      "eggCycles": 5120,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "SPD": 2
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Pound"
+        },
+        {
+          "lv": "1",
+          "name": "Splash"
+        },
+        {
+          "lv": "1",
+          "name": "Astonish"
+        },
+        {
+          "lv": "1",
+          "name": "Copycat"
+        },
+        {
+          "lv": "1",
+          "name": "Smack Down"
+        },
+        {
+          "lv": "6",
+          "name": "Aether Strike"
+        },
+        {
+          "lv": "12",
+          "name": "Double Team"
+        },
+        {
+          "lv": "18",
+          "name": "Shadow Sneak"
+        },
+        {
+          "lv": "24",
+          "name": "Mimic"
+        },
+        {
+          "lv": "30",
+          "name": "Sparkling Aegis"
+        },
+        {
+          "lv": "36",
+          "name": "Rock Slide"
+        },
+        {
+          "lv": "42",
+          "name": "Phantom Force"
+        },
+        {
+          "lv": "48",
+          "name": "Charm"
+        },
+        {
+          "lv": "54",
+          "name": "Play Rough"
+        },
+        {
+          "lv": "60",
+          "name": "Pain Split"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Grudge"
+        },
+        {
+          "lv": "EGG",
+          "name": "Wish"
+        }
+      ],
+      "tmMoves": [
+        {
+          "lv": "TM04",
+          "name": "Work Up"
+        },
+        {
+          "lv": "TM02",
+          "name": "Double Team"
+        },
+        {
+          "lv": "TM03",
+          "name": "Revealing Light"
+        },
+        {
+          "lv": "TM05",
+          "name": "Protect"
+        },
+        {
+          "lv": "TM07",
+          "name": "Confuse Ray"
+        },
+        {
+          "lv": "TM09",
+          "name": "Thief"
+        },
+        {
+          "lv": "TM14",
+          "name": "Rest"
+        }
+      ],
+      "tutorMoves": [],
+      "flavor": "No one knows where Mimimite came from. Some say it once wore another disguise, but copied Sedimite as its fame surged.",
+      "found": [],
+      "sourceSpecies": "MIMIMITE",
+      "sourceArt": "MIMIMITE",
+      "anomaly": null,
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
+    },
+    {
+      "dex": "116",
+      "name": "Prislect",
+      "category": "Prism Particle",
+      "types": [
+        "LIGHT"
+      ],
+      "stats": {
+        "HP": 48,
+        "ATK": 48,
+        "DEF": 48,
+        "SPE": 48,
+        "SPA": 48,
+        "SPD": 48
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Mirroring"
+      ],
+      "hidden": "Imposter",
+      "catchRate": 35,
+      "baseFriendship": 50,
+      "baseExp": 101,
+      "growthRate": "Medium",
+      "eggGroups": [
+        "Ditto"
+      ],
+      "eggCycles": 5120,
+      "gender": null,
+      "evYield": {
+        "HP": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Mimic"
+        },
+        {
+          "lv": "10",
+          "name": "Transform"
+        },
+        {
+          "lv": "20",
+          "name": "Copycat"
+        },
+        {
+          "lv": "30",
+          "name": "Psych Up"
+        },
+        {
+          "lv": "40",
+          "name": "Me First"
+        }
+      ],
       "eggMoves": [],
       "tmMoves": [],
+      "tutorMoves": [],
+      "flavor": "When several gather in one place, its said that the coloyrful fragments around its body shines brighter and responds to unseen energies.",
+      "found": [],
+      "sourceSpecies": "PRISLECT",
+      "sourceArt": "PRISLECT",
       "anomaly": null,
-      "undiscovered": true,
-      "evYield": {},
-      "baseFriendship": 0,
-      "baseExp": 0,
-      "growthRate": "???",
-      "eggGroups": [],
-      "gender": null,
-      "eggCycles": 0
+      "genderless": true,
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
+    },
+    {
+      "dex": "127",
+      "name": "Bancher",
+      "types": [
+        "FIGHTING"
+      ],
+      "stats": {
+        "HP": 58,
+        "ATK": 81,
+        "DEF": 52,
+        "SPE": 36,
+        "SPA": 45,
+        "SPD": 33
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Ball Fetch",
+        "Steadfast"
+      ],
+      "hidden": "Run Away",
+      "catchRate": 250,
+      "baseFriendship": 30,
+      "baseExp": 57,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Field"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Leer"
+        },
+        {
+          "lv": "4",
+          "name": "Rock Smash"
+        },
+        {
+          "lv": "7",
+          "name": "Rage"
+        },
+        {
+          "lv": "11",
+          "name": "Odor Sleuth"
+        },
+        {
+          "lv": "14",
+          "name": "Laser Focus"
+        },
+        {
+          "lv": "18",
+          "name": "Beat Up"
+        },
+        {
+          "lv": "21",
+          "name": "Low Sweep"
+        },
+        {
+          "lv": "25",
+          "name": "Swagger"
+        },
+        {
+          "lv": "28",
+          "name": "Take Down"
+        },
+        {
+          "lv": "32",
+          "name": "Bulk Up"
+        },
+        {
+          "lv": "35",
+          "name": "Heavy Slam"
+        },
+        {
+          "lv": "39",
+          "name": "Close Combat"
+        },
+        {
+          "lv": "42",
+          "name": "Foul Play"
+        },
+        {
+          "lv": "46",
+          "name": "Belly Drum"
+        },
+        {
+          "lv": "49",
+          "name": "Double-Edge"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Fling"
+        },
+        {
+          "lv": "EGG",
+          "name": "Superpower"
+        },
+        {
+          "lv": "EGG",
+          "name": "Endure"
+        }
+      ],
+      "tmMoves": [],
+      "tutorMoves": [],
+      "found": [],
+      "sourceSpecies": "BANCHER",
+      "sourceArt": "BANCHER",
+      "anomaly": null,
+      "evo": {
+        "to": "128"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
+    },
+    {
+      "dex": "128",
+      "name": "Tacklback",
+      "types": [
+        "FIGHTING"
+      ],
+      "stats": {
+        "HP": 78,
+        "ATK": 111,
+        "DEF": 67,
+        "SPE": 56,
+        "SPA": 55,
+        "SPD": 43
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Receiver",
+        "Steadfast"
+      ],
+      "hidden": "Sheer Force",
+      "catchRate": 125,
+      "baseFriendship": 30,
+      "baseExp": 143,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Field"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 2
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Leer"
+        },
+        {
+          "lv": "1",
+          "name": "Rock Smash"
+        },
+        {
+          "lv": "1",
+          "name": "Rage"
+        },
+        {
+          "lv": "1",
+          "name": "Odor Sleuth"
+        },
+        {
+          "lv": "14",
+          "name": "Laser Focus"
+        },
+        {
+          "lv": "18",
+          "name": "Beat Up"
+        },
+        {
+          "lv": "21",
+          "name": "Low Sweep"
+        },
+        {
+          "lv": "25",
+          "name": "Swagger"
+        },
+        {
+          "lv": "28",
+          "name": "Take Down"
+        },
+        {
+          "lv": "33",
+          "name": "Bulk Up"
+        },
+        {
+          "lv": "37",
+          "name": "Heavy Slam"
+        },
+        {
+          "lv": "42",
+          "name": "Close Combat"
+        },
+        {
+          "lv": "46",
+          "name": "Foul Play"
+        },
+        {
+          "lv": "51",
+          "name": "Belly Drum"
+        },
+        {
+          "lv": "55",
+          "name": "Double-Edge"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [],
+      "tutorMoves": [],
+      "found": [],
+      "sourceSpecies": "TACKLBACK",
+      "sourceArt": "TACKLBACK",
+      "anomaly": null,
+      "evo": {
+        "to": "129",
+        "from": "127",
+        "method": "Lv 30"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
+    },
+    {
+      "dex": "129",
+      "name": "Badgerback",
+      "types": [
+        "FIGHTING"
+      ],
+      "stats": {
+        "HP": 93,
+        "ATK": 151,
+        "DEF": 82,
+        "SPE": 61,
+        "SPA": 75,
+        "SPD": 53
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Receiver",
+        "Steadfast"
+      ],
+      "hidden": "Sheer Force",
+      "catchRate": 50,
+      "baseFriendship": 30,
+      "baseExp": 238,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Field"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 3
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Leer"
+        },
+        {
+          "lv": "1",
+          "name": "Rock Smash"
+        },
+        {
+          "lv": "1",
+          "name": "Rage"
+        },
+        {
+          "lv": "1",
+          "name": "Odor Sleuth"
+        },
+        {
+          "lv": "14",
+          "name": "Laser Focus"
+        },
+        {
+          "lv": "18",
+          "name": "Beat Up"
+        },
+        {
+          "lv": "21",
+          "name": "Low Sweep"
+        },
+        {
+          "lv": "25",
+          "name": "Swagger"
+        },
+        {
+          "lv": "28",
+          "name": "Take Down"
+        },
+        {
+          "lv": "33",
+          "name": "Bulk Up"
+        },
+        {
+          "lv": "37",
+          "name": "Heavy Slam"
+        },
+        {
+          "lv": "42",
+          "name": "Close Combat"
+        },
+        {
+          "lv": "47",
+          "name": "Foul Play"
+        },
+        {
+          "lv": "53",
+          "name": "Belly Drum"
+        },
+        {
+          "lv": "58",
+          "name": "Double-Edge"
+        },
+        {
+          "lv": "64",
+          "name": "Final Gambit"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [],
+      "tutorMoves": [],
+      "found": [],
+      "sourceSpecies": "BADGERBACK",
+      "sourceArt": "BADGERBACK",
+      "anomaly": null,
+      "evo": {
+        "from": "128",
+        "method": "Level up holding Protective Pads"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
+    },
+    {
+      "dex": "158",
+      "name": "Kraboil",
+      "category": "Stockpot",
+      "types": [
+        "FIRE",
+        "WATER"
+      ],
+      "stats": {
+        "HP": 57,
+        "ATK": 70,
+        "DEF": 36,
+        "SPE": 48,
+        "SPA": 57,
+        "SPD": 57
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Boiling Point",
+        "Hyper Cutter"
+      ],
+      "hidden": "Flame Body",
+      "catchRate": 200,
+      "baseFriendship": 50,
+      "baseExp": 65,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Water 3",
+        "Water 1"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 1
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Vise Grip"
+        },
+        {
+          "lv": "1",
+          "name": "Work Up"
+        },
+        {
+          "lv": "4",
+          "name": "Ember"
+        },
+        {
+          "lv": "8",
+          "name": "Mud Sport"
+        },
+        {
+          "lv": "12",
+          "name": "Brine"
+        },
+        {
+          "lv": "16",
+          "name": "Flame Wheel"
+        },
+        {
+          "lv": "20",
+          "name": "Mist"
+        },
+        {
+          "lv": "24",
+          "name": "Razor Shell"
+        },
+        {
+          "lv": "28",
+          "name": "Fire Punch"
+        },
+        {
+          "lv": "32",
+          "name": "Scald"
+        },
+        {
+          "lv": "36",
+          "name": "Soak"
+        },
+        {
+          "lv": "40",
+          "name": "Heat Crash"
+        },
+        {
+          "lv": "44",
+          "name": "Crabhammer"
+        },
+        {
+          "lv": "48",
+          "name": "Strange Steam"
+        }
+      ],
+      "eggMoves": [
+        {
+          "lv": "EGG",
+          "name": "Gastro Acid"
+        },
+        {
+          "lv": "EGG",
+          "name": "Muddy Water"
+        }
+      ],
+      "tmMoves": [],
+      "tutorMoves": [],
+      "flavor": "Kraboil stores bits of food inside the sack on its back. Pokemon often gather around it when food becomes scarce..",
+      "found": [],
+      "sourceSpecies": "KRABOIL",
+      "sourceArt": "KRABOIL",
+      "anomaly": null,
+      "evo": {
+        "to": "159"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
+    },
+    {
+      "dex": "159",
+      "name": "Boilking",
+      "category": "Feast Crab",
+      "types": [
+        "FIRE",
+        "WATER"
+      ],
+      "stats": {
+        "HP": 92,
+        "ATK": 110,
+        "DEF": 61,
+        "SPE": 58,
+        "SPA": 92,
+        "SPD": 92
+      },
+      "height": "Unknown",
+      "weight": "Unknown",
+      "abilities": [
+        "Boiling Point",
+        "Hyper Cutter"
+      ],
+      "hidden": "Flame Body",
+      "catchRate": 65,
+      "baseFriendship": 50,
+      "baseExp": 166,
+      "growthRate": "Slow",
+      "eggGroups": [
+        "Water 3",
+        "Water 1"
+      ],
+      "eggCycles": 3840,
+      "gender": {
+        "m": 50,
+        "f": 50
+      },
+      "evYield": {
+        "ATK": 2
+      },
+      "levelMoves": [
+        {
+          "lv": "1",
+          "name": "Vise Grip"
+        },
+        {
+          "lv": "1",
+          "name": "Work Up"
+        },
+        {
+          "lv": "1",
+          "name": "Ember"
+        },
+        {
+          "lv": "1",
+          "name": "Mud Sport"
+        },
+        {
+          "lv": "13",
+          "name": "Brine"
+        },
+        {
+          "lv": "18",
+          "name": "Flame Wheel"
+        },
+        {
+          "lv": "23",
+          "name": "Mist"
+        },
+        {
+          "lv": "28",
+          "name": "Razor Shell"
+        },
+        {
+          "lv": "33",
+          "name": "Fire Punch"
+        },
+        {
+          "lv": "38",
+          "name": "Scald"
+        },
+        {
+          "lv": "43",
+          "name": "Soak"
+        },
+        {
+          "lv": "48",
+          "name": "Heat Crash"
+        },
+        {
+          "lv": "53",
+          "name": "Crabhammer"
+        },
+        {
+          "lv": "58",
+          "name": "Strange Steam"
+        },
+        {
+          "lv": "63",
+          "name": "Steam Eruption"
+        }
+      ],
+      "eggMoves": [],
+      "tmMoves": [],
+      "tutorMoves": [],
+      "flavor": "Boilking carries enough food on its back to last for weeks. It is known for sharing its food rather than hoarding it.",
+      "found": [],
+      "sourceSpecies": "BOILKING",
+      "sourceArt": "BOILKING",
+      "anomaly": null,
+      "evo": {
+        "from": "158",
+        "method": "Special evolution"
+      },
+      "availableSprites": [
+        "",
+        "f2",
+        "back",
+        "shiny",
+        "shiny-f2",
+        "shiny-back"
+      ]
     }
   ];
 
-  const canonicalDex = n => String(n).toUpperCase() === '053' ? '053B' : String(n).toUpperCase();
+  const canonicalDex = n => ({ '024': '024A', '053': '053B' }[String(n).toUpperCase()] || String(n).toUpperCase());
   const byDex = n => DEX.find(d => d.dex === canonicalDex(n));
-  const FORM_SHARE_IDS = { '053A': 1053, '053B': 1054, '053C': 1055 };
+  const FORM_SHARE_IDS = { '024A': 24, '024B': 1024, '053A': 1053, '053B': 1054, '053C': 1055 };
   const dexToNumber = n => FORM_SHARE_IDS[canonicalDex(n)] || Number(n);
   const numberToDex = n => Object.keys(FORM_SHARE_IDS).find(k => FORM_SHARE_IDS[k] === n) || canonicalDex(String(n).padStart(3, '0'));
 

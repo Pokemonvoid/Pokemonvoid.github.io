@@ -9,8 +9,8 @@
     old version" problem.
 
   Why cache-first for sprites/images:
-    Image files never change once added (a new sprite is a new filename), so
-    serving them from cache is safe and makes the app feel instant offline.
+    Images are cached within each release for fast repeat visits. When artwork
+    changes at an existing filename, bump CACHE_VERSION to replace old images.
 
   To force every client to drop old caches after a deploy, bump CACHE_VERSION.
   You do NOT need to do this for normal content updates (network-first handles
@@ -18,7 +18,7 @@
   itself or want to guarantee a hard cache reset.
 */
 
-const CACHE_VERSION = 'voiddex-chapter1-data-v3';
+const CACHE_VERSION = 'voiddex-chapter1-release-v6';
 const APP_CACHE = CACHE_VERSION + '-app';
 const IMG_CACHE = CACHE_VERSION + '-img';
 
@@ -31,6 +31,19 @@ const PRECACHE_URLS = [
   './manifest.json',
   './data.js',
   './sprites/manifest.json',
+  './wiki/data-region.js',
+  './wiki/view-region.jsx',
+  './wiki/map-gestures.js',
+  './wiki/player-assets.js',
+  './wiki/player-renderer.js',
+  './wiki/player-card.jsx',
+  './wiki/player-card.css',
+  './wiki/data-systems.js',
+  './wiki/view-systems.jsx',
+  './wiki/systems.css',
+  './wiki/data-devlog.js',
+  './wiki/view-devlog.jsx',
+  './wiki/devlog.css',
   './wiki/data-dex.js',
   './wiki/data-game.js',
   './wiki/ui.jsx',
@@ -45,7 +58,8 @@ const PRECACHE_URLS = [
   './wiki/view-compare.jsx',
   './wiki/view-living.jsx',
   './wiki/view-nuzlocke.jsx',
-  './wiki/view-riddles.jsx',
+  './wiki/nuzlocke-rules.js',
+  './wiki/nuzlocke.css',
   './wiki/view-damage.jsx'
 ];
 

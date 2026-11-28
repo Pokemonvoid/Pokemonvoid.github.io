@@ -118,6 +118,10 @@
     input, select, textarea { font-size: 16px !important; } /* stops iOS auto-zoom on focus */
   }
 </style>
+<link rel="stylesheet" href="wiki/player-card.css" />
+<link rel="stylesheet" href="wiki/systems.css" />
+<link rel="stylesheet" href="wiki/devlog.css" />
+<link rel="stylesheet" href="wiki/nuzlocke.css" />
 </head>
 <body>
 <div id="bg"></div>
@@ -130,6 +134,9 @@
 <script src="wiki/data-dex.js"></script>
 <script src="wiki/data-game.js"></script>
 <script src="wiki/data-devlog.js"></script>
+<script src="wiki/data-systems.js"></script>
+<script type="text/babel" src="wiki/view-systems.jsx"></script>
+<script src="wiki/map-gestures.js"></script>
 <script type="text/babel" src="wiki/ui.jsx"></script>
 <script type="text/babel" src="wiki/view-pokedex.jsx"></script>
 <script type="text/babel" src="wiki/view-devlog.jsx"></script>
@@ -138,13 +145,18 @@
 <script type="text/babel" src="wiki/view-abilities.jsx"></script>
 <script type="text/babel" src="wiki/view-items.jsx"></script>
 <script type="text/babel" src="wiki/view-routes.jsx"></script>
+<script src="wiki/data-region.js"></script>
+<script type="text/babel" src="wiki/view-region.jsx"></script>
 <!-- <script type="text/babel" src="wiki/view-trainers.jsx"></script> -->
 <script type="text/babel" src="wiki/view-types.jsx"></script>
-<script type="text/babel" src="wiki/view-team.jsx"></script>
+<script src="wiki/player-assets.js"></script>
+<script src="wiki/player-renderer.js"></script>
+<script type="text/babel" src="wiki/player-card.jsx"></script>
 <script type="text/babel" src="wiki/view-compare.jsx"></script>
 <script type="text/babel" src="wiki/view-living.jsx"></script>
+<script src="wiki/nuzlocke-rules.js"></script>
 <script type="text/babel" src="wiki/view-nuzlocke.jsx"></script>
-<script type="text/babel" src="wiki/view-riddles.jsx"></script>
+
 <script type="text/babel" src="wiki/view-damage.jsx"></script>
 
 <script type="text/babel">
@@ -174,6 +186,7 @@
       case 'pokemon': content = <V.Detail param={param} />; break;
       case 'moves': content = <V.Moves param={param} />; break;
       case 'abilities': content = <V.Abilities />; break;
+      case 'systems': content = <V.Systems param={param} />; break;
       case 'guide': content = <section><PageHead kicker="WALKTHROUGH" title="Guide—Coming Soon" sub="We're updating the guide for the revamped Chapter 1 story. Check back soon." /></section>; break;
       case 'devlog': content = <V.DevLog />; break;
       case 'items': content = <V.Items />; break;
@@ -186,7 +199,7 @@
       case 'compare': content = <V.Compare />; break;
       case 'living': content = <V.Living />; break;
       case 'nuzlocke': content = <V.Nuzlocke />; break;
-      case 'riddles': content = <V.Riddles />; break;
+
       case 'pokedex':
       default: content = <V.Pokedex query={query} />;
     }
@@ -197,11 +210,11 @@
         <main className="v-main" style={{ maxWidth: 1240, margin: '0 auto', padding: '32px 24px 80px' }}>{content}</main>
         <footer style={{ maxWidth: 1240, margin: '0 auto', padding: '24px', borderTop: '1px solid #1d1838', color: '#5f5980', fontFamily: "'Space Mono', monospace", fontSize: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
           <span style={{ maxWidth: 720, lineHeight: 1.6 }}>
-            <strong onClick={() => { window.location.hash = '#/riddles'; }} style={{ color: '#8a5cff', letterSpacing: 0.5, cursor: 'pointer' }}>VOIDDEX</strong> — an official wiki for <em>Pokémon Void</em>.
+            <strong style={{ color: '#8a5cff', letterSpacing: 0.5 }}>VOIDDEX</strong> — an official wiki for <em>Pokémon Void</em>.
             <span style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
               <a href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#c7d0ff', background: '#5865F21a', border: '1px solid #5865F255', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>💬 Official Discord</a>
               <a href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#ffc7c7', background: '#ff00001a', border: '1px solid #ff000055', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>▶ Pokédex Fillers</a>
-              <a href="https://github.com/Pokemonvoid/Pokemonvoid.github.io/releases/download/v0.1.5/v0.1.5.zip" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#d8c7ff', background: '#8a5cff1a', border: '1px solid #8a5cff55', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>⬇ Download Latest (v0.1.5)</a>
+              <a href="https://github.com/Pokemonvoid/Pokemonvoid.github.io/releases/download/v1.0.0/Pokemon.Void.Part.1.REDUX.-.1.0.0.zip" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 8, textDecoration: 'none', color: '#d8c7ff', background: '#8a5cff1a', border: '1px solid #8a5cff55', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600 }}>⬇ Download Latest (v1.0.0)</a>
             </span>
             <span style={{ display: 'block', marginTop: 8, fontSize: 11, color: '#5f5980' }}>Download uses tight encryption — your browser may show a false virus warning, which is safe to ignore.</span>
           </span>
@@ -213,7 +226,7 @@
 
   // Load sprite manifest (lists dex numbers that have a sprites/<dex>.png) so we
   // only request images that exist — keeps the console clean until art is added.
-  fetch('sprites/manifest.json', { cache: 'no-store' })
+  fetch('sprites/manifest.json')
     .then(r => r.ok ? r.json() : [])
     .catch(() => [])
     .then(list => {
@@ -225,7 +238,7 @@
 <script>
   // PWA: register the service worker. Wrapped in checks so it never breaks the
   // site if the browser does not support it (or on file:// during local testing).
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('sw.js').catch(function (err) {
         console.warn('Service worker registration failed:', err);

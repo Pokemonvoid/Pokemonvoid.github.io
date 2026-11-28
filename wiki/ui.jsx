@@ -44,7 +44,7 @@
           <div style={{
             position: 'relative', zIndex: 2, width: '72%', height: '72%', borderRadius: 8,
             border: `1px dashed ${accent}66`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            textAlign: 'center', color: '#7b6fb8', fontFamily: "'Space Mono', monospace", fontSize: Math.max(8, size / 13), lineHeight: 1.5,
+            textAlign: 'center', color: '#7b6fb8', fontFamily: "'Space Mono', monospace", fontSize: Math.max(8, typeof size === 'number' ? size / 13 : 8), lineHeight: 1.5,
             background: 'repeating-linear-gradient(45deg, #14112a, #14112a 6px, #181433 6px, #181433 12px)',
           }}>{label || 'SPRITE'}</div>
         )}
@@ -163,9 +163,9 @@
 
   // ---- Nav bar -----------------------------------------------------------
   const NAV = [
-    ['Pokédex', '#/pokedex'], ['Guide—Coming Soon', '#/guide'], ['Dev Log', '#/devlog'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
-    ['Items', '#/items'], ['Locations', '#/locations'],
-    ['Type Calculator', '#/types'], ['Team Builder', '#/team'],
+    ['Pokédex', '#/pokedex'], ['Void Systems', '#/systems'], ['Dev Log', '#/devlog'], ['Moves', '#/moves'], ['Abilities', '#/abilities'],
+    ['Items', '#/items'], ['Interactable Map', '#/locations'],
+    ['Trainer Card', '#/team'], ['Type Calculator', '#/types'],
     ['Compare', '#/compare'],
     ['Living Dex', '#/living'],
     ['Damage Calculator', '#/damage'], ['Nuzlocke Randomizer', '#/nuzlocke'],
@@ -187,6 +187,20 @@
           .vnav-active { color: #fff; font-weight: 600; background: linear-gradient(135deg, #322663, #1d1542); border-color: #6a52c0; animation: vnavPulse 3.2s ease-in-out infinite; }
           .vnav-active::after { transform: scaleX(1); }
           .vnav-active::before { content: '✦'; position: absolute; top: 3px; right: 6px; font-size: 7px; color: #d8c0ff; opacity: 0; animation: vnavTwinkle 2.4s ease-in-out infinite; }
+          .vnav-link.vnav-trainer {
+            color: #baffee; font-weight: 600; border-color: #278c7b;
+            background: linear-gradient(135deg, #16443f, #0c2928);
+            box-shadow: 0 0 16px #35d8b947, inset 0 0 12px #42dab51a;
+            animation: none;
+          }
+          .vnav-link.vnav-trainer::before,
+          .vnav-link.vnav-trainer::after { display: none; }
+          .vnav-link.vnav-trainer:hover {
+            color: #d8fff5; border-color: #4fc4a9;
+            background: linear-gradient(135deg, #1a5148, #103832);
+            box-shadow: 0 0 20px #35d8b95c, inset 0 0 12px #42dab526;
+          }
+          .vnav-trainer.vnav-active { border-color: #329f89; }
           .vsocial { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid #2a2545; background: #15112a; color: #b9b2d6; text-decoration: none; transition: all .16s ease; }
           .vsocial:hover { transform: translateY(-1px); }
           .vsocial.discord:hover { color: #fff; background: #5865F2; border-color: #5865F2; box-shadow: 0 0 14px #5865F277; }
@@ -223,12 +237,12 @@
             <div className="v-navright" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <a className="vsocial discord" href="https://discord.gg/pkmnvoid" target="_blank" rel="noopener noreferrer" title="Official Discord">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.198.352-.43.83-.59 1.207a18.27 18.27 0 0 0-5.93 0A12.6 12.6 0 0 0 9.44 3 19.74 19.74 0 0 0 5.677 4.37C2.79 8.62 2.01 12.75 2.4 16.82a19.95 19.95 0 0 0 5.99 3.03c.48-.66.91-1.36 1.28-2.1-.7-.26-1.37-.59-2-.98.17-.12.33-.25.49-.38 3.86 1.8 8.03 1.8 11.84 0 .16.13.32.26.49.38-.64.39-1.31.72-2.01.98.37.74.8 1.44 1.28 2.1a19.9 19.9 0 0 0 5.99-3.03c.46-4.71-.78-8.8-3.3-12.45ZM9.68 14.32c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Zm4.64 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.09 2.15 2.42 0 1.33-.94 2.41-2.15 2.41Z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" style={{ display: 'block', flexShrink: 0 }}><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.445.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.175 1.095 2.156 2.42 0 1.333-.955 2.418-2.156 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.175 1.095 2.156 2.42 0 1.333-.946 2.418-2.156 2.418z"/></svg>
                 </a>
                 <a className="vsocial youtube" href="https://www.youtube.com/@pokedexfillers" target="_blank" rel="noopener noreferrer" title="Pokédex Fillers on YouTube">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>
                 </a>
-                <a className="vsocial download" href="https://github.com/Pokemonvoid/Pokemonvoid.github.io/releases/download/v0.1.5/v0.1.5.zip" target="_blank" rel="noopener noreferrer" title="Download Pokémon Void (latest)">
+                <a className="vsocial download" href="https://github.com/Pokemonvoid/Pokemonvoid.github.io/releases/download/v1.0.0/Pokemon.Void.Part.1.REDUX.-.1.0.0.zip" target="_blank" rel="noopener noreferrer" title="Download Pokémon Void (latest)">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
               </div>
@@ -246,7 +260,7 @@
                 {group.map(([n, h]) => h === '#/guide' ? (
                   <span key={h} className="vnav-link vnav-disabled" role="link" aria-disabled="true" title="The guide is being updated for the new story.">{n}</span>
                 ) : (
-                  <a key={h} href={h} aria-current={active(h) ? 'page' : undefined} className={'vnav-link' + (active(h) ? ' vnav-active' : '')}>{n}</a>
+                  <a key={h} href={h} aria-current={active(h) ? 'page' : undefined} className={'vnav-link' + (h === '#/team' ? ' vnav-trainer' : '') + (active(h) ? ' vnav-active' : '')}>{n}</a>
                 ))}
               </div>
             ))}

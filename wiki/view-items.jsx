@@ -86,51 +86,50 @@ window.VIEWS = window.VIEWS || {};
     );
   }
 
+
+  const POCKETS = ['Poké Balls', 'Medicines', 'Battle Items', 'Held Items', 'Berries', 'Evolution Items', 'Other Items', 'TMs', 'Fossils', 'Treasures', 'Mail', 'Key Items'];
   window.VIEWS.Items = function Items() {
     const [q, setQ] = React.useState('');
-    const [cat, setCat] = React.useState('All');
-    const cats = ['All', ...Array.from(new Set(ITEMS.map(i => i.cat)))];
-    const list = ITEMS.filter(i => (cat === 'All' || i.cat === cat) && (!q.trim() || i.name.toLowerCase().includes(q.trim().toLowerCase())));
-
-    return (
-      <div>
-        <PageHead kicker="ITEM BAG" title="Items" sub="Evolution stones, battle items, berries, and the tools you'll need to survive the descent into the Nullspace Rift." />
-
-        <div style={{ display: 'flex', gap: 14, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 13px', borderRadius: 8, background: '#15112a', border: '1px solid #2a2545', minWidth: 220 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6a6388" strokeWidth="1.6"><circle cx="6" cy="6" r="4.2" /><path d="M9.5 9.5L13 13" strokeLinecap="round" /></svg>
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search items…" spellCheck={false} style={{ border: 'none', outline: 'none', background: 'transparent', color: '#e9e4ff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, width: '100%' }} />
-          </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {cats.map(c => (
-              <button key={c} onClick={() => setCat(c)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 7, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: cat === c ? 600 : 400, color: cat === c ? '#fff' : '#8a83a8', background: cat === c ? '#221a45' : 'transparent', border: `1px solid ${cat === c ? '#3a2f6e' : '#221d3a'}` }}>{c}</button>
-            ))}
-          </div>
-        </div>
-
-        {list.length === 0 ? <Empty label="No items match." /> : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-            {list.map(it => {
-              const col = CAT_COLOR[it.cat] || '#8a5cff';
-              return (
-                <div key={it.name} style={{ display: 'flex', gap: 14, padding: 16, borderRadius: 14, background: '#0e0b1f', border: '1px solid #221d3a' }}>
-                  <ItemIcon item={it} color={col} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                      <span style={{ fontFamily: "'Pixelify Sans', sans-serif", fontWeight: 700, fontSize: 18, color: '#fff' }}>{it.name}</span>
-                      <span style={{ fontFamily: "'Silkscreen', monospace", fontSize: 8, color: col, border: `1px solid ${col}55`, borderRadius: 4, padding: '2px 6px' }}>{it.cat.toUpperCase()}</span>
-                    </div>
-                    <p style={{ margin: '0 0 8px', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13.5, color: '#bdb6dd', lineHeight: 1.5 }}>{it.desc}</p>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#6a6388' }}>◷ {it.find}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <PickupChart />
+    const [pocket, setPocket] = React.useState('Poké Balls');
+    const [pickup, setPickup] = React.useState(false);
+    const pockets = ['All items', ...POCKETS.filter(name => ITEMS.some(item => item.cat === name))];
+    const search = q.trim().toLowerCase();
+    const matches = item => !search || [item.name, item.desc, item.move || ''].some(text => text.toLowerCase().includes(search));
+    const list = ITEMS.filter(item => (pocket === 'All items' || item.cat === pocket) && matches(item)).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+    return <div>
+      <PageHead kicker="ITEM BAG" title="Your bag" sub="Choose a pocket to browse Void’s items." />
+      <style>{`
+        .bag-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 24px; align-items: start; }
+        .bag-pockets { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid #302847; border-radius: 14px; background: #100d20; }
+        .bag-pocket { display: flex; justify-content: space-between; gap: 14px; padding: 13px 12px; border: 1px solid transparent; border-radius: 8px; color: #a99fc3; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+        .bag-pocket[aria-pressed=true] { background: #292041; border-color: #78609e; color: #f3e9ff; }
+        .bag-pocket:hover { background: #221a37; color: #fff; }
+        .bag-pocket small { color: #b49bcf; }
+        .bag-content { min-width: 0; }
+        .bag-search { width: 100%; padding: 13px 15px; margin-bottom: 16px; border-radius: 9px; border: 1px solid #3a2b51; background: #171123; color: #eee6ff; font: inherit; box-sizing: border-box; }
+        .bag-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+        .bag-heading h2 { font-family: 'Pixelify Sans'; font-size: 28px; margin: 0; }
+        .bag-heading span { color: #a699bb; font-size: 12px; }
+        .bag-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
+        .bag-item { display: flex; gap: 14px; padding: 18px; border: 1px solid #29203d; background: #100c1e; border-radius: 12px; }
+        .bag-item h3 { font-family: 'Pixelify Sans'; font-size: 20px; color: #f3edff; margin: 0 0 8px; }
+        .bag-item p { color: #bdb3d2; font-size: 13px; line-height: 1.6; margin: 0; }
+        .bag-pocket:focus-visible, .bag-search:focus-visible { outline: 2px solid #c5a7ef; outline-offset: 2px; }
+        @media(max-width: 760px) { .bag-layout { grid-template-columns: 1fr; } .bag-pockets { flex-direction: row; overflow-x: auto; } .bag-pocket { flex: 0 0 auto; } }
+      `}</style>
+      <div className="bag-layout">
+        <nav className="bag-pockets" aria-label="Bag pockets">{pockets.map(name => <button className="bag-pocket" key={name} aria-pressed={!pickup && pocket === name} onClick={() => {setPocket(name); setPickup(false);}}><span>{name}</span><small>{ITEMS.filter(item => (name === 'All items' || item.cat === name) && matches(item)).length}</small></button>)}<button className="bag-pocket" aria-pressed={pickup} onClick={() => setPickup(true)}>Pickup chart</button></nav>
+        <section className="bag-content" aria-label={pickup ? 'Pickup chart' : pocket}>
+          {pickup ? <PickupChart /> : <>
+            <input className="bag-search" aria-label="Search bag" placeholder="Search the bag…" value={q} onChange={event => setQ(event.target.value)} />
+            <div className="bag-heading"><h2>{pocket}</h2><span>{list.length} items</span></div>
+            {list.length ? <div className="bag-items">{list.map(item => <article className="bag-item" key={item.id || item.name}>
+              <ItemIcon item={item} color={CAT_COLOR[item.cat] || '#ad8de0'} />
+              <div><h3>{item.name}</h3><p>{item.desc}</p>{item.move && <p>Teaches {item.move}</p>}{item.find && <p>{item.find}</p>}</div>
+            </article>)}</div> : <Empty label="No matches in this pocket. Check the counts beside the other pockets." />}
+          </>}
+        </section>
       </div>
-    );
+    </div>;
   };
 })();

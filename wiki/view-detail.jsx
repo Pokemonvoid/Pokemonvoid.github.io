@@ -255,8 +255,8 @@ window.VIEWS = window.VIEWS || {};
   }
 
   const MALE = '#5aa9ff', FEMALE = '#ff7fc4';
-  const Male = ({ children }) => <span style={{ color: MALE, fontWeight: 700 }}>♂{children ? ' ' + children : ''}</span>;
-  const Female = ({ children }) => <span style={{ color: FEMALE, fontWeight: 700 }}>♀{children ? ' ' + children : ''}</span>;
+  const Male = ({ children }) => <span style={{ color: MALE, fontWeight: 700 }}>♂{children ? <> {children}</> : null}</span>;
+  const Female = ({ children }) => <span style={{ color: FEMALE, fontWeight: 700 }}>♀{children ? <> {children}</> : null}</span>;
   function formatGender(d) {
     if (d.genderless) return 'Genderless';
     if (!d.gender) return <span><Male>50%</Male>{'  '}<Female>50%</Female></span>;
@@ -298,7 +298,7 @@ window.VIEWS = window.VIEWS || {};
       <div style={{ marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid #1d1838' }}>
         <H3>SPRITE GALLERY</H3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 14 }}>
-          {VARIANTS.map(v => {
+          {VARIANTS.filter(v => !d.availableSprites || d.availableSprites.some(s => v.prefix ? s.startsWith(v.prefix) : !s.startsWith('shiny') && !s.startsWith('anomaly'))).map(v => {
             const isAnomaly = v.key === 'anomaly';
             const locked = isAnomaly && !anomalyRevealed;
             return (
@@ -310,7 +310,7 @@ window.VIEWS = window.VIEWS || {};
                 </div>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'center', filter: locked ? 'blur(7px) brightness(0.5)' : 'none', userSelect: locked ? 'none' : 'auto' }}>
-                    {FRAMES.map(f => {
+                    {isAnomaly && d.anomaly?.artPending ? <p style={{color:'#a99bbb',fontSize:13}}>Artwork coming soon</p> : FRAMES.filter(f => !d.availableSprites || d.availableSprites.includes(sfx(v.prefix, f.suffix) || '')).map(f => {
                       const suffix = sfx(v.prefix, f.suffix);
                       const clickable = !locked && onPreview;
                       return (
@@ -546,7 +546,7 @@ window.VIEWS = window.VIEWS || {};
                 const routeNames = new Set(foundRoutes.map(r => r.name));
                 const extras = (d.found || []).filter(f => typeof f === 'string' && !routeNames.has(f));
                 if (foundRoutes.length === 0 && extras.length === 0) {
-                  return <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#6a6388' }}>Not found in the wild.</div>;
+                  return <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: '#6a6388' }}>Encounter location not yet listed.</div>;
                 }
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
